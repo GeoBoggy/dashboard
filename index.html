@@ -496,6 +496,11 @@ function addTask(){
   input.value='';
   renderTasks();
   saveData();
+  // Créer l'événement dans Google Calendar
+  fetch(AGENDA_URL, {
+    method:'POST',
+    body:JSON.stringify({title:text})
+  }).then(()=>setTimeout(loadAgenda, 2000)).catch(()=>{});
 }
 
 function toggleTask(i){
