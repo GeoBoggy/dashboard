@@ -150,7 +150,17 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       </div>
     </div>
   </div>
-</div>
+  <!-- TÂCHES URGENTES -->
+  <div class="card" style="margin-top:.75rem">
+    <div style="padding:.7rem .9rem .4rem">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.6rem">⚡ Urgent &amp; Important</div>
+      <div id="task-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:.6rem"></div>
+      <div style="display:flex;gap:6px">
+        <input id="task-input" type="text" placeholder="Ajouter une tâche..." style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none" onkeydown="if(event.key==='Enter')addTask()">
+        <button onclick="addTask()" style="font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500">+</button>
+      </div>
+    </div>
+  </div>
 
 <div class="page pg-corps">
   <div class="page-title">Corps &amp; santé</div>
@@ -420,6 +430,7 @@ function applyState(){
   document.querySelectorAll('[data-key]').forEach(el=>{if(state[el.dataset.key])el.value=state[el.dataset.key];});
   if(state.mood)document.querySelectorAll('.mood-btn').forEach(b=>{if(b.textContent===state.mood)b.classList.add('sel');});
   if(state.affirm_ok)document.getElementById('affirm-val').classList.add('active');
+  renderTasks();
   updateScore();
 }
 
@@ -459,8 +470,47 @@ function updateScore(){
 const wr=document.getElementById('water-ring');
 wr.style.strokeDasharray=CIRC;
 wr.style.strokeDashoffset=CIRC;
+renderTasks();
 
-// Agenda - Google Apps Script
+// TÂCHES URGENTES
+function renderTasks(){
+  const list=document.getElementById('task-list');
+  const tasks=state.tasks||[];
+  if(!tasks.length){list.innerHTML='<div style="font-size:12px;color:#B0AA9E;text-align:center;padding:4px 0">Aucune tâche urgente</div>';return;}
+  list.innerHTML=tasks.map((t,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #F0EDE6">
+      <div onclick="toggleTask(${i})" style="width:20px;height:20px;border-radius:50%;border:1.5px solid ${t.done?'#2D6A4F':'#E2DDD4'};background:${t.done?'#2D6A4F':'transparent'};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        ${t.done?'<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+      </div>
+      <span style="flex:1;font-size:13px;color:${t.done?'#B0AA9E':'#1A1814'};text-decoration:${t.done?'line-through':'none'}">${t.text}</span>
+      <div onclick="deleteTask(${i})" style="font-size:16px;color:#E2DDD4;cursor:pointer;padding:0 2px">×</div>
+    </div>`).join('');
+}
+
+function addTask(){
+  const input=document.getElementById('task-input');
+  const text=input.value.trim();
+  if(!text)return;
+  if(!state.tasks)state.tasks=[];
+  state.tasks.push({text,done:false});
+  input.value='';
+  renderTasks();
+  saveData();
+}
+
+function toggleTask(i){
+  if(!state.tasks)return;
+  state.tasks[i].done=!state.tasks[i].done;
+  renderTasks();
+  saveData();
+}
+
+function deleteTask(i){
+  if(!state.tasks)return;
+  state.tasks.splice(i,1);
+  renderTasks();
+  saveData();
+}
 const AGENDA_URL = 'https://script.google.com/macros/s/AKfycbzY9K_Li_iZ9czdB-gROFfssH7FAMZxlf-S7YHav5l-BCVgXtSaN6mZvjhL9XEJB38Tow/exec';
 
 function formatDate(d){
