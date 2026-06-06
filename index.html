@@ -131,10 +131,12 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'duolingo')" data-field="duolingo">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><svg viewBox="0 0 24 24"><use href="#ic-chat"/></svg></div></div>
       <span class="tile-lbl">Duolingo</span>
+      <a href="duolingo://" target="_blank" onclick="event.stopPropagation();setTimeout(()=>window.location.href='https://www.duolingo.com',500)" style="font-size:10px;color:rgba(255,255,255,.7);text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Ouvrir</a>
     </div>
     <div class="tile" onclick="tgl(this,'journal_matin')" data-field="journal_matin">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><svg viewBox="0 0 24 24"><use href="#ic-notebook"/></svg></div></div>
       <span class="tile-lbl">Journal</span>
+      <a href="https://www.canva.com/design/DAHFw9aJv-o/3dyQSFoUtNXz_uOVxTYm_Q/edit" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.7);text-decoration:none;border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Ouvrir</a>
     </div>
     <div class="tile" onclick="tgl(this,'couple')" data-field="couple">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg></div></div>
@@ -170,10 +172,13 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><svg viewBox="0 0 24 24"><use href="#ic-no-smoke"/></svg></div></div>
       <span class="tile-lbl">Cigarette refusée</span>
       <span class="smoke-day" id="smoke-day"></span>
+      <span onclick="event.stopPropagation();resetSmoke()" style="font-size:18px;cursor:pointer;margin-top:-2px" title="Recommencer à zéro">😔</span>
     </div>
     <div class="tile" onclick="tgl(this,'verre')" data-field="verre">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><svg viewBox="0 0 24 24"><use href="#ic-glass"/></svg></div></div>
       <span class="tile-lbl">Verre refusé</span>
+      <span class="smoke-day" id="verre-day"></span>
+      <span onclick="event.stopPropagation();resetVerre()" style="font-size:18px;cursor:pointer;margin-top:-2px" title="J'ai craqué">🤷</span>
     </div>
     <div class="tile" id="water-tile" onclick="addWater()" data-field="water">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" id="water-ring" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><div class="water-inner"><span class="water-num" id="water-n">0</span><span class="water-sub">/ 8</span></div></div></div>
@@ -345,9 +350,29 @@ const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août'
 document.getElementById('hdr-day').textContent=DAYS[now.getDay()];
 document.getElementById('hdr-date').textContent=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
 
-// Smoke days
-const sd=Math.max(0,Math.floor((now-new Date('2025-06-01'))/864e5));
-document.getElementById('smoke-day').textContent='Jour '+sd+' sans fumer';
+// Smoke days - date stockée dans state
+function updateSmokeDisplay(){
+  const startDate = state.smoke_start || '2025-06-06';
+  const sd = Math.max(0, Math.floor((new Date() - new Date(startDate)) / 864e5));
+  document.getElementById('smoke-day').textContent = 'Jour ' + sd + ' sans fumer';
+}
+function resetSmoke(){
+  if(!confirm('Tu as craqué ? Le compteur repart à zéro.')) return;
+  state.smoke_start = TODAY;
+  updateSmokeDisplay();
+  saveData();
+}
+function updateVerreDisplay(){
+  const startDate = state.verre_start || TODAY;
+  const sd = Math.max(0, Math.floor((new Date() - new Date(startDate)) / 864e5));
+  document.getElementById('verre-day').textContent = 'Jour ' + sd + ' sans verre';
+}
+function resetVerre(){
+  if(!confirm('Tu as craqué 🤷 ? Le compteur repart à zéro.')) return;
+  state.verre_start = TODAY;
+  updateVerreDisplay();
+  saveData();
+}
 
 // Affirmations
 const AFFS=["Je suis capable de créer la vie que je veux.","Chaque jour je deviens une meilleure version de moi-même.","Je mérite la joie, la paix et l'amour.","Je choisis de voir le bien dans chaque situation.","Ma famille est ma plus grande force.","J'avance, même lentement, c'est déjà de l'avancement.","Je suis présent pour ceux qui comptent pour moi.","Je crée de l'énergie autour de moi.","Mon calme est une force, pas une faiblesse."];
@@ -431,6 +456,8 @@ function applyState(){
   document.querySelectorAll('[data-key]').forEach(el=>{if(state[el.dataset.key])el.value=state[el.dataset.key];});
   if(state.mood)document.querySelectorAll('.mood-btn').forEach(b=>{if(b.textContent===state.mood)b.classList.add('sel');});
   if(state.affirm_ok)document.getElementById('affirm-val').classList.add('active');
+  updateSmokeDisplay();
+  updateVerreDisplay();
   renderTasks();
   updateScore();
 }
@@ -471,6 +498,8 @@ function updateScore(){
 const wr=document.getElementById('water-ring');
 wr.style.strokeDasharray=CIRC;
 wr.style.strokeDashoffset=CIRC;
+updateSmokeDisplay();
+updateVerreDisplay();
 renderTasks();
 
 // TÂCHES URGENTES
