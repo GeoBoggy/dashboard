@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ma Journée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-height:100vh;padding-bottom:2rem}
+
+.top-header{padding:1.1rem 1.25rem .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:sticky;top:0;z-index:20}
+.hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
+.hdr-date em{font-style:italic;color:#7A7468;font-size:.95rem}
+.hdr-bar{display:flex;align-items:center;gap:.75rem;margin-top:.45rem}
+.bar-track{flex:1;height:4px;background:#E2DDD4;border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;background:#2D6A4F;border-radius:2px;transition:width .4s}
+.bar-lbl{font-size:11px;color:#7A7468;font-weight:500;min-width:36px;text-align:right}
+.save-st{font-size:10px;color:#B0AA9E;min-height:13px;margin-top:2px}
+.save-st.ok{color:#2D6A4F}.save-st.err{color:#9B2335}.save-st.saving{color:#8B5E0A}
+
+.affirm-card{margin:1rem 1rem .5rem;background:#fff;border:1px solid #E2DDD4;border-radius:14px;padding:.85rem 1rem}
+.affirm-txt{font-family:'DM Serif Display',serif;font-style:italic;font-size:15px;line-height:1.55;color:#1A1814;margin-bottom:.5rem}
+.affirm-row{display:flex;gap:.5rem}
+.affirm-btn{font-family:'DM Sans',sans-serif;font-size:12px;padding:4px 12px;border:1px solid #E2DDD4;border-radius:20px;background:transparent;color:#7A7468;cursor:pointer;transition:all .12s}
+.affirm-btn.active{background:#2D6A4F;border-color:#2D6A4F;color:#fff}
+.affirm-next{margin-left:auto}
+
+.page{padding:1.1rem 1rem 1.6rem}
+.page-title{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:1rem}
+
+.pg-matin   {background:#D4694A}
+.pg-corps   {background:#4A8C6E}
+.pg-appr    {background:#6A6FAE}
+.pg-famille {background:#B05A8A}
+.pg-maison  {background:#6A9E5A}
+.pg-divert  {background:#C4A030}
+.pg-social  {background:#4A7AA5}
+.pg-gratitude{background:#8A6AAE}
+.pg-humeur  {background:#5A8CA0}
+
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem .9rem}
+
+.tile{display:flex;flex-direction:column;align-items:center;gap:.55rem;cursor:pointer;-webkit-user-select:none;user-select:none}
+
+.ring-wrap{position:relative;width:130px;height:130px}
+.ring-svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(0,0,0,.22);stroke-width:7}
+.ring-fill{fill:none;stroke:rgba(255,255,255,.85);stroke-width:7;stroke-linecap:round;stroke-dasharray:367.6;stroke-dashoffset:367.6;transition:stroke-dashoffset .55s cubic-bezier(.4,0,.2,1)}
+.tile.done .ring-fill{stroke-dashoffset:0}
+
+.ring-inner{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:100px;height:100px;border-radius:50%;
+  background:rgba(0,0,0,.2);
+  display:flex;align-items:center;justify-content:center;
+  transition:background .25s;
+}
+.tile.done .ring-inner{background:#fff}
+.ring-inner{color:#fff}
+.ring-inner svg{width:48px;height:48px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;transition:stroke .25s}
+.tile.done .ring-inner{background:#fff;color:#1A1814}
+.tile.done .ring-inner svg{stroke:#1A1814 !important}
+.tile.done .ring-inner svg *[fill="currentColor"]{fill:#1A1814 !important}
+
+.tile-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.95);text-align:center;line-height:1.3;max-width:130px}
+
+.water-inner{display:flex;flex-direction:column;align-items:center;gap:1px}
+.water-num{font-size:28px;font-weight:800;color:#fff;line-height:1;transition:color .25s}
+.water-sub{font-size:11px;color:rgba(255,255,255,.6);transition:color .25s}
+.tile.done .water-num{color:#1A1814}
+.tile.done .water-sub{color:rgba(0,0,0,.45)}
+.smoke-day{font-size:11px;color:rgba(255,255,255,.65);text-align:center;margin-top:-2px}
+
+.card{background:#fff;border:1px solid #E2DDD4;border-radius:14px;overflow:hidden;margin-top:.85rem}
+.row{display:flex;align-items:center;padding:.7rem .9rem;gap:.7rem;cursor:pointer;transition:background .12s}
+.row:active{background:#F0EDE6}
+.row+.row{border-top:1px solid #E2DDD4}
+.row-ico{font-size:15px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:7px;background:#F0EDE6;flex-shrink:0}
+.row-body{flex:1;min-width:0}
+.row-lbl{font-size:13px;color:#1A1814}
+.row-sub{font-size:11px;color:#B0AA9E;display:block;margin-top:1px}
+.row-right{flex-shrink:0;color:#B0AA9E;font-size:13px}
+.note-wrap{max-height:0;overflow:hidden;transition:max-height .25s,padding .25s;padding:0 .9rem}
+.note-wrap.open{max-height:100px;padding:0 .9rem .7rem}
+.note-wrap textarea{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5}
+.mood-row{display:flex;gap:5px;margin-bottom:.75rem}
+.mood-btn{flex:1;font-size:19px;padding:5px 0;border:1px solid #E2DDD4;border-radius:9px;background:transparent;cursor:pointer;transition:all .12s}
+.mood-btn.sel{border-color:#2D6A4F;background:#D8F3DC}
+.grat-fields{display:flex;flex-direction:column;gap:5px;padding:.7rem .9rem}
+.grat-inp{font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;width:100%}
+.prog-bar{width:70px}
+.prog-track{height:4px;background:#E2DDD4;border-radius:2px;overflow:hidden;margin-bottom:2px}
+.prog-fill-g{height:100%;background:#2D6A4F;border-radius:2px}
+.prog-lbl{font-size:10px;color:#B0AA9E;text-align:right}
+
+/* AGENDA */
+.agenda-col{display:flex;flex-direction:column;gap:4px}
+.agenda-col-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#B0AA9E;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid #E2DDD4}
+.agenda-event{background:#F5F2EC;border-radius:6px;padding:4px 6px;border-left:2px solid #2D6A4F}
+.agenda-event-time{font-size:9px;color:#B0AA9E;display:block}
+.agenda-event-title{font-size:10px;color:#1A1814;font-weight:500;line-height:1.3;display:block}
+.agenda-loading{font-size:10px;color:#B0AA9E;text-align:center;padding:8px 0}
+.agenda-empty{font-size:10px;color:#B0AA9E;text-align:center;padding:8px 0}
+.agenda-col .agenda-event:nth-child(even){border-left-color:#6A6FAE}
+</style>
+</head>
+<body>
+
+<!-- SVG ICONS DEFS — Lucide icons paths, all viewBox="0 0 24 24" -->
+<svg style="display:none">
+  <symbol id="ic-shower" viewBox="0 0 24 24">
+    <circle cx="6" cy="6" r="2.5" stroke="currentColor" stroke-width="2" fill="none"/>
+    <circle cx="6" cy="18" r="2.5" stroke="currentColor" stroke-width="2" fill="none"/>
+    <line x1="8.2" y1="7.8" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="8.2" y1="16.2" x2="21" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="ic-bird" viewBox="0 0 24 24">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="ic-notebook" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><line x1="9" y1="2" x2="9" y2="22" stroke="currentColor" stroke-width="2"/><line x1="12" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="11" x2="18" y2="11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="15" x2="16" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+
+  <symbol id="ic-no-smoke" viewBox="0 0 24 24"><line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 9V7.5A3.5 3.5 0 0 1 17.5 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/><rect x="2" y="12" width="20" height="4" rx="1" stroke="currentColor" stroke-width="2" fill="none"/><line x1="18" y1="12" x2="18" y2="16" stroke="currentColor" stroke-width="2"/></symbol>
+
+  <symbol id="ic-no-drink" viewBox="0 0 24 24">
+    <path d="M7 3h10l-2 8a5 5 0 0 1-6 0L7 3z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    <line x1="12" y1="16" x2="12" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="8" y1="20" x2="16" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+
+  <symbol id="ic-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="17" y1="4" x2="17" y2="2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="8" x2="19" y2="8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="19.66" y1="5.34" x2="18.25" y2="6.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-run" viewBox="0 0 24 24">
+    <line x1="6" y1="12" x2="18" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <rect x="2" y="9" width="4" height="6" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/>
+    <rect x="18" y="9" width="4" height="6" rx="1.5" stroke="currentColor" stroke-width="2" fill="none"/>
+  </symbol>
+
+  <symbol id="ic-footprint" viewBox="0 0 24 24">
+    <text x="12" y="13" text-anchor="middle" font-size="9" font-weight="bold" font-family="sans-serif" fill="currentColor" stroke="none">8 432</text>
+    <polyline points="6 18 10 14 14 16 18 10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="15 10 18 10 18 13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+
+  <symbol id="ic-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+
+  <symbol id="ic-headphones" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+
+  <symbol id="ic-news" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><line x1="18" y1="14" x2="18" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="10" x2="18" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="14" y1="6" x2="18" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="18" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="10" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-music" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="18" cy="16" r="3" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
+
+  <symbol id="ic-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+
+  <symbol id="ic-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-house" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+
+  <symbol id="ic-plant" viewBox="0 0 24 24"><path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 12C12 12 8 10 8 6a4 4 0 0 1 8 0c0 4-4 6-4 6z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/><path d="M12 16C12 16 7 15 5 11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 19C12 19 17 18 19 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+
+  <symbol id="ic-tv" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="17 2 12 7 7 2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+  <symbol id="ic-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="M8 13s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><line x1="9" y1="9" x2="9.01" y2="9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="9" x2="15.01" y2="9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-images" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" stroke="currentColor" stroke-width="2" fill="none"/><line x1="7" y1="2" x2="7" y2="22" stroke="currentColor" stroke-width="2"/><line x1="17" y1="2" x2="17" y2="22" stroke="currentColor" stroke-width="2"/><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/><line x1="2" y1="7" x2="7" y2="7" stroke="currentColor" stroke-width="2"/><line x1="2" y1="17" x2="7" y2="17" stroke="currentColor" stroke-width="2"/><line x1="17" y1="17" x2="22" y2="17" stroke="currentColor" stroke-width="2"/><line x1="17" y1="7" x2="22" y2="7" stroke="currentColor" stroke-width="2"/></symbol>
+
+  <symbol id="ic-playlist" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="6" x2="3.01" y2="6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="3" y1="12" x2="3.01" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><line x1="3" y1="18" x2="3.01" y2="18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.28h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.16 6.16l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></symbol>
+
+  <symbol id="ic-mobile" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><line x1="12" y1="18" x2="12.01" y2="18" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+
+  <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/></symbol>
+</svg>
+
+<div class="top-header">
+  <div class="hdr-date"><span id="hdr-day"></span><br><em id="hdr-date"></em></div>
+  <div class="hdr-bar">
+    <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
+    <span class="bar-lbl" id="score-lbl">0/0</span>
+  </div>
+  <div class="save-st" id="save-st"></div>
+</div>
+
+<div class="affirm-card">
+  <div class="affirm-txt" id="affirm-txt"></div>
+  <div class="affirm-row">
+    <button class="affirm-btn" id="affirm-val" onclick="toggleAffirm()">Je valide ✓</button>
+    <button class="affirm-btn affirm-next" onclick="nextAffirm()">Autre →</button>
+  </div>
+</div>
+
+<!-- MATIN -->
+<div class="page pg-matin">
+  <div class="page-title">Matin</div>
+  <div class="sg">
+    <div class="tile" onclick="tgl(this,'raser')" data-field="raser">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-shower"/></svg></div>
+      </div>
+      <span class="tile-lbl">Se raser</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'duolingo')" data-field="duolingo">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-bird"/></svg></div>
+      </div>
+      <span class="tile-lbl">Duolingo</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'journal_matin')" data-field="journal_matin">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-notebook"/></svg></div>
+      </div>
+      <span class="tile-lbl">Journal</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'couple')" data-field="couple">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-heart"/></svg></div>
+      </div>
+      <span class="tile-lbl">RDV couple</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row" style="cursor:default">
+      <div class="row-ico"><svg width="16" height="16" style="fill:none;stroke:#7A7468;stroke-width:2"><use href="#ic-calendar"/></svg></div>
+      <div class="row-body" style="width:100%">
+        <div id="agenda-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:4px 0">
+          <div class="agenda-col">
+            <div class="agenda-col-title">Tâches</div>
+            <div class="agenda-events" id="col-taches"><div class="agenda-loading">Chargement...</div></div>
+          </div>
+          <div class="agenda-col">
+            <div class="agenda-col-title">Meetings</div>
+            <div class="agenda-events" id="col-meetings"><div class="agenda-loading">Chargement...</div></div>
+          </div>
+          <div class="agenda-col">
+            <div class="agenda-col-title">Partagé</div>
+            <div class="agenda-events" id="col-partage"><div class="agenda-loading">Chargement...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CORPS -->
+<div class="page pg-corps">
+  <div class="page-title">Corps &amp; santé</div>
+  <div class="sg">
+    <div class="tile" onclick="tgl(this,'cigarette')" data-field="cigarette">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-no-smoke"/></svg></div>
+      </div>
+      <span class="tile-lbl">Cigarette refusée</span>
+      <span class="smoke-day" id="smoke-day"></span>
+    </div>
+    <div class="tile" onclick="tgl(this,'verre')" data-field="verre">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-no-drink"/></svg></div>
+      </div>
+      <span class="tile-lbl">Verre refusé</span>
+    </div>
+    <div class="tile" id="water-tile" onclick="addWater()" data-field="water">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" id="water-ring" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><div class="water-inner"><span class="water-num" id="water-n">0</span><span class="water-sub">/ 8</span></div></div>
+      </div>
+      <span class="tile-lbl">Eau</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'meditation')" data-field="meditation">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-moon"/></svg></div>
+      </div>
+      <span class="tile-lbl">Méditation</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'sport')" data-field="sport">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-run"/></svg></div>
+      </div>
+      <span class="tile-lbl">Sport</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'pas')" data-field="pas">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-footprint"/></svg></div>
+      </div>
+      <span class="tile-lbl">Pas validés</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row" style="cursor:default">
+      <div class="row-ico">👟</div>
+      <div class="row-body"><span class="row-lbl">Usure chaussures</span><span class="row-sub">310 / 500 km · Strava</span></div>
+      <div class="row-right"><div class="prog-bar"><div class="prog-track"><div class="prog-fill-g" style="width:62%"></div></div><div class="prog-lbl">62%</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- APPRENTISSAGE -->
+<div class="page pg-appr">
+  <div class="page-title">Apprentissage</div>
+  <div class="sg">
+    <div class="tile" onclick="tgl(this,'lecture')" data-field="lecture">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-book"/></svg></div>
+      </div>
+      <span class="tile-lbl">Lecture</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'audio')" data-field="audio">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-headphones"/></svg></div>
+      </div>
+      <span class="tile-lbl">Livre audio</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'news')" data-field="news">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-news"/></svg></div>
+      </div>
+      <span class="tile-lbl">News du jour</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'musique')" data-field="musique">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-music"/></svg></div>
+      </div>
+      <span class="tile-lbl">Musique</span>
+    </div>
+  </div>
+</div>
+
+<!-- FAMILLE -->
+<div class="page pg-famille">
+  <div class="page-title">Famille</div>
+  <div class="sg">
+    <div class="tile" onclick="tgl(this,'mona')" data-field="mona">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-star"/></svg></div>
+      </div>
+      <span class="tile-lbl">Mona</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'colin')" data-field="colin">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-star"/></svg></div>
+      </div>
+      <span class="tile-lbl">Colin</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'anouck')" data-field="anouck">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-heart"/></svg></div>
+      </div>
+      <span class="tile-lbl">Anouck</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'equipe')" data-field="equipe">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-users"/></svg></div>
+      </div>
+      <span class="tile-lbl">On est une équipe</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row" onclick="toggleNote(this)"><div class="row-ico">👧</div><div class="row-body"><span class="row-lbl">Note Mona</span></div><div class="row-right">▾</div></div>
+    <div class="note-wrap"><textarea rows="2" placeholder="Un souvenir..." data-key="note_mona" onblur="saveNote('note_mona',this.value)"></textarea></div>
+    <div class="row" onclick="toggleNote(this)"><div class="row-ico">👦</div><div class="row-body"><span class="row-lbl">Note Colin</span></div><div class="row-right">▾</div></div>
+    <div class="note-wrap"><textarea rows="2" placeholder="Un souvenir..." data-key="note_colin" onblur="saveNote('note_colin',this.value)"></textarea></div>
+    <div class="row" onclick="toggleNote(this)"><div class="row-ico">❤️</div><div class="row-body"><span class="row-lbl">Note Anouck</span></div><div class="row-right">▾</div></div>
+    <div class="note-wrap"><textarea rows="2" placeholder="Un souvenir..." data-key="note_anouck" onblur="saveNote('note_anouck',this.value)"></textarea></div>
+  </div>
+</div>
+
+<!-- MAISON -->
+<div class="page pg-maison">
+  <div class="page-title">Maison &amp; projets</div>
+  <div class="sg">
+    <div class="tile" onclick="tgl(this,'maison')" data-field="maison">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-house"/></svg></div>
+      </div>
+      <span class="tile-lbl">Maison</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'jardin')" data-field="jardin">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-plant"/></svg></div>
+      </div>
+      <span class="tile-lbl">Jardin</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'travaux')" data-field="travaux">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-wrench"/></svg></div>
+      </div>
+      <span class="tile-lbl">Travaux</span>
+    </div>
+  </div>
+</div>
+
+<!-- DIVERTISSEMENT -->
+<div class="page pg-divert">
+  <div class="page-title">Divertissement</div>
+  <div class="sg">
+    <div class="tile" onclick="tgl(this,'divert')" data-field="divert">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-tv"/></svg></div>
+      </div>
+      <span class="tile-lbl">Divertissement</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'rigole')" data-field="rigole">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-smile"/></svg></div>
+      </div>
+      <span class="tile-lbl">J'ai rigolé</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'photos')" data-field="photos">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-images"/></svg></div>
+      </div>
+      <span class="tile-lbl">Photos triées</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'tri_musique')" data-field="tri_musique">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-playlist"/></svg></div>
+      </div>
+      <span class="tile-lbl">Musique triée</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'ecran')" data-field="ecran">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-mobile"/></svg></div>
+      </div>
+      <span class="tile-lbl">Bilan écran</span>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL -->
+<div class="page pg-social">
+  <div class="page-title">Lien social</div>
+  <div class="sg">
+    <div class="tile" onclick="tgl(this,'contact')" data-field="contact">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-phone"/></svg></div>
+      </div>
+      <span class="tile-lbl">Contact</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'federe')" data-field="federe">
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg>
+        <div class="ring-inner"><svg><use href="#ic-users"/></svg></div>
+      </div>
+      <span class="tile-lbl">Fédérer</span>
+    </div>
+  </div>
+</div>
+
+<!-- GRATITUDE -->
+<div class="page pg-gratitude">
+  <div class="page-title">Gratitude</div>
+  <div class="card">
+    <div class="grat-fields">
+      <input class="grat-inp" type="text" placeholder="Je suis reconnaissant pour..." data-key="grat1" onblur="saveNote('grat1',this.value)">
+      <input class="grat-inp" type="text" placeholder="Quelque chose de beau aujourd'hui..." data-key="grat2" onblur="saveNote('grat2',this.value)">
+      <input class="grat-inp" type="text" placeholder="Une personne qui compte..." data-key="grat3" onblur="saveNote('grat3',this.value)">
+    </div>
+  </div>
+</div>
+
+<!-- HUMEUR -->
+<div class="page pg-humeur">
+  <div class="page-title">Comment ça va vraiment ?</div>
+  <div class="mood-row">
+    <button class="mood-btn" onclick="pickMood(this,'😔')">😔</button>
+    <button class="mood-btn" onclick="pickMood(this,'😐')">😐</button>
+    <button class="mood-btn" onclick="pickMood(this,'🙂')">🙂</button>
+    <button class="mood-btn" onclick="pickMood(this,'😄')">😄</button>
+    <button class="mood-btn" onclick="pickMood(this,'🤩')">🤩</button>
+  </div>
+  <div class="card">
+    <div style="padding:.7rem .9rem">
+      <textarea rows="3" style="width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5" placeholder="Ce que je ne dis pas forcément..." data-key="humeur_note" onblur="saveNote('humeur_note',this.value)"></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://kyaomegzifoekezbtzhd.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5YW9tZWd6aWZvZWtlemJ0emhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzE1ODYsImV4cCI6MjA5NjMwNzU4Nn0.u4sxsNSp7QW8nNdywcN0kBxAt_i2z7Mk0Ntq4ZR8XVQ';
+const TODAY=new Date().toISOString().slice(0,10);
+const CIRC=2*Math.PI*58.5;
+
+const now=new Date();
+const DAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+document.getElementById('hdr-day').textContent=DAYS[now.getDay()];
+document.getElementById('hdr-date').textContent=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+const sd=Math.max(0,Math.floor((now-new Date('2025-06-01'))/864e5));
+document.getElementById('smoke-day').textContent='Jour '+sd+' sans fumer';
+
+
+
+const AFFS=["Je suis capable de créer la vie que je veux.","Chaque jour je deviens une meilleure version de moi-même.","Je mérite la joie, la paix et l'amour.","Je choisis de voir le bien dans chaque situation.","Ma famille est ma plus grande force.","J'avance, même lentement, c'est déjà de l'avancement.","Je suis présent pour ceux qui comptent pour moi.","Je crée de l'énergie autour de moi.","Mon calme est une force, pas une faiblesse."];
+let ai=Math.floor(Math.random()*AFFS.length);
+document.getElementById('affirm-txt').textContent=AFFS[ai];
+function nextAffirm(){ai=(ai+1)%AFFS.length;document.getElementById('affirm-txt').textContent=AFFS[ai];document.getElementById('affirm-val').classList.remove('active');}
+function toggleAffirm(){document.getElementById('affirm-val').classList.toggle('active');state.affirm_ok=document.getElementById('affirm-val').classList.contains('active');saveData();}
+
+let state={},saveTimer=null;
+function setSt(msg,cls){const e=document.getElementById('save-st');e.textContent=msg;e.className='save-st '+cls;}
+async function loadData(){
+  setSt('Chargement...','saving');
+  try{const r=await fetch(`${SB_URL}/rest/v1/journal?date=eq.${TODAY}&select=*`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});const rows=await r.json();if(rows&&rows.length>0){state=rows[0].data||{};applyState();setSt('Chargé ✓','ok');}else{state={};setSt('Nouvelle journée','ok');}}catch(e){setSt('Erreur chargement','err');}
+  setTimeout(()=>setSt('',''),2000);
+}
+async function saveData(){
+  if(saveTimer)clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    setSt('Sauvegarde...','saving');
+    try{
+      // PATCH existing row first
+      const patch=await fetch(`${SB_URL}/rest/v1/journal?date=eq.${TODAY}`,{
+        method:'PATCH',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+        body:JSON.stringify({data:state})
+      });
+      const patched=await patch.json();
+      // If no row was updated, INSERT
+      if(!patched||patched.length===0){
+        await fetch(`${SB_URL}/rest/v1/journal`,{
+          method:'POST',
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+          body:JSON.stringify({date:TODAY,data:state})
+        });
+      }
+      setSt('Sauvegardé ✓','ok');
+    }catch(e){setSt('Hors ligne','err');}
+    setTimeout(()=>setSt('',''),2500);
+  },800);
+}
+}
+function applyState(){
+  document.querySelectorAll('.tile[data-field]').forEach(t=>{if(t.dataset.field==='water')return;if(state[t.dataset.field]){t.classList.add('done');updateIconColor(t,true);}});
+  if(state.water){water=state.water;document.getElementById('water-n').textContent=water;updateWater();}
+  document.querySelectorAll('[data-key]').forEach(el=>{if(state[el.dataset.key])el.value=state[el.dataset.key];});
+  if(state.mood)document.querySelectorAll('.mood-btn').forEach(b=>{if(b.textContent===state.mood)b.classList.add('sel');});
+  if(state.affirm_ok)document.getElementById('affirm-val').classList.add('active');
+  updateScore();
+}
+function tgl(tile,key){
+  tile.classList.toggle('done');
+  const done=tile.classList.contains('done');
+  updateIconColor(tile,done);
+  state[key]=done;updateScore();saveData();
+}
+function updateIconColor(tile,done){
+  tile.querySelectorAll('.ring-inner svg *').forEach(el=>{
+    const s=el.getAttribute('stroke');
+    const f=el.getAttribute('fill');
+    if(s&&s!=='none')el.setAttribute('stroke',done?'#1A1814':'#ffffff');
+    if(f&&f!=='none')el.setAttribute('fill',done?'#1A1814':'#ffffff');
+  });
+}
+let water=0;
+function updateWater(){const pct=Math.min(water/8,1);const ring=document.getElementById('water-ring');ring.style.strokeDasharray=CIRC;ring.style.strokeDashoffset=CIRC-(pct*CIRC);document.getElementById('water-tile').classList.toggle('done',water>=8);}
+function addWater(){if(water<8)water++;document.getElementById('water-n').textContent=water;updateWater();state.water=water;saveData();}
+function saveNote(k,v){state[k]=v;saveData();}
+function toggleNote(row){const n=row.nextElementSibling;if(n&&n.classList.contains('note-wrap'))n.classList.toggle('open');}
+function pickMood(btn,e){document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');state.mood=e;saveData();}
+function updateScore(){const all=document.querySelectorAll('.tile[data-field]');const done=document.querySelectorAll('.tile[data-field].done');document.getElementById('score-fill').style.width=(all.length?Math.round(done.length/all.length*100):0)+'%';document.getElementById('score-lbl').textContent=done.length+'/'+all.length;}
+const wr=document.getElementById('water-ring');wr.style.strokeDasharray=CIRC;wr.style.strokeDashoffset=CIRC;
+// AGENDA
+const ICAL_TACHES   = 'https://calendar.google.com/calendar/ical/4mhnb2oiip9639lvqpbqoeteqs%40group.calendar.google.com/private-38ee89ef24f9286759f29a5cd1485275/basic.ics';
+const ICAL_MEETINGS = 'https://calendar.google.com/calendar/ical/1t409snhsbtbu94fo4qnovj7rk%40group.calendar.google.com/private-13b580750f363cc214a93cea54dbe88f/basic.ics';
+const ICAL_SHARE1   = 'https://calendar.google.com/calendar/ical/bogengeoffrey%40gmail.com/private-737f696f1110143df36821dc355d4764/basic.ics';
+const ICAL_SHARE2   = 'https://calendar.google.com/calendar/ical/ops49cr79mln6rqls32vd0vng8%40group.calendar.google.com/private-06e441d134261dcb18fc4be4bfaf5dc5/basic.ics';
+const PROXY = '/.netlify/functions/calendar?url=';
+
+function parseIcal(text){
+  const events=[];
+  const blocks=text.split('BEGIN:VEVENT');
+  blocks.shift();
+  for(const block of blocks){
+    const getVal=(key)=>{
+      const m=block.match(new RegExp(key+'(?:;[^:]*)?:([^\r\n]+)'));
+      return m?m[1].trim():'';
+    };
+    const summary=getVal('SUMMARY');
+    if(!summary)continue;
+    // Try DTSTART with various formats
+    const dtstartRaw=getVal('DTSTART');
+    if(!dtstartRaw)continue;
+    let date=null;
+    try{
+      // All-day: 20260606
+      if(/^\d{8}$/.test(dtstartRaw)){
+        const y=dtstartRaw.slice(0,4),m=dtstartRaw.slice(4,6),d=dtstartRaw.slice(6,8);
+        date=new Date(parseInt(y),parseInt(m)-1,parseInt(d));
+      }
+      // DateTime: 20260606T090000Z or 20260606T090000
+      else if(/^\d{8}T\d{6}/.test(dtstartRaw)){
+        const y=dtstartRaw.slice(0,4),m=dtstartRaw.slice(4,6),d=dtstartRaw.slice(6,8);
+        const h=dtstartRaw.slice(9,11),mn=dtstartRaw.slice(11,13);
+        date=new Date(parseInt(y),parseInt(m)-1,parseInt(d),parseInt(h),parseInt(mn));
+      }
+      // ISO: 2026-06-06
+      else{
+        date=new Date(dtstartRaw.replace(/T.*$/,''));
+      }
+    }catch(e){continue;}
+    if(!date||isNaN(date.getTime()))continue;
+    events.push({date,summary});
+  }
+  return events;
+}
+
+function isThisWeek(date){
+  const now=new Date();
+  const start=new Date(now);start.setHours(0,0,0,0);
+  const end=new Date(start);end.setDate(start.getDate()+7);
+  return date>=start&&date<end;
+}
+
+function formatDate(date){
+  const days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  return days[date.getDay()]+' '+date.getDate();
+}
+
+function renderEvents(events,containerId){
+  const el=document.getElementById(containerId);
+  const filtered=events.filter(e=>isThisWeek(e.date)).sort((a,b)=>a.date-b.date);
+  if(filtered.length===0){el.innerHTML='<div class="agenda-empty">Rien cette semaine</div>';return;}
+  el.innerHTML=filtered.slice(0,5).map(e=>`
+    <div class="agenda-event">
+      <span class="agenda-event-time">${formatDate(e.date)}</span>
+      <span class="agenda-event-title">${e.summary}</span>
+    </div>`).join('');
+}
+
+async function fetchCal(url){
+  try{
+    const r=await fetch(PROXY+encodeURIComponent(url));
+    const text=await r.text();
+    return parseIcal(text);
+  }catch(e){return[];}
+}
+
+async function loadAgenda(){
+  const [taches,meetings,share1,share2]=await Promise.all([
+    fetchCal(ICAL_TACHES),
+    fetchCal(ICAL_MEETINGS),
+    fetchCal(ICAL_SHARE1),
+    fetchCal(ICAL_SHARE2)
+  ]);
+  renderEvents(taches,'col-taches');
+  renderEvents(meetings,'col-meetings');
+  renderEvents([...share1,...share2],'col-partage');
+}
+loadAgenda();
+
+loadData();
+</script>
+</body>
+</html>
