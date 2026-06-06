@@ -498,32 +498,24 @@ function addTask(){
   input.value='';
   renderTasks();
   saveData();
-  // Créer l'événement dans Google Calendar et sauvegarder l'ID
-  fetch(AGENDA_URL, {
-    method:'POST',
-    body:JSON.stringify({title:text})
-  }).then(r=>r.json()).then(data=>{
-    if(data.eventId){
-      const idx=state.tasks.findIndex(t=>t.text===text&&t.eventId===null);
-      if(idx>=0){
-        state.tasks[idx].eventId=data.eventId;
-        saveData();
+  // Créer l'événement via GET
+  fetch(`${AGENDA_URL}?action=create&title=${encodeURIComponent(text)}`)
+    .then(r=>r.json()).then(data=>{
+      if(data.eventId){
+        const idx=state.tasks.findIndex(t=>t.text===text&&t.eventId===null);
+        if(idx>=0){state.tasks[idx].eventId=data.eventId;saveData();}
       }
-    }
-    setTimeout(loadAgenda, 2000);
-  }).catch(()=>{});
+      setTimeout(loadAgenda,2000);
+    }).catch(()=>{});
 }
 
 function toggleTask(i){
   if(!state.tasks)return;
   const task=state.tasks[i];
   task.done=!task.done;
-  // Si cochée et a un eventId, supprimer de Google Calendar
   if(task.done && task.eventId){
-    fetch(AGENDA_URL,{
-      method:'POST',
-      body:JSON.stringify({action:'delete',eventId:task.eventId})
-    }).then(()=>setTimeout(loadAgenda,2000)).catch(()=>{});
+    fetch(`${AGENDA_URL}?action=delete&eventId=${encodeURIComponent(task.eventId)}`)
+      .then(()=>setTimeout(loadAgenda,2000)).catch(()=>{});
     task.eventId=null;
   }
   renderTasks();
