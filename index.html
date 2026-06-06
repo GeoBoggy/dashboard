@@ -563,7 +563,6 @@ async function saveData(){
     setTimeout(()=>setSt('',''),2500);
   },800);
 }
-}
 function applyState(){
   document.querySelectorAll('.tile[data-field]').forEach(t=>{if(t.dataset.field==='water')return;if(state[t.dataset.field]){t.classList.add('done');updateIconColor(t,true);}});
   if(state.water){water=state.water;document.getElementById('water-n').textContent=water;updateWater();}
