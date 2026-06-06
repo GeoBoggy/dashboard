@@ -460,10 +460,44 @@ const wr=document.getElementById('water-ring');
 wr.style.strokeDasharray=CIRC;
 wr.style.strokeDashoffset=CIRC;
 
-// Agenda - lien direct Google Calendar
-document.getElementById('col-taches').innerHTML='<a href="https://calendar.google.com/calendar/r/week" target="_blank" style="font-size:11px;color:#2D6A4F;text-decoration:none">→ Ouvrir Google Calendar</a>';
-document.getElementById('col-meetings').innerHTML='<a href="https://calendar.google.com/calendar/r/week" target="_blank" style="font-size:11px;color:#2D6A4F;text-decoration:none">→ Ouvrir Google Calendar</a>';
-document.getElementById('col-partage').innerHTML='<a href="https://calendar.google.com/calendar/r/week" target="_blank" style="font-size:11px;color:#2D6A4F;text-decoration:none">→ Ouvrir Google Calendar</a>';
+// Agenda - Google Apps Script
+const AGENDA_URL = 'https://script.google.com/macros/s/AKfycbzY9K_Li_iZ9czdB-gROFfssH7FAMZxlf-S7YHav5l-BCVgXtSaN6mZvjhL9XEJB38Tow/exec';
+
+function formatDate(d){
+  const days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const dt=new Date(d);
+  return days[dt.getDay()]+' '+dt.getDate();
+}
+
+async function loadAgenda(){
+  try {
+    const r = await fetch(AGENDA_URL);
+    const events = await r.json();
+    
+    const taches = events.filter(e=>e.type==='taches');
+    const meetings = events.filter(e=>e.type==='meetings');
+    const partage = events.filter(e=>e.type==='partage');
+    
+    function renderCol(evts, colId) {
+      const el = document.getElementById(colId);
+      if(!evts.length){el.innerHTML='<div class="agenda-empty">Rien cette semaine</div>';return;}
+      el.innerHTML = evts.slice(0,4).map(e=>`
+        <div class="agenda-event">
+          <span class="agenda-event-time">${formatDate(e.date)}</span>
+          <span class="agenda-event-title">${e.title}</span>
+        </div>`).join('');
+    }
+    
+    renderCol(taches, 'col-taches');
+    renderCol(meetings, 'col-meetings');
+    renderCol(partage, 'col-partage');
+  } catch(e) {
+    ['col-taches','col-meetings','col-partage'].forEach(id=>{
+      document.getElementById(id).innerHTML='<div class="agenda-empty">Erreur</div>';
+    });
+  }
+}
+loadAgenda();
 
 loadData();
 </script>
