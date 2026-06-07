@@ -248,7 +248,17 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <span class="tile-lbl">Sport</span>
     </div>
   </div>
-  <div class="card"><div class="row" style="cursor:default"><div class="row-ico">👟</div><div class="row-body"><span class="row-lbl">Usure chaussures</span><span class="row-sub">310 / 500 km · Strava</span></div><div class="row-right"><div class="prog-bar"><div class="prog-track"><div class="prog-fill-g" style="width:62%"></div></div><div class="prog-lbl">62%</div></div></div></div></div>
+  <div class="card" style="margin-bottom:.5rem">
+    <div style="padding:.7rem .9rem">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:.6rem">
+        <div class="row-ico" style="background:#FC4C02;color:#fff">🏃</div>
+        <span style="font-size:13px;font-weight:600;color:#1A1814">Strava</span>
+      </div>
+      <div id="strava-content">
+        <div style="font-size:12px;color:#B0AA9E;text-align:center;padding:6px 0">Chargement Strava...</div>
+      </div>
+    </div>
+  </div>
   <div class="sg" style="margin-top:1rem">
     <div class="tile" onclick="tgl(this,'diner')" data-field="diner">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-plate"/></svg></div></div>
@@ -1074,6 +1084,104 @@ async function renderJournal(){
     content.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Erreur de chargement</div>';
   }
 }
+
+// ── STRAVA ──
+const STRAVA_CLIENT_ID = '256029';
+const STRAVA_CLIENT_SECRET = '9b4d29eb5568ffc2fc5a5ecc454e1c8dbe3950a3';
+const STRAVA_REFRESH_TOKEN = 'a5c96c1b9227a1bf9add88dcd67c93b93df3a01b';
+const HOKA_NAME = 'Clifton 10 B';
+
+async function loadStrava(){
+  const el = document.getElementById('strava-content');
+  try {
+    // 1. Rafraîchir le token
+    const tokenRes = await fetch('https://www.strava.com/oauth/token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        client_id: STRAVA_CLIENT_ID,
+        client_secret: STRAVA_CLIENT_SECRET,
+        refresh_token: STRAVA_REFRESH_TOKEN,
+        grant_type: 'refresh_token'
+      })
+    });
+    const tokenData = await tokenRes.json();
+    const token = tokenData.access_token;
+    if(!token) throw new Error('no token');
+
+    // 2. Récupérer les stats de l'athlète (km année + semaine via activités)
+    const athleteRes = await fetch('https://www.strava.com/api/v3/athlete', {
+      headers: {'Authorization': 'Bearer ' + token}
+    });
+    const athlete = await athleteRes.json();
+
+    const statsRes = await fetch(`https://www.strava.com/api/v3/athletes/${athlete.id}/stats`, {
+      headers: {'Authorization': 'Bearer ' + token}
+    });
+    const stats = await statsRes.json();
+
+    // km année (course à pied)
+    const kmAnnee = stats.ytd_run_totals ? (stats.ytd_run_totals.distance/1000).toFixed(0) : 0;
+
+    // 3. km de la semaine : activités depuis lundi
+    const now = new Date();
+    const monday = new Date(now);
+    const day = (now.getDay()+6)%7;
+    monday.setDate(now.getDate()-day);
+    monday.setHours(0,0,0,0);
+    const after = Math.floor(monday.getTime()/1000);
+
+    const actRes = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=50`, {
+      headers: {'Authorization': 'Bearer ' + token}
+    });
+    const activities = await actRes.json();
+    let kmSemaine = 0;
+    if(Array.isArray(activities)){
+      kmSemaine = activities.reduce((sum,a) => sum + (a.distance||0), 0) / 1000;
+    }
+
+    // 4. Chaussures Hoka Clifton 10 B
+    let shoeHtml = '';
+    const gear = athlete.shoes || [];
+    const hoka = gear.find(s => s.name && s.name.includes(HOKA_NAME));
+    if(hoka){
+      // Récupérer le détail pour avoir la distance
+      const gearRes = await fetch(`https://www.strava.com/api/v3/gear/${hoka.id}`, {
+        headers: {'Authorization': 'Bearer ' + token}
+      });
+      const gearData = await gearRes.json();
+      const kmShoe = (gearData.distance/1000).toFixed(0);
+      const maxKm = 800;
+      const pct = Math.min(Math.round(kmShoe/maxKm*100), 100);
+      const color = pct >= 90 ? '#E8845A' : pct >= 70 ? '#C4A030' : '#2D7A4F';
+      shoeHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid #E2DDD4">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="color:#7A7468">👟 ${gearData.name}</span>
+          <span style="color:${color};font-weight:600">${kmShoe} / ${maxKm} km</span>
+        </div>
+        <div style="height:5px;background:#E2DDD4;border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px"></div>
+        </div>
+      </div>`;
+    }
+
+    el.innerHTML = `
+      <div style="display:flex;gap:8px;text-align:center">
+        <div style="flex:1;background:#F5F2EC;border-radius:8px;padding:8px 4px">
+          <div style="font-size:20px;font-weight:800;color:#FC4C02">${kmSemaine.toFixed(1)}</div>
+          <div style="font-size:10px;color:#7A7468">km cette semaine</div>
+        </div>
+        <div style="flex:1;background:#F5F2EC;border-radius:8px;padding:8px 4px">
+          <div style="font-size:20px;font-weight:800;color:#FC4C02">${kmAnnee}</div>
+          <div style="font-size:10px;color:#7A7468">km cette année</div>
+        </div>
+      </div>
+      ${shoeHtml}`;
+  } catch(e){
+    el.innerHTML = '<div style="font-size:11px;color:#B0AA9E;text-align:center;padding:6px 0">Strava indisponible</div>';
+  }
+}
+loadStrava();
 
 loadData();
 </script>
