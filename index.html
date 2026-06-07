@@ -464,7 +464,9 @@ function applyState(){
 
 function tgl(tile,key){
   tile.classList.toggle('done');
-  state[key]=tile.classList.contains('done');
+  const done = tile.classList.contains('done');
+  if(done) playDing();
+  state[key]=done;
   updateScore();
   saveData();
 }
@@ -502,7 +504,36 @@ updateSmokeDisplay();
 updateVerreDisplay();
 renderTasks();
 
-// TÂCHES URGENTES
+// SON DE VALIDATION - style 8-bit joyeux
+function playDing(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Notes style 8-bit montantes rapides
+    const notes = [
+      {freq: 330, t: 0,    dur: 0.08},
+      {freq: 392, t: 0.08, dur: 0.08},
+      {freq: 494, t: 0.16, dur: 0.08},
+      {freq: 392, t: 0.24, dur: 0.08},
+      {freq: 587, t: 0.32, dur: 0.08},
+      {freq: 494, t: 0.40, dur: 0.08},
+      {freq: 659, t: 0.48, dur: 0.15},
+      {freq: 784, t: 0.60, dur: 0.25},
+    ];
+    notes.forEach(n => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'square'; // son 8-bit
+      osc.frequency.value = n.freq;
+      const t = ctx.currentTime + n.t;
+      gain.gain.setValueAtTime(0.15, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + n.dur);
+      osc.start(t);
+      osc.stop(t + n.dur);
+    });
+  } catch(e){}
+}
 function renderTasks(){
   const list=document.getElementById('task-list');
   const tasks=state.tasks||[];
