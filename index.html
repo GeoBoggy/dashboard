@@ -615,10 +615,83 @@ const dayOfYear = Math.floor((now - new Date(now.getFullYear(),0,0)) / 864e5);
 const ai = dayOfYear % AFFS.length;
 const photoIdx = dayOfYear % PHOTOS.length;
 const affirm = document.getElementById('affirm-section');
+// Affiche d'abord les photos locales (fallback immédiat)
 document.getElementById('affirm-bg-blur').style.backgroundImage = `url(${PHOTOS[photoIdx]})`;
 document.getElementById('affirm-bg-full').style.backgroundImage = `url(${PHOTOS[photoIdx]})`;
 
 document.getElementById('affirm-txt').textContent = AFFS[ai].text;
+
+// ── ALBUM iCLOUD PARTAGÉ ──
+const ICLOUD_TOKEN = 'B1p5oqs3qGib3b0';
+async function loadICloudPhotos(){
+  try {
+    // 1. Déterminer le host de partition à partir du token
+    let host = 'p04-sharedstreams.icloud.com';
+    const base = (h) => `https://${h}/${ICLOUD_TOKEN}/sharedstreams`;
+
+    // webstream : liste des photos
+    let r = await fetch(`${base(host)}/webstream`, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({streamCtag: null})
+    });
+    // iCloud renvoie parfois un 330 avec le bon host de redirection
+    if(r.status === 330){
+      const j = await r.json();
+      if(j['X-Apple-MMe-Host']) host = j['X-Apple-MMe-Host'];
+      r = await fetch(`${base(host)}/webstream`, {
+        method: 'POST',
+        headers: {'Content-Type': 'text/plain'},
+        body: JSON.stringify({streamCtag: null})
+      });
+    }
+    const data = await r.json();
+    if(!data.photos || !data.photos.length) return;
+
+    // 2. Récupérer les checksums des plus grandes versions
+    const guids = [];
+    const checksums = [];
+    data.photos.forEach(p => {
+      guids.push(p.photoGuid);
+      // choisir la plus grande dérivée
+      let best = null, bestSize = 0;
+      for(const k in p.derivatives){
+        const d = p.derivatives[k];
+        const sz = parseInt(d.fileSize||0);
+        if(sz > bestSize){ bestSize = sz; best = d; }
+      }
+      if(best) checksums.push(best.checksum);
+    });
+
+    // 3. webasseturls : obtenir les URLs réelles
+    let r2 = await fetch(`${base(host)}/webasseturls`, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain'},
+      body: JSON.stringify({photoGuids: guids})
+    });
+    const d2 = await r2.json();
+    const items = d2.items || {};
+    const urls = [];
+    for(const cs of checksums){
+      if(items[cs]){
+        const it = items[cs];
+        urls.push(`https://${it.url_location}${it.url_path}`);
+      }
+    }
+    if(urls.length === 0) return;
+
+    // 4. Rotation quotidienne sur les photos iCloud
+    const idx = dayOfYear % urls.length;
+    const chosen = urls[idx];
+    document.getElementById('affirm-bg-blur').style.backgroundImage = `url(${chosen})`;
+    document.getElementById('affirm-bg-full').style.backgroundImage = `url(${chosen})`;
+  } catch(e){
+    // En cas d'échec (CORS), on garde les photos locales déjà affichées
+    console.log('iCloud album non accessible, photos locales utilisées');
+  }
+}
+loadICloudPhotos();
+
 
 // State & Supabase
 let state={};
