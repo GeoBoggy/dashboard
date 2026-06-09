@@ -439,6 +439,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'divert')" data-field="divert">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-tv"/></svg></div></div>
       <span class="tile-lbl">Divertissement</span>
+      <div onclick="event.stopPropagation()" style="display:flex;flex-direction:column;gap:3px;margin-top:-2px">
+        <a href="audible://library" target="_blank" onclick="event.stopPropagation();setTimeout(()=>window.location.href='https://www.audible.fr/library',500)" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📖 Harry Potter</a>
+        <a href="https://app.primevideo.com/detail?gti=amzn1.dv.gti.the-boys" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📺 The Boys</a>
+      </div>
     </div>
     <div class="tile" onclick="tgl(this,'rigole')" data-field="rigole">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-smile"/></svg></div></div>
@@ -498,9 +502,12 @@ document.getElementById('hdr-date').textContent=now.getDate()+' '+MONTHS[now.get
 
 // Smoke days - date stockée dans state
 function updateSmokeDisplay(){
-  const startDate = state.smoke_start || '2025-06-06';
-  const sd = Math.max(0, Math.floor((new Date() - new Date(startDate)) / 864e5));
-  document.getElementById('smoke-day').textContent = 'Jour ' + sd + ' sans fumer';
+  const startDate = state.smoke_start || '2026-06-06';
+  const sd = Math.max(0, Math.floor((new Date() - new Date(startDate + 'T00:00:00')) / 864e5));
+  const record = state.smoke_record || 0;
+  const trophy = (sd > 0 && sd >= record) ? ' 🏆' : '';
+  if(sd > record){ state.smoke_record = sd; }
+  document.getElementById('smoke-day').textContent = (sd === 0 ? "Aujourd'hui, jour 1 !" : 'Jour ' + sd + ' sans fumer') + trophy;
 }
 function resetSmoke(){
   if(!confirm('Tu as craqué ? Le compteur repart à zéro.')) return;
@@ -509,9 +516,12 @@ function resetSmoke(){
   saveData();
 }
 function updateVerreDisplay(){
-  const startDate = state.verre_start || TODAY;
-  const sd = Math.max(0, Math.floor((new Date() - new Date(startDate)) / 864e5));
-  document.getElementById('verre-day').textContent = 'Jour ' + sd + ' sans verre';
+  const startDate = state.verre_start || '2026-06-09';
+  const sd = Math.max(0, Math.floor((new Date() - new Date(startDate + 'T00:00:00')) / 864e5));
+  const record = state.verre_record || 0;
+  const trophy = (sd > 0 && sd >= record) ? ' 🏆' : '';
+  if(sd > record){ state.verre_record = sd; }
+  document.getElementById('verre-day').textContent = (sd === 0 ? "Aujourd'hui, jour 1 !" : 'Jour ' + sd + ' sans verre') + trophy;
 }
 function resetVerre(){
   if(!confirm('Tu as craqué 🤷 ? Le compteur repart à zéro.')) return;
@@ -632,6 +642,8 @@ function tgl(tile,key){
   const done = tile.classList.contains('done');
   if(done) playDing();
   state[key]=done;
+  if(key === 'cigarette') updateSmokeDisplay();
+  if(key === 'verre') updateVerreDisplay();
   updateScore();
   saveData();
 }
