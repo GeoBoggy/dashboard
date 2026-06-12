@@ -41,12 +41,15 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .ring-inner svg{width:42px;height:42px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s;color:inherit}
 .tile.done .ring-inner svg{stroke:#fff}
 .streak-badge{font-size:11px;font-weight:800;margin-top:1px;display:flex;align-items:center;gap:1px;justify-content:center;line-height:1;color:#D4694A}
+.pl-chip{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:#1A1814;background:#fff;border-radius:20px;padding:3px 8px 3px 6px;text-decoration:none;white-space:nowrap;line-height:1.3;box-shadow:0 1px 3px rgba(0,0,0,.18);transition:transform .12s,box-shadow .12s}
+.pl-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:#1DB954;flex-shrink:0}
+.pl-chip:active{transform:scale(.94);box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .tile.done .streak-badge{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
 .tile-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.95);text-align:center;line-height:1.3;max-width:130px}
 .water-inner{display:flex;flex-direction:column;align-items:center;gap:1px}
-.water-num{font-size:28px;font-weight:800;color:#fff;line-height:1;transition:color .25s}
-.water-sub{font-size:11px;color:rgba(255,255,255,.6);transition:color .25s}
-.tile.done .water-num{color:#1A1814}.tile.done .water-sub{color:rgba(0,0,0,.45)}
+.water-num{font-size:28px;font-weight:800;color:#1A1814;line-height:1;transition:color .25s}
+.water-sub{font-size:11px;color:rgba(0,0,0,.45);transition:color .25s}
+.tile.done .water-num{color:#fff}.tile.done .water-sub{color:rgba(255,255,255,.7)}
 .smoke-day{font-size:11px;color:rgba(255,255,255,.65);text-align:center;margin-top:-2px}
 .card{background:#fff;border:1px solid #E2DDD4;border-radius:14px;overflow:hidden;margin-top:.85rem}
 .row{display:flex;align-items:center;padding:.7rem .9rem;gap:.7rem;cursor:pointer;transition:background .12s}
@@ -341,10 +344,21 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <span class="tile-lbl">News du jour</span>
       <a href="https://open.spotify.com/show/6y1PloEyNsCNJH9vHias4T" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ HugoDécrypte</a>
     </div>
-    <div class="tile" onclick="tgl(this,'musique')" data-field="musique">
+    <div class="tile" onclick="tgl(this,'musique')" data-field="musique" style="position:relative">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-music"/></svg></div></div>
       <span class="tile-lbl">Musique</span>
-      <a href="https://open.spotify.com" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Spotify</a>
+      <div onclick="event.stopPropagation()" style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:4px;max-width:150px">
+        <a href="https://open.spotify.com/playlist/4fY8BZJppXiCSLjsDOofMR" target="_blank" class="pl-chip">T'n'B</a>
+        <a href="https://open.spotify.com/playlist/2GizthLOKaDcl2elqd7t8t" target="_blank" class="pl-chip">M'Style</a>
+        <a href="https://open.spotify.com/playlist/7fnxCur4NQfR4gftzlDMbD" target="_blank" class="pl-chip">Rap Fr</a>
+        <a href="https://open.spotify.com/playlist/0O7yKhm8k5Ke2DfB6buA01" target="_blank" class="pl-chip">Fr Touch</a>
+        <a href="https://open.spotify.com/playlist/322t1Xgv0YEQts5WQimpCh" target="_blank" class="pl-chip">60s</a>
+        <a href="https://open.spotify.com/playlist/2LPv3GWJdRSm33jff7QwLu" target="_blank" class="pl-chip">Peace</a>
+        <a href="https://open.spotify.com/playlist/0aSx8PuaPULjIq0hJVkWxZ" target="_blank" class="pl-chip">Sun</a>
+        <a href="https://open.spotify.com/playlist/2X0951r00s5YALHz5MntHv" target="_blank" class="pl-chip">Prog</a>
+        <a href="https://open.spotify.com/playlist/1B8gsiH7eqkOWuKY01I2DW" target="_blank" class="pl-chip">Fr Tek</a>
+        <a href="https://open.spotify.com/playlist/2d8j6yBdFyMnOUTU6Tg3sK" target="_blank" class="pl-chip">US</a>
+      </div>
     </div>
   </div>
 </div>
@@ -389,7 +403,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <div class="page-title">Corps &amp; santé</div>
   <div class="sg">
     <div class="tile" id="water-tile" onclick="addWater()" data-field="water">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" id="water-ring" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><div class="water-inner"><span class="water-num" id="water-n">0</span><span class="water-sub">/ 8</span></div></div></div>
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" id="water-ring" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><div class="water-inner"><span class="water-num" id="water-n">0</span><span class="water-sub">/ 8</span></div></div></div>
       <span class="tile-lbl">Eau</span>
     </div>
     <div class="tile" onclick="tgl(this,'sport')" data-field="sport">
@@ -855,10 +869,14 @@ function updateWater(){
   document.getElementById('water-tile').classList.toggle('done',water>=8);
 }
 function addWater(){
-  if(water<8)water++;
+  if(water<8){
+    water++;
+    if(water===8) playDing();
+  }
   document.getElementById('water-n').textContent=water;
   updateWater();
   state.water=water;
+  updateScore();
   saveData();
 }
 function saveNote(k,v){state[k]=v;updateScore();saveData();}
@@ -1153,18 +1171,24 @@ function closeWatch(){
   document.getElementById('watch-overlay').style.display = 'none';
   document.body.style.overflow = '';
 }
+const WATCH_SEED = ["Nouvel album Infected Mushroom","Zootopia","Suikers","Dragons","Chien 51","The Beauty","Rétroviseur","Selle vélo","Phare vélo"];
 async function loadWatch(){
   try {
     const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.watch_global&select=data`, {
       headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
     });
     const rows = await r.json();
-    watchItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    watchItems = d.list || [];
+    if(!d.seeded){
+      WATCH_SEED.forEach((txt) => watchItems.push({id: uid(), txt, done:false}));
+      await saveWatch();
+    }
   } catch(e){ watchItems = []; }
   renderWatch();
 }
 async function saveWatch(){
-  const body = JSON.stringify({data: {list: watchItems}});
+  const body = JSON.stringify({data: {list: watchItems, seeded: true}});
   try {
     const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.watch_global`, {
       method: 'PATCH',
@@ -1176,7 +1200,7 @@ async function saveWatch(){
       await fetch(`${SB_URL}/rest/v1/journal`, {
         method: 'POST',
         headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
-        body: JSON.stringify({date: 'watch_global', data: {list: watchItems}})
+        body: JSON.stringify({date: 'watch_global', data: {list: watchItems, seeded: true}})
       });
     }
   } catch(e){}
@@ -1310,7 +1334,7 @@ async function saveShopSeeded(){
   } catch(e){}
 }
 async function saveShop(){
-  const body = JSON.stringify({data: {list: shopItems}});
+  const body = JSON.stringify({data: {list: shopItems, seeded: true}});
   try {
     const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.shopping_global`, {
       method: 'PATCH',
@@ -1322,7 +1346,7 @@ async function saveShop(){
       await fetch(`${SB_URL}/rest/v1/journal`, {
         method: 'POST',
         headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
-        body: JSON.stringify({date: 'shopping_global', data: {list: shopItems}})
+        body: JSON.stringify({date: 'shopping_global', data: {list: shopItems, seeded: true}})
       });
     }
   } catch(e){}
@@ -1617,7 +1641,7 @@ const WORKOUTS = [
     {n:"Gainage planche", d:"3 × 30 secondes", r:"20s repos", e:"Sur les avant-bras, corps aligné des talons à la tête. Serre les abdos et les fessiers, ne creuse pas le dos."},
   ]},
   {nom:"Dips & épaules", ex:[
-    {n:"Dips sur chaise", d:"3 × 12 répétitions", r:"30s repos", e:"Mains au bord d'une chaise derrière toi, jambes devant. Descends en pliant les coudes vers l'arrière, puis remonte."},
+    {n:"Pompes triceps au sol", d:"3 × 12 répétitions", r:"30s repos", e:"À genoux ou en planche, mains serrées sous la poitrine, coudes le long du corps. Cible les triceps, aucun matériel."},
     {n:"Pompes piquées (épaules)", d:"3 × 10 répétitions", r:"30s repos", e:"Bassin relevé en V inversé, tête vers le sol. Fléchis les coudes pour descendre le sommet du crâne, cible les épaules."},
     {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"Sur un avant-bras, corps de profil aligné. Hanches hautes, maintiens sans tomber. Change de côté."},
   ]},
@@ -1628,8 +1652,8 @@ const WORKOUTS = [
   ]},
   {nom:"Triceps & pecs", ex:[
     {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Mains rapprochées sous la poitrine. Coudes le long du corps. Cible intensément les triceps."},
-    {n:"Dips lestés ou lents", d:"3 × 10 répétitions", r:"30s repos", e:"Dips sur chaise en ralentissant la descente (3 secondes). Plus lent = plus dur pour les triceps."},
-    {n:"Pompes déclinées (pieds surélevés)", d:"3 × 10 répétitions", r:"30s repos", e:"Pieds sur une chaise, mains au sol. Le poids se reporte sur le haut des pectoraux et les épaules."},
+    {n:"Pompes triceps lentes", d:"3 × 10 répétitions", r:"30s repos", e:"Pompes mains serrées, descente lente en 3 secondes. Coudes près du corps pour cibler les triceps."},
+    {n:"Pompes piquées", d:"3 × 10 répétitions", r:"30s repos", e:"Bassin relevé en V inversé, tête vers le sol. Reporte le poids sur le haut des pectoraux et les épaules, sans matériel."},
   ]},
   {nom:"Dos & posture", ex:[
     {n:"Superman", d:"3 × 15 répétitions", r:"20s repos", e:"Allongé sur le ventre, lève bras et jambes ensemble. Tiens 1 seconde en haut, contracte le dos."},
@@ -1638,7 +1662,7 @@ const WORKOUTS = [
   ]},
   {nom:"Circuit complet", ex:[
     {n:"Pompes classiques", d:"2 × 15 répétitions", r:"20s repos", e:"Corps gainé, descente poitrine vers le sol, coudes à 45°. Rythme régulier."},
-    {n:"Dips sur chaise", d:"2 × 12 répétitions", r:"20s repos", e:"Mains au bord de la chaise, descends en pliant les coudes vers l'arrière."},
+    {n:"Pompes triceps au sol", d:"2 × 12 répétitions", r:"20s repos", e:"Mains serrées sous la poitrine, coudes le long du corps. Cible les triceps, au sol."},
     {n:"Pompes piquées", d:"2 × 10 répétitions", r:"20s repos", e:"Bassin en V inversé, descends le crâne vers le sol pour cibler les épaules."},
     {n:"Gainage", d:"2 × 40 secondes", r:"20s repos", e:"Sur les avant-bras, corps aligné, abdos serrés. Tiens la position sans creuser le dos."},
   ]},
@@ -1654,13 +1678,13 @@ const WORKOUTS = [
   ]},
   {nom:"Tempo lent (force)", ex:[
     {n:"Pompes 3s descente / 1s montée", d:"3 × 8 répétitions", r:"40s repos", e:"Descends très lentement en comptant 3 secondes, remonte en 1 seconde. Le tempo lent décuple l'effort."},
-    {n:"Dips lents", d:"3 × 8 répétitions", r:"40s repos", e:"Dips sur chaise avec descente lente et contrôlée. Sens le travail dans les triceps."},
+    {n:"Pompes triceps lentes", d:"3 × 8 répétitions", r:"40s repos", e:"Pompes mains serrées, descente lente et contrôlée. Sens le travail dans les triceps."},
     {n:"Gainage planche", d:"3 × 45 secondes", r:"20s repos", e:"Planche longue durée, corps parfaitement aligné. Respire calmement et tiens."},
   ]},
   {nom:"Full bras", ex:[
     {n:"Pompes serrées (triceps)", d:"3 × 10 répétitions", r:"30s repos", e:"Mains rapprochées, coudes le long du corps. Cible les triceps."},
     {n:"Pompes larges (pecs)", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, ouvre la poitrine. Cible les pectoraux."},
-    {n:"Dips (triceps)", d:"3 × 12 répétitions", r:"30s repos", e:"Sur chaise, descends coudes vers l'arrière pour solliciter l'arrière du bras."},
+    {n:"Pompes diamant (triceps)", d:"3 × 12 répétitions", r:"30s repos", e:"Mains jointes en losange sous la poitrine. Sollicite intensément l'arrière du bras, au sol."},
     {n:"Superman (dos)", d:"2 × 15 répétitions", r:"20s repos", e:"Lève bras et jambes au sol pour équilibrer avec un peu de travail du dos."},
   ]},
 ];
@@ -1740,6 +1764,19 @@ async function loadTodos(){
       if(it.id == null || seenT.has(it.id)){ it.id = uid(); repairedT = true; }
       seenT.add(it.id);
     });
+    // Dédupliquer les tâches identiques accumulées (texte + quad inbox uniquement)
+    const seenTxt = {};
+    const before = todos.length;
+    todos = todos.filter(it => {
+      const key = it.txt + '|' + it.quad;
+      // On ne déduplique que les doublons en inbox (les re-seeds)
+      if(it.quad === 'inbox'){
+        if(seenTxt[it.txt]) return false;
+        seenTxt[it.txt] = true;
+      }
+      return true;
+    });
+    if(todos.length !== before) repairedT = true;
     if(repairedT) await saveTodos();
     // Pré-chargement unique des tâches TickTick
     if(!d.seeded){
@@ -1768,7 +1805,7 @@ async function saveTodosSeeded(){
   } catch(e){}
 }
 async function saveTodos(){
-  const body = JSON.stringify({data: {list: todos}});
+  const body = JSON.stringify({data: {list: todos, seeded: true}});
   try {
     const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.todos_global`, {
       method: 'PATCH',
@@ -1780,7 +1817,7 @@ async function saveTodos(){
       await fetch(`${SB_URL}/rest/v1/journal`, {
         method: 'POST',
         headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
-        body: JSON.stringify({date: 'todos_global', data: {list: todos}})
+        body: JSON.stringify({date: 'todos_global', data: {list: todos, seeded: true}})
       });
     }
   } catch(e){}
