@@ -118,6 +118,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="hdr-date"><span id="hdr-day"></span><br><em id="hdr-date"></em></div>
     <div style="display:flex;gap:10px;align-items:center">
       <div onclick="openTodo()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes tâches">✅</div>
+      <div onclick="openWatch()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="À regarder">🎥</div>
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
@@ -142,6 +143,21 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div id="journal-content" style="padding:1.25rem;max-width:600px;margin:0 auto">
     <div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Chargement...</div>
+  </div>
+</div>
+
+<!-- À REGARDER (overlay) -->
+<div id="watch-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🎥 À regarder</span>
+    <div onclick="closeWatch()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="display:flex;gap:6px;margin-bottom:1rem">
+      <input id="watch-input" type="text" placeholder="Film, série, documentaire... (Entrée)" style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none" onkeydown="if(event.key==='Enter')addWatch()">
+      <button onclick="addWatch()" style="font-family:'DM Sans',sans-serif;font-size:16px;padding:0 14px;background:#7B4FA0;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+    </div>
+    <div id="watch-list"></div>
   </div>
 </div>
 
@@ -238,12 +254,12 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'journal_matin')" data-field="journal_matin">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-notebook"/></svg></div></div>
       <span class="tile-lbl">Journal</span>
-      <a href="https://www.canva.com/design/DAHFw9aJv-o/3dyQSFoUtNXz_uOVxTYm_Q/edit" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Canva</a>
+      <a href="https://canva.link/6c58x9dt3q11ebk" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Canva</a>
     </div>
     <div class="tile" onclick="tgl(this,'meditation')" data-field="meditation">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-moon"/></svg></div></div>
       <span class="tile-lbl">Méditation de la veille</span>
-      <a href="https://insighttimer.com/" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ 🧘 ?</a>
+      <a href="https://insighttimer.com/" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Méditer</a>
     </div>
     <div class="tile" onclick="tgl(this,'couple')" data-field="couple">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg></div></div>
@@ -306,7 +322,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-headphones"/></svg></div></div>
       <span class="tile-lbl">Livre audio</span>
       <div onclick="event.stopPropagation()" style="display:flex;flex-direction:column;gap:3px;margin-top:-2px">
-        <a href="audible://" target="_blank" onclick="event.stopPropagation();setTimeout(()=>window.location.href='https://www.audible.fr',500)" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">→ Audible</a>
+        <a href="audible://" onclick="event.stopPropagation();openApp('audible://','https://www.audible.fr');return false;" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">→ Audible</a>
         <a href="headway://" target="_blank" onclick="event.stopPropagation();setTimeout(()=>window.location.href='https://makeheadway.com',500)" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">→ Headway</a>
       </div>
     </div>
@@ -429,13 +445,13 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- IDÉES REPAS -->
-<div style="background:#E8845A;padding:1.4rem 1rem;text-align:center">
+<div style="background:#256B42;padding:1.4rem 1rem;text-align:center">
   <div style="font-size:22px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)">🍽️ Idées repas</div>
 </div>
-<div class="page" style="background:#EF9168">
+<div class="page" style="background:#2F7A4D">
   <div style="padding:.5rem .25rem 1rem">
     <div id="meal-suggestions" style="display:flex;flex-direction:column;gap:8px"></div>
-    <button onclick="shuffleMeals()" style="width:100%;margin-top:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:11px;background:rgba(255,255,255,.95);color:#D4694A;border:none;border-radius:10px;cursor:pointer">Autres suggestions svp 🤤</button>
+    <button onclick="shuffleMeals()" style="width:100%;margin-top:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:11px;background:rgba(255,255,255,.95);color:#2D7A4F;border:none;border-radius:10px;cursor:pointer">Autres suggestions svp 🤤</button>
   </div>
 </div>
 
@@ -455,7 +471,25 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div id="meal-ingredients"></div>
     <a id="meal-photos-link" href="#" target="_blank" style="display:block;text-align:center;width:100%;margin-top:1rem;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:12px;background:#fff;color:#D4694A;border:1px solid #E2DDD4;border-radius:10px;cursor:pointer;text-decoration:none;box-sizing:border-box">📷 Voir des photos du plat</a>
     <button onclick="addMealToShop()" style="width:100%;margin-top:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:12px;background:#2D7A4F;color:#fff;border:none;border-radius:10px;cursor:pointer">🛒 Ajouter les ingrédients aux courses</button>
+    <button onclick="openRecipe()" style="width:100%;margin-top:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:12px;background:#256B42;color:#fff;border:none;border-radius:10px;cursor:pointer">👨‍🍳 Voir la recette pas à pas</button>
     <div id="meal-added-msg" style="text-align:center;font-size:12px;color:#2D7A4F;margin-top:8px;min-height:16px"></div>
+  </div>
+</div>
+
+<!-- RECETTE EN SLIDES (overlay) -->
+<div id="recipe-overlay" style="display:none;position:fixed;inset:0;background:#1A1814;z-index:101;flex-direction:column">
+  <div style="padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center">
+    <span id="recipe-title" style="font-family:'DM Serif Display',serif;font-size:16px;color:#fff"></span>
+    <div onclick="closeRecipe()" style="font-size:18px;cursor:pointer;color:rgba(255,255,255,.6);padding:2px 6px">✕</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;text-align:center">
+    <div id="recipe-step-num" style="font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#5AAE7A;margin-bottom:1.5rem"></div>
+    <div id="recipe-step-text" style="font-family:'DM Serif Display',serif;font-size:24px;line-height:1.5;color:#fff;max-width:500px"></div>
+  </div>
+  <div style="padding:1.5rem 1.25rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <button onclick="recipePrev()" id="recipe-prev" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:12px 20px;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:10px;cursor:pointer">‹ Précédent</button>
+    <div id="recipe-dots" style="display:flex;gap:6px"></div>
+    <button onclick="recipeNext()" id="recipe-next" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:12px 20px;background:#2D7A4F;color:#fff;border:none;border-radius:10px;cursor:pointer">Suivant ›</button>
   </div>
 </div>
 
@@ -526,7 +560,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-tv"/></svg></div></div>
       <span class="tile-lbl">Divertissement</span>
       <div onclick="event.stopPropagation()" style="display:flex;flex-direction:column;gap:3px;margin-top:-2px">
-        <a href="audible://library" target="_blank" onclick="event.stopPropagation();setTimeout(()=>window.location.href='https://www.audible.fr/library',500)" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📖 Harry Potter</a>
+        <a href="audible://library" onclick="event.stopPropagation();openApp('audible://library','https://www.audible.fr/library');return false;" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📖 Harry Potter</a>
         <a href="https://app.primevideo.com/detail?gti=amzn1.dv.gti.the-boys" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📺 The Boys</a>
       </div>
     </div>
@@ -648,72 +682,21 @@ if(PHOTOS.length > 0){
 document.getElementById('affirm-txt').textContent = AFFS[ai].text;
 
 // ── ALBUM iCLOUD PARTAGÉ ──
-const ICLOUD_TOKEN = 'B1p5oqs3qGib3b0';
 async function loadICloudPhotos(){
   try {
-    // 1. Déterminer le host de partition à partir du token
-    let host = 'p04-sharedstreams.icloud.com';
-    const base = (h) => `https://${h}/${ICLOUD_TOKEN}/sharedstreams`;
-
-    // webstream : liste des photos
-    let r = await fetch(`${base(host)}/webstream`, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({streamCtag: null})
-    });
-    // iCloud renvoie parfois un 330 avec le bon host de redirection
-    if(r.status === 330){
-      const j = await r.json();
-      if(j['X-Apple-MMe-Host']) host = j['X-Apple-MMe-Host'];
-      r = await fetch(`${base(host)}/webstream`, {
-        method: 'POST',
-        headers: {'Content-Type': 'text/plain'},
-        body: JSON.stringify({streamCtag: null})
-      });
-    }
+    // Récupère les photos via le Google Apps Script (contourne le CORS d'iCloud)
+    const r = await fetch('https://script.google.com/macros/s/AKfycbzY9K_Li_iZ9czdB-gROFfssH7FAMZxlf-S7YHav5l-BCVgXtSaN6mZvjhL9XEJB38Tow/exec?action=photos');
     const data = await r.json();
-    if(!data.photos || !data.photos.length) return;
-
-    // 2. Récupérer les checksums des plus grandes versions
-    const guids = [];
-    const checksums = [];
-    data.photos.forEach(p => {
-      guids.push(p.photoGuid);
-      // choisir la plus grande dérivée
-      let best = null, bestSize = 0;
-      for(const k in p.derivatives){
-        const d = p.derivatives[k];
-        const sz = parseInt(d.fileSize||0);
-        if(sz > bestSize){ bestSize = sz; best = d; }
-      }
-      if(best) checksums.push(best.checksum);
-    });
-
-    // 3. webasseturls : obtenir les URLs réelles
-    let r2 = await fetch(`${base(host)}/webasseturls`, {
-      method: 'POST',
-      headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify({photoGuids: guids})
-    });
-    const d2 = await r2.json();
-    const items = d2.items || {};
-    const urls = [];
-    for(const cs of checksums){
-      if(items[cs]){
-        const it = items[cs];
-        urls.push(`https://${it.url_location}${it.url_path}`);
-      }
-    }
+    const urls = data.photos || [];
     if(urls.length === 0) return;
 
-    // 4. Rotation quotidienne sur les photos iCloud
+    // Rotation quotidienne sur les photos de l'album
     const idx = dayOfYear % urls.length;
     const chosen = urls[idx];
     document.getElementById('affirm-bg-blur').style.backgroundImage = `url(${chosen})`;
     document.getElementById('affirm-bg-full').style.backgroundImage = `url(${chosen})`;
   } catch(e){
-    // En cas d'échec (CORS), on garde les photos locales déjà affichées
-    console.log('iCloud album non accessible, photos locales utilisées');
+    console.log('Album photo non accessible');
   }
 }
 loadICloudPhotos();
@@ -874,14 +857,23 @@ function addWater(){
   state.water=water;
   saveData();
 }
-function saveNote(k,v){state[k]=v;saveData();}
+function saveNote(k,v){state[k]=v;updateScore();saveData();}
 function toggleNote(row){const n=row.nextElementSibling;if(n&&n.classList.contains('note-wrap'))n.classList.toggle('open');}
 function pickMood(btn,e){document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');state.mood=e;saveData();}
 function updateScore(){
-  const all=document.querySelectorAll('.tile[data-field]');
-  const done=document.querySelectorAll('.tile[data-field].done');
-  document.getElementById('score-fill').style.width=(all.length?Math.round(done.length/all.length*100):0)+'%';
-  document.getElementById('score-lbl').textContent=done.length+'/'+all.length;
+  const tiles=document.querySelectorAll('.tile[data-field]');
+  const tilesDone=document.querySelectorAll('.tile[data-field].done');
+  // Champs de notes : comptés comme validés s'ils sont remplis
+  const noteFields=document.querySelectorAll('[data-key]');
+  let noteTotal=0, noteDone=0;
+  noteFields.forEach(f=>{
+    noteTotal++;
+    if(f.value && f.value.trim()) noteDone++;
+  });
+  const total=tiles.length+noteTotal;
+  const done=tilesDone.length+noteDone;
+  document.getElementById('score-fill').style.width=(total?Math.round(done/total*100):0)+'%';
+  document.getElementById('score-lbl').textContent=done+'/'+total;
 }
 
 // Init water ring
@@ -1146,6 +1138,89 @@ function closeBilan(){
   document.body.style.overflow = '';
 }
 
+// ── À REGARDER (watchlist) ──
+let watchItems = [];
+async function openWatch(){
+  document.getElementById('watch-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await loadWatch();
+}
+function closeWatch(){
+  document.getElementById('watch-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadWatch(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.watch_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    watchItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ watchItems = []; }
+  renderWatch();
+}
+async function saveWatch(){
+  const body = JSON.stringify({data: {list: watchItems}});
+  try {
+    const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.watch_global`, {
+      method: 'PATCH',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'},
+      body
+    });
+    const res = await patch.json();
+    if(!res || res.length === 0){
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'watch_global', data: {list: watchItems}})
+      });
+    }
+  } catch(e){}
+}
+function addWatch(){
+  const inp = document.getElementById('watch-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  watchItems.push({id: uid(), txt, done: false});
+  inp.value = '';
+  renderWatch();
+  saveWatch();
+}
+function toggleWatch(id){
+  const it = watchItems.find(t => t.id === id);
+  if(it) it.done = !it.done;
+  renderWatch(); saveWatch();
+}
+function delWatch(id){
+  watchItems = watchItems.filter(t => t.id !== id);
+  renderWatch(); saveWatch();
+}
+function clearWatchDone(){
+  watchItems = watchItems.filter(t => !t.done);
+  renderWatch(); saveWatch();
+}
+function renderWatch(){
+  const el = document.getElementById('watch-list');
+  if(watchItems.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Rien pour l\'instant. Ajoute un film ou une série à voir !</div>';
+    return;
+  }
+  const todo = watchItems.filter(t => !t.done);
+  const done = watchItems.filter(t => t.done);
+  const item = (t) => `<div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #EDE9E1;border-radius:8px;padding:10px 12px;margin-bottom:6px">
+      <span onclick="toggleWatch(${t.id})" style="cursor:pointer;font-size:16px">${t.done?'✅':'⬜'}</span>
+      <span style="flex:1;font-size:14px;color:#3A3631;${t.done?'text-decoration:line-through;color:#B0AA9E':''}">${t.txt}</span>
+      <span onclick="delWatch(${t.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+    </div>`;
+  let html = '';
+  todo.forEach(t => html += item(t));
+  if(done.length){
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin:1rem 0 .5rem"><span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#B0AA9E">Déjà vu (${done.length})</span><span onclick="clearWatchDone()" style="font-size:11px;color:#D4694A;cursor:pointer">Tout effacer</span></div>`;
+    done.forEach(t => html += item(t));
+  }
+  el.innerHTML = html;
+}
+
 // ── LISTE DE COURSES (par magasin, glisser-déposer) ──
 const SHOPS = {
   inbox: {titre:'📥 À trier', sous:'Glisse vers un magasin', color:'#7A7468', bg:'#FFFFFF'},
@@ -1158,6 +1233,21 @@ const SHOPS = {
 };
 let _uidCounter = 0;
 function uid(){ return Date.now() * 1000 + (_uidCounter++ % 1000); }
+// Ouvre une app via son scheme ; n'ouvre le web QUE si l'app ne se lance pas
+function openApp(scheme, webUrl){
+  let opened = false;
+  const onHide = () => { opened = true; };
+  document.addEventListener('visibilitychange', onHide);
+  window.addEventListener('pagehide', onHide);
+  const t = setTimeout(() => {
+    document.removeEventListener('visibilitychange', onHide);
+    window.removeEventListener('pagehide', onHide);
+    if(!opened && document.visibilityState === 'visible'){
+      window.location.href = webUrl;
+    }
+  }, 1200);
+  window.location.href = scheme;
+}
 let shopItems = [];
 let shopDragId = null;
 
@@ -1347,6 +1437,50 @@ const MEALS = [
   {n:"Œufs cocotte & mouillettes", ing:[["Œufs",8,"pièces"],["Crème fraîche",15,"cl"],["Épinards",200,"g"],["Fromage râpé",80,"g"],["Pain complet",4,"tranches"]]},
   {n:"Boudin blanc & purée pommes", ing:[["Boudin blanc",4,"pièces"],["Pommes",4,"pièces"],["Pommes de terre",700,"g"],["Lait",15,"cl"],["Beurre",30,"g"]]},
 ];
+const MEAL_STEPS = {
+"Poulet rôti & légumes":["Préchauffe le four à 200°C.","Épluche et coupe les pommes de terre et carottes en morceaux.","Dispose les cuisses de poulet et les légumes dans un plat. Arrose d'huile d'olive et saupoudre d'herbes.","Enfourne 45 min en retournant à mi-cuisson.","Vérifie la cuisson du poulet (jus clair) et sers bien chaud."],
+"Saumon & riz complet":["Fais cuire le riz complet selon les indications du paquet.","Cuis le brocoli à la vapeur 8 min.","Poêle les pavés de saumon 4 min de chaque côté.","Arrose de jus de citron et d'un trait de sauce soja.","Dresse le saumon avec le riz et le brocoli."],
+"Spaghetti bolognaise maison":["Émince l'oignon, l'ail et râpe la carotte.","Fais revenir les légumes puis ajoute la viande hachée.","Verse les tomates concassées, sale, poivre, laisse mijoter 20 min.","Cuis les spaghetti al dente.","Mélange et sers avec un peu de parmesan."],
+"Chili con carne":["Émince l'oignon et le poivron.","Fais revenir avec la viande hachée.","Ajoute tomates, haricots rouges et épices, mijote 25 min.","Cuis le riz à part.","Sers le chili sur le riz."],
+"Gratin de courgettes":["Préchauffe le four à 190°C.","Coupe les courgettes et pommes de terre en rondelles.","Dispose en couches dans un plat.","Mélange crème, œufs, sel, poivre et verse dessus. Parsème de fromage.","Enfourne 40 min jusqu'à ce que ce soit doré."],
+"Poêlée de quinoa & légumes":["Cuis le quinoa 15 min dans l'eau bouillante.","Coupe courgette et poivron en dés, poêle-les.","Ajoute les tomates cerises coupées.","Mélange avec le quinoa et l'huile d'olive.","Émiette la feta par-dessus et sers."],
+"Cabillaud & purée maison":["Cuis les pommes de terre 20 min à l'eau.","Écrase-les avec le lait et le beurre pour la purée.","Poêle le cabillaud 4 min de chaque côté.","Fais tomber les épinards à la poêle.","Dresse le poisson sur la purée avec les épinards."],
+"Curry de pois chiches":["Émince l'oignon et fais-le revenir.","Ajoute le curry, puis les tomates et le lait de coco.","Verse les pois chiches égouttés, mijote 15 min.","Cuis le riz basmati à part.","Sers le curry sur le riz."],
+"Omelette aux légumes":["Coupe courgette et poivron en petits dés et poêle-les.","Bats les œufs avec sel et poivre.","Verse les œufs sur les légumes dans la poêle.","Parsème de fromage et laisse prendre à feu doux.","Plie l'omelette et sers avec du pain complet."],
+"Tartiflette allégée":["Cuis les pommes de terre 15 min puis coupe-les en rondelles.","Fais revenir oignons et lardons.","Mélange pommes de terre, oignons et lardons dans un plat.","Coupe le reblochon en deux et pose-le dessus, croûte vers le haut.","Enfourne 25 min à 200°C. Sers avec la salade."],
+"Wok de poulet & nouilles":["Cuis les nouilles, égoutte.","Coupe le poulet en lamelles, fais-le sauter au wok.","Ajoute poivron et carotte émincés, fais sauter vif.","Ajoute le gingembre râpé et la sauce soja.","Incorpore les nouilles, mélange et sers."],
+"Quiche lorraine & salade":["Préchauffe le four à 190°C. Étale la pâte dans un moule.","Fais revenir les lardons.","Bats œufs, crème, sel, poivre.","Répartis lardons et fromage sur la pâte, verse l'appareil.","Enfourne 35 min. Sers avec la salade."],
+"Boulettes & purée":["Mélange viande, chapelure, œuf, sel, poivre. Forme des boulettes.","Poêle-les 10 min en les retournant.","Cuis les pommes de terre, écrase-les avec le lait.","Dresse les boulettes sur la purée.","Nappe d'un peu de jus de cuisson."],
+"Risotto aux champignons":["Émince l'oignon et les champignons.","Fais revenir l'oignon, ajoute le riz jusqu'à transparence.","Ajoute le bouillon louche par louche en remuant.","À mi-cuisson, ajoute les champignons poêlés.","Termine avec le parmesan, mélange crémeux et sers."],
+"Tacos maison":["Fais revenir la viande hachée assaisonnée.","Réchauffe les tortillas.","Coupe tomate et salade.","Garnis chaque tortilla de viande, maïs, légumes, fromage.","Plie et sers aussitôt."],
+"Soupe de légumes & croûtons":["Épluche et coupe poireaux, carottes, pommes de terre, oignon.","Fais revenir puis couvre d'eau, sale.","Laisse mijoter 25 min.","Mixe jusqu'à consistance lisse.","Toaste le pain en croûtons et sers dessus."],
+"Filet de dinde & haricots verts":["Cuis les pommes de terre à l'eau.","Cuis les haricots verts 10 min.","Poêle les escalopes de dinde avec l'ail.","Fais sauter les haricots au beurre.","Dresse le tout ensemble."],
+"Lasagnes maison":["Prépare une sauce bolognaise (viande + tomates, 20 min).","Préchauffe le four à 190°C.","Alterne plaques, bolognaise et béchamel dans un plat.","Termine par de la béchamel et du fromage.","Enfourne 30 min jusqu'à gratiner."],
+"Salade César au poulet":["Poêle le poulet et coupe-le en lamelles.","Toaste le pain en croûtons.","Lave et coupe la salade romaine.","Mélange salade, poulet, croûtons et sauce César.","Parsème de copeaux de parmesan."],
+"Galettes de sarrasin garnies":["Réchauffe une galette dans une poêle.","Casse un œuf au centre, ajoute jambon et fromage.","Laisse fondre le fromage.","Replie les bords de la galette.","Répète pour chaque galette et sers chaud."],
+"Pâtes au saumon & épinards":["Cuis les pâtes al dente.","Fais tomber les épinards à la poêle.","Ajoute la crème et le saumon coupé en lamelles.","Mélange avec les pâtes et un trait de citron.","Sers aussitôt."],
+"Hachis parmentier":["Cuis les pommes de terre et écrase-les avec le lait.","Fais revenir l'oignon et la viande hachée.","Dispose la viande dans un plat, couvre de purée.","Parsème de fromage râpé.","Enfourne 20 min à 200°C jusqu'à gratiner."],
+"Brochettes de poulet mariné":["Coupe le poulet en cubes, marine avec miel et sauce soja 15 min.","Coupe poivron et courgette en morceaux.","Monte les brochettes en alternant poulet et légumes.","Cuis 12 min au four ou à la poêle en retournant.","Sers avec le riz."],
+"Dahl de lentilles corail":["Émince l'oignon et fais-le revenir avec le curry.","Ajoute les tomates et le lait de coco.","Verse les lentilles corail, mijote 20 min.","Cuis le riz basmati à part.","Sers le dahl sur le riz."],
+"Pizza maison":["Préchauffe le four à 220°C.","Étale la pâte, tartine de sauce tomate.","Répartis mozzarella, jambon et champignons.","Enfourne 12 min.","Coupe et sers bien chaud."],
+"Cordon bleu & gratin":["Cuis les pommes de terre en rondelles 15 min.","Dispose-les dans un plat, nappe de crème, parsème de fromage.","Enfourne le gratin 25 min à 200°C.","Poêle les cordons bleus 4 min par face.","Sers ensemble."],
+"Buddha bowl":["Cuis le quinoa 15 min.","Coupe avocat, carotte et concombre.","Égoutte les pois chiches.","Dispose harmonieusement tous les éléments dans un bol.","Parsème de graines de courge et assaisonne."],
+"Poêlée de gnocchis":["Poêle les gnocchis 8 min jusqu'à dorés.","Ajoute les tomates cerises et la courgette en dés.","Laisse cuire 5 min.","Ajoute la mozzarella en morceaux.","Parsème de basilic et sers."],
+"Papillote de poisson blanc":["Préchauffe le four à 190°C.","Émince courgette et carotte.","Place poisson et légumes sur du papier cuisson, ajoute citron.","Ferme la papillote et enfourne 20 min.","Sers avec le riz."],
+"Croque-monsieur & salade":["Tartine les tranches de béchamel.","Garnis de jambon et fromage, referme.","Poêle ou passe au four jusqu'à doré.","Prépare la salade verte assaisonnée.","Sers les croques avec la salade."],
+"Couscous poulet-légumes":["Coupe le poulet et fais-le dorer.","Ajoute courgette et carottes en morceaux, couvre d'eau et épices.","Mijote 25 min, ajoute les pois chiches.","Prépare la semoule selon le paquet.","Sers le poulet et les légumes sur la semoule."],
+"Riz cantonais maison":["Cuis le riz et laisse-le refroidir.","Fais une omelette et coupe-la en lamelles.","Poêle le riz avec le jambon et les petits pois.","Ajoute l'omelette et la sauce soja.","Mélange et sers chaud."],
+"Tarte aux légumes & chèvre":["Préchauffe le four à 190°C. Étale la pâte.","Coupe courgette et tomate en rondelles.","Bats œufs et crème, verse sur la pâte.","Dispose les légumes et le chèvre en rondelles.","Enfourne 35 min."],
+"Steak haché & frites maison":["Coupe les pommes de terre en frites.","Enfourne-les 30 min à 220°C avec l'huile.","Poêle les steaks selon ta cuisson.","Prépare la salade verte.","Sers le tout ensemble."],
+"Velouté potiron & lardons":["Coupe le potiron et la pomme de terre en cubes.","Fais revenir l'oignon, ajoute les légumes et couvre d'eau.","Mijote 25 min puis mixe.","Ajoute la crème, mélange.","Poêle les lardons et parsème dessus."],
+"Nuggets maison & légumes":["Coupe le poulet en morceaux.","Passe-les dans l'œuf battu puis la chapelure.","Cuis 20 min au four à 200°C.","Cuis haricots verts et pommes de terre.","Sers les nuggets avec les légumes."],
+"Pâtes pesto & poulet":["Cuis les pâtes al dente.","Poêle le poulet coupé en dés.","Mélange les pâtes avec le pesto.","Ajoute le poulet et les tomates cerises.","Parsème de parmesan et sers."],
+"Gratin de chou-fleur":["Cuis le chou-fleur et les pommes de terre 15 min.","Dispose dans un plat avec le jambon en morceaux.","Nappe de béchamel, parsème de fromage.","Enfourne 25 min à 200°C.","Sers bien gratiné."],
+"Bol de nouilles thaï":["Cuis les nouilles de riz, égoutte.","Poêle le poulet et la carotte émincée.","Ajoute le lait de coco, laisse mijoter.","Incorpore les nouilles.","Parsème de cacahuètes et coriandre."],
+"Œufs cocotte & mouillettes":["Préchauffe le four à 180°C.","Fais tomber les épinards à la poêle.","Répartis épinards et crème dans des ramequins, casse un œuf dessus.","Parsème de fromage, enfourne 12 min au bain-marie.","Toaste le pain en mouillettes et sers."],
+"Boudin blanc & purée pommes":["Cuis les pommes de terre et écrase-les avec le lait et le beurre.","Coupe les pommes en quartiers et poêle-les.","Poêle les boudins blancs 10 min.","Dresse boudin, purée et pommes.","Sers chaud."],
+};
+
 let currentMeals = [];
 let currentMeal = null;
 let mealPortions = 4;
@@ -1427,6 +1561,47 @@ async function addMealToShop(){
   } catch(e){
     document.getElementById('meal-added-msg').textContent = 'Erreur, réessaie';
   }
+}
+
+// ── RECETTE EN SLIDES ──
+let recipeStep = 0;
+let recipeSteps = [];
+function openRecipe(){
+  recipeSteps = MEAL_STEPS[currentMeal.n] || ["Recette non disponible pour ce plat."];
+  recipeStep = 0;
+  document.getElementById('recipe-title').textContent = currentMeal.n;
+  document.getElementById('recipe-overlay').style.display = 'flex';
+  renderRecipeStep();
+}
+function closeRecipe(){
+  document.getElementById('recipe-overlay').style.display = 'none';
+}
+function renderRecipeStep(){
+  document.getElementById('recipe-step-num').textContent = `Étape ${recipeStep+1} / ${recipeSteps.length}`;
+  document.getElementById('recipe-step-text').textContent = recipeSteps[recipeStep];
+  // Points de progression
+  let dots = '';
+  for(let i=0;i<recipeSteps.length;i++){
+    dots += `<div style="width:7px;height:7px;border-radius:50%;background:${i===recipeStep?'#5AAE7A':'rgba(255,255,255,.25)'}"></div>`;
+  }
+  document.getElementById('recipe-dots').innerHTML = dots;
+  // Boutons
+  document.getElementById('recipe-prev').style.visibility = recipeStep === 0 ? 'hidden' : 'visible';
+  const next = document.getElementById('recipe-next');
+  if(recipeStep === recipeSteps.length-1){
+    next.textContent = 'Terminé ✓';
+    next.style.background = '#5AAE7A';
+  } else {
+    next.textContent = 'Suivant ›';
+    next.style.background = '#2D7A4F';
+  }
+}
+function recipeNext(){
+  if(recipeStep < recipeSteps.length-1){ recipeStep++; renderRecipeStep(); }
+  else { closeRecipe(); }
+}
+function recipePrev(){
+  if(recipeStep > 0){ recipeStep--; renderRecipeStep(); }
 }
 pickMeals();
 
@@ -1556,10 +1731,12 @@ async function loadTodos(){
     todos = d.list || [];
     // Réparer les ids en double (ancien bug de seed)
     const seenT = new Set();
+    let repairedT = false;
     todos.forEach(it => {
-      if(it.id == null || seenT.has(it.id)) it.id = uid();
+      if(it.id == null || seenT.has(it.id)){ it.id = uid(); repairedT = true; }
       seenT.add(it.id);
     });
+    if(repairedT) await saveTodos();
     // Pré-chargement unique des tâches TickTick
     if(!d.seeded){
       TODO_SEED.forEach((txt) => todos.push({id: uid(), txt, quad:'inbox', done:false}));
