@@ -259,6 +259,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 <!-- MÉTÉO -->
 <div style="background:#1A1814;padding:0 0 .6rem">
   <div id="weather-bar" style="display:flex;justify-content:space-around;gap:4px;padding:.5rem .75rem;max-width:600px;margin:0 auto"></div>
+  <div id="weather-hourly" style="display:flex;gap:8px;overflow-x:auto;padding:.25rem .75rem .5rem;max-width:600px;margin:0 auto;-webkit-overflow-scrolling:touch"></div>
 </div>
 
 
@@ -761,7 +762,7 @@ loadICloudPhotos();
 async function loadWeather(){
   try {
     const lat = 50.45, lon = 4.93; // Erpent (Namur)
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=weather_code,temperature_2m&timezone=auto&forecast_days=5`;
     const r = await fetch(url);
     const data = await r.json();
     const d = data.daily;
@@ -792,6 +793,29 @@ async function loadWeather(){
       </div>`;
     }
     document.getElementById('weather-bar').innerHTML = html;
+
+    // Météo heure par heure (de maintenant jusqu'à la fin de la journée + lendemain matin)
+    const hd = data.hourly;
+    if(hd){
+      const now = new Date();
+      let hhtml = '';
+      let shown = 0;
+      for(let i=0;i<hd.time.length && shown<18;i++){
+        const t = new Date(hd.time[i]);
+        if(t < now - 3600000) continue; // ignorer le passé
+        const h = t.getHours();
+        const label = (shown===0 && t.getHours()===now.getHours()) ? 'Maint.' : h+'h';
+        const temp = Math.round(hd.temperature_2m[i]);
+        hhtml += `<div style="flex:0 0 auto;text-align:center;color:#fff;min-width:38px">
+          <div style="font-size:9px;color:rgba(255,255,255,.5)">${label}</div>
+          <div style="font-size:17px;line-height:1.5">${icon(hd.weather_code[i])}</div>
+          <div style="font-size:10px;font-weight:600">${temp}°</div>
+        </div>`;
+        shown++;
+      }
+      const hel = document.getElementById('weather-hourly');
+      if(hel) hel.innerHTML = hhtml;
+    }
   } catch(e){
     const el = document.getElementById('weather-bar');
     if(el) el.innerHTML = '';
