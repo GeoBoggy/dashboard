@@ -78,6 +78,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .agenda-loading{font-size:10px;color:#B0AA9E;text-align:center;padding:8px 0}
 .agenda-empty{font-size:10px;color:#B0AA9E;text-align:center;padding:8px 0}
 </style>
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 </head>
 <body>
 
@@ -122,6 +126,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div style="display:flex;gap:10px;align-items:center">
       <div onclick="openTodo()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes tâches">✅</div>
       <div onclick="openWatch()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="À regarder">🎥</div>
+      <div onclick="openDreams()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes rêves">🌍</div>
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
@@ -146,6 +151,34 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div id="journal-content" style="padding:1.25rem;max-width:600px;margin:0 auto">
     <div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Chargement...</div>
+  </div>
+</div>
+
+<!-- MES RÊVES (overlay) -->
+<div id="dreams-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🌍 Mes rêves</span>
+    <div onclick="closeDreams()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1.25rem;max-width:700px;margin:0 auto">
+
+    <!-- Carte des pays visités -->
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem">
+      <h2 style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814;margin:0">Pays visités</h2>
+      <span id="country-count" style="font-size:14px;font-weight:700;color:#2D7A4F">0 / 195</span>
+    </div>
+    <div style="font-size:12px;color:#7A7468;margin-bottom:.75rem">Clique sur un pays pour le marquer comme visité 🟢</div>
+    <div id="worldmap" style="width:100%;height:340px;background:#fff;border:1px solid #E2DDD4;border-radius:12px"></div>
+    <div id="visited-list" style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:6px"></div>
+
+    <!-- Énoncé de mission -->
+    <h2 style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814;margin:1.75rem 0 .5rem">✨ Mon énoncé de mission de vie</h2>
+    <textarea id="dream-mission" rows="5" placeholder="Quelle est la mission de ta vie ? Ce qui te porte, ce que tu veux incarner, l'empreinte que tu veux laisser..." style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:12px;border:1px solid #E2DDD4;border-radius:10px;background:#fff;color:#1A1814;outline:none;resize:vertical;line-height:1.6" onblur="saveDreams()"></textarea>
+
+    <!-- Objectifs long terme -->
+    <h2 style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814;margin:1.5rem 0 .5rem">🎯 Mes objectifs à long terme</h2>
+    <textarea id="dream-goals" rows="7" placeholder="Tes grands objectifs de vie : famille, carrière, voyages, projets, accomplissements... Écris-les noir sur blanc, ça les rend réels." style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:12px;border:1px solid #E2DDD4;border-radius:10px;background:#fff;color:#1A1814;outline:none;resize:vertical;line-height:1.6" onblur="saveDreams()"></textarea>
+    <div id="dreams-saved" style="text-align:center;font-size:12px;color:#2D7A4F;margin-top:8px;min-height:16px"></div>
   </div>
 </div>
 
@@ -1158,6 +1191,134 @@ function openBilan(){
 function closeBilan(){
   document.getElementById('bilan-overlay').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+// ── MES RÊVES (carte pays + mission + objectifs) ──
+let visitedCountries = [];
+let dreamMission = '';
+let dreamGoals = '';
+let mapChart = null;
+let mapPolygonSeries = null;
+let mapRoot = null;
+
+async function openDreams(){
+  document.getElementById('dreams-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await loadDreams();
+  setTimeout(initWorldMap, 100);
+}
+function closeDreams(){
+  document.getElementById('dreams-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  if(mapRoot){ mapRoot.dispose(); mapRoot = null; mapChart = null; mapPolygonSeries = null; }
+}
+async function loadDreams(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.dreams_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    visitedCountries = d.countries || [];
+    dreamMission = d.mission || '';
+    dreamGoals = d.goals || '';
+  } catch(e){ visitedCountries = []; dreamMission=''; dreamGoals=''; }
+  document.getElementById('dream-mission').value = dreamMission;
+  document.getElementById('dream-goals').value = dreamGoals;
+  updateCountryCount();
+}
+async function saveDreams(){
+  dreamMission = document.getElementById('dream-mission').value;
+  dreamGoals = document.getElementById('dream-goals').value;
+  const data = {countries: visitedCountries, mission: dreamMission, goals: dreamGoals};
+  const body = JSON.stringify({data});
+  try {
+    const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.dreams_global`, {
+      method: 'PATCH',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'},
+      body
+    });
+    const res = await patch.json();
+    if(!res || res.length === 0){
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'dreams_global', data})
+      });
+    }
+    const msg = document.getElementById('dreams-saved');
+    if(msg){ msg.textContent = '✓ Enregistré'; setTimeout(()=>msg.textContent='',1500); }
+  } catch(e){}
+}
+function updateCountryCount(){
+  const el = document.getElementById('country-count');
+  if(el) el.textContent = visitedCountries.length + ' / 195';
+  // Liste des pays visités sous la carte
+  const list = document.getElementById('visited-list');
+  if(list){
+    list.innerHTML = visitedCountries.map(c =>
+      `<span style="font-size:11px;background:#E9F3ED;color:#2D7A4F;border-radius:12px;padding:3px 10px">${mapCountryName(c)}</span>`
+    ).join('');
+  }
+}
+let countryNameMap = {};
+function mapCountryName(id){ return countryNameMap[id] || id; }
+
+function initWorldMap(){
+  if(typeof am5 === 'undefined'){
+    document.getElementById('worldmap').innerHTML = '<div style="text-align:center;padding:2rem;color:#B0AA9E;font-size:13px">Carte indisponible (connexion requise)</div>';
+    return;
+  }
+  if(mapRoot) return; // déjà initialisée
+  mapRoot = am5.Root.new('worldmap');
+  mapRoot.setThemes([am5themes_Animated.new(mapRoot)]);
+  mapChart = mapRoot.container.children.push(am5map.MapChart.new(mapRoot, {
+    panX:'rotateX', panY:'none', projection: am5map.geoMercator(), paddingBottom:0
+  }));
+  mapPolygonSeries = mapChart.series.push(am5map.MapPolygonSeries.new(mapRoot, {
+    geoJSON: am5geodata_worldLow, exclude:['AQ']
+  }));
+  mapPolygonSeries.mapPolygons.template.setAll({
+    interactive: true,
+    fill: am5.color(0xD8D3C8),
+    stroke: am5.color(0xffffff),
+    strokeWidth: 0.5
+  });
+  mapPolygonSeries.mapPolygons.template.states.create('hover', { fill: am5.color(0x9DC9AE) });
+
+  // Construire la map des noms
+  mapPolygonSeries.events.on('datavalidated', function(){
+    mapPolygonSeries.dataItems.forEach(function(di){
+      const id = di.get('id');
+      const name = di.dataContext.name;
+      if(id) countryNameMap[id] = name;
+    });
+    updateCountryCount();
+    colorVisited();
+  });
+
+  // Clic sur un pays
+  mapPolygonSeries.mapPolygons.template.events.on('click', function(ev){
+    const id = ev.target.dataItem.get('id');
+    if(!id) return;
+    const idx = visitedCountries.indexOf(id);
+    if(idx === -1){ visitedCountries.push(id); }
+    else { visitedCountries.splice(idx,1); }
+    colorVisited();
+    updateCountryCount();
+    saveDreams();
+  });
+}
+function colorVisited(){
+  if(!mapPolygonSeries) return;
+  mapPolygonSeries.mapPolygons.each(function(polygon){
+    const id = polygon.dataItem.get('id');
+    if(visitedCountries.indexOf(id) !== -1){
+      polygon.set('fill', am5.color(0x2D7A4F));
+    } else {
+      polygon.set('fill', am5.color(0xD8D3C8));
+    }
+  });
 }
 
 // ── À REGARDER (watchlist) ──
