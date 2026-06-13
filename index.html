@@ -760,7 +760,7 @@ loadICloudPhotos();
 // ── MÉTÉO (Open-Meteo, Bruxelles) ──
 async function loadWeather(){
   try {
-    const lat = 50.85, lon = 4.35; // Bruxelles
+    const lat = 50.45, lon = 4.93; // Erpent (Namur)
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5`;
     const r = await fetch(url);
     const data = await r.json();
