@@ -258,7 +258,12 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
 <!-- MÉTÉO -->
 <div style="background:#1A1814;padding:0 0 .6rem">
-  <div id="weather-bar" style="display:flex;justify-content:space-around;gap:4px;padding:.5rem .75rem;max-width:600px;margin:0 auto"></div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:6px;padding:.4rem .75rem .2rem;max-width:600px;margin:0 auto">
+    <span style="font-size:11px;color:rgba(255,255,255,.5)">📍</span>
+    <input id="weather-city" type="text" placeholder="Erpent" onkeydown="if(event.key==='Enter')searchCity()" style="flex:0 1 160px;font-family:'DM Sans',sans-serif;font-size:12px;padding:4px 9px;border:1px solid rgba(255,255,255,.2);border-radius:14px;background:rgba(255,255,255,.08);color:#fff;outline:none;text-align:center">
+    <span id="weather-loc" onclick="resetCity()" style="font-size:11px;color:rgba(255,255,255,.55);cursor:pointer"></span>
+  </div>
+  <div id="weather-bar" style="display:flex;justify-content:space-around;gap:4px;padding:.3rem .75rem;max-width:600px;margin:0 auto"></div>
   <div id="weather-hourly" style="display:flex;gap:8px;overflow-x:auto;padding:.25rem .75rem .5rem;max-width:600px;margin:0 auto;-webkit-overflow-scrolling:touch"></div>
 </div>
 
@@ -758,10 +763,28 @@ async function loadICloudPhotos(){
 }
 loadICloudPhotos();
 
-// ── MÉTÉO (Open-Meteo, Bruxelles) ──
+// ── MÉTÉO (Open-Meteo) ──
+let weatherLat = 50.45, weatherLon = 4.93, weatherCityName = 'Erpent'; // défaut Erpent
 async function loadWeather(){
   try {
-    const lat = 50.45, lon = 4.93; // Erpent (Namur)
+    // Récupère la ville sauvegardée (si voyage)
+    try {
+      const cr = await fetch(`${SB_URL}/rest/v1/journal?date=eq.weather_city&select=data`, {
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+      });
+      const crows = await cr.json();
+      if(crows && crows[0] && crows[0].data && crows[0].data.lat){
+        weatherLat = crows[0].data.lat;
+        weatherLon = crows[0].data.lon;
+        weatherCityName = crows[0].data.name || '';
+      }
+    } catch(e){}
+    const locEl = document.getElementById('weather-loc');
+    if(locEl) locEl.textContent = weatherCityName;
+    const cityInput = document.getElementById('weather-city');
+    if(cityInput) cityInput.placeholder = weatherCityName || 'Ville';
+
+    const lat = weatherLat, lon = weatherLon;
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&hourly=weather_code,temperature_2m&timezone=auto&forecast_days=5`;
     const r = await fetch(url);
     const data = await r.json();
@@ -785,7 +808,7 @@ async function loadWeather(){
       const jour = i===0 ? "Auj." : JOURS[date.getDay()];
       const max = Math.round(d.temperature_2m_max[i]);
       const min = Math.round(d.temperature_2m_min[i]);
-      html += `<div style="flex:1;text-align:center;color:#fff">
+      html += `<div onclick="showHourly(${i})" data-day="${i}" style="flex:1;text-align:center;color:#fff;cursor:pointer;border-radius:8px;padding:4px 2px;transition:background .15s">
         <div style="font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.04em">${jour}</div>
         <div style="font-size:22px;line-height:1.4">${icon(d.weather_code[i])}</div>
         <div style="font-size:11px;font-weight:700">${max}°</div>
@@ -794,34 +817,101 @@ async function loadWeather(){
     }
     document.getElementById('weather-bar').innerHTML = html;
 
-    // Météo heure par heure (de maintenant jusqu'à la fin de la journée + lendemain matin)
-    const hd = data.hourly;
-    if(hd){
-      const now = new Date();
-      let hhtml = '';
-      let shown = 0;
-      for(let i=0;i<hd.time.length && shown<18;i++){
-        const t = new Date(hd.time[i]);
-        if(t < now - 3600000) continue; // ignorer le passé
-        const h = t.getHours();
-        const label = (shown===0 && t.getHours()===now.getHours()) ? 'Maint.' : h+'h';
-        const temp = Math.round(hd.temperature_2m[i]);
-        hhtml += `<div style="flex:0 0 auto;text-align:center;color:#fff;min-width:38px">
-          <div style="font-size:9px;color:rgba(255,255,255,.5)">${label}</div>
-          <div style="font-size:17px;line-height:1.5">${icon(hd.weather_code[i])}</div>
-          <div style="font-size:10px;font-weight:600">${temp}°</div>
-        </div>`;
-        shown++;
-      }
-      const hel = document.getElementById('weather-hourly');
-      if(hel) hel.innerHTML = hhtml;
-    }
+    // Stocke les données horaires globalement pour l'affichage par jour
+    window._weatherHourly = data.hourly;
+    window._weatherIcon = icon;
+    window._weatherDays = d.time;
+    showHourly(0); // affiche aujourd'hui par défaut
   } catch(e){
     const el = document.getElementById('weather-bar');
     if(el) el.innerHTML = '';
   }
 }
 loadWeather();
+
+async function resetCity(){
+  weatherLat = 50.45; weatherLon = 4.93; weatherCityName = 'Erpent';
+  const body = JSON.stringify({data: {lat: weatherLat, lon: weatherLon, name: weatherCityName}});
+  try {
+    await fetch(`${SB_URL}/rest/v1/journal?date=eq.weather_city`, {
+      method: 'PATCH',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+      body
+    });
+  } catch(e){}
+  loadWeather();
+}
+
+// Recherche d'une ville par son nom (géocodage Open-Meteo)
+async function searchCity(){
+  const input = document.getElementById('weather-city');
+  const q = input.value.trim();
+  if(!q) return;
+  const locEl = document.getElementById('weather-loc');
+  if(locEl) locEl.textContent = 'Recherche...';
+  try {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=fr`);
+    const data = await r.json();
+    if(!data.results || !data.results.length){
+      if(locEl) locEl.textContent = 'Ville introuvable';
+      return;
+    }
+    const res = data.results[0];
+    weatherLat = res.latitude;
+    weatherLon = res.longitude;
+    weatherCityName = res.name + (res.country_code ? ' ('+res.country_code+')' : '');
+    input.value = '';
+    // Sauvegarder le choix
+    const body = JSON.stringify({data: {lat: weatherLat, lon: weatherLon, name: weatherCityName}});
+    const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.weather_city`, {
+      method: 'PATCH',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'},
+      body
+    });
+    const pres = await patch.json();
+    if(!pres || pres.length === 0){
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'weather_city', data: {lat: weatherLat, lon: weatherLon, name: weatherCityName}})
+      });
+    }
+    loadWeather();
+  } catch(e){
+    if(locEl) locEl.textContent = 'Erreur';
+  }
+}
+
+// Affiche la météo horaire d'un jour donné (index 0 = aujourd'hui)
+function showHourly(dayIdx){
+  const hd = window._weatherHourly;
+  const icon = window._weatherIcon;
+  const days = window._weatherDays;
+  if(!hd || !icon || !days) return;
+  const dayStr = days[dayIdx]; // "2026-06-15"
+  const now = new Date();
+  let hhtml = '';
+  for(let i=0;i<hd.time.length;i++){
+    if(hd.time[i].slice(0,10) !== dayStr) continue;
+    const t = new Date(hd.time[i]);
+    // Pour aujourd'hui, n'affiche que les heures à venir ; pour les autres jours, toutes les heures
+    if(dayIdx === 0 && t < now - 3600000) continue;
+    const h = t.getHours();
+    const label = (dayIdx===0 && h===now.getHours()) ? 'Maint.' : h+'h';
+    const temp = Math.round(hd.temperature_2m[i]);
+    hhtml += `<div style="flex:0 0 auto;text-align:center;color:#fff;min-width:38px">
+      <div style="font-size:9px;color:rgba(255,255,255,.5)">${label}</div>
+      <div style="font-size:17px;line-height:1.5">${icon(hd.weather_code[i])}</div>
+      <div style="font-size:10px;font-weight:600">${temp}°</div>
+    </div>`;
+  }
+  const hel = document.getElementById('weather-hourly');
+  if(hel) hel.innerHTML = hhtml;
+  // Surligne le jour sélectionné
+  document.querySelectorAll('#weather-bar [data-day]').forEach(el=>{
+    el.style.background = (parseInt(el.getAttribute('data-day'))===dayIdx) ? 'rgba(255,255,255,.12)' : 'transparent';
+  });
+}
 
 
 // State & Supabase
@@ -1080,8 +1170,18 @@ function formatDate(d){
   return days[dt.getDay()]+' '+dt.getDate();
 }
 
+let crossedEvents = [];
 async function loadAgenda(){
   try {
+    // Charger les événements barrés depuis Supabase
+    try {
+      const cr = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events&select=data`, {
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+      });
+      const crows = await cr.json();
+      crossedEvents = (crows && crows[0] && crows[0].data && crows[0].data.list) ? crows[0].data.list : [];
+    } catch(e){ crossedEvents = []; }
+
     const r = await fetch(AGENDA_URL);
     const events = await r.json();
     
@@ -1092,21 +1192,58 @@ async function loadAgenda(){
     function renderCol(evts, colId) {
       const el = document.getElementById(colId);
       if(!evts.length){el.innerHTML='<div class="agenda-empty">Rien cette semaine</div>';return;}
-      el.innerHTML = evts.slice(0,4).map(e=>`
-        <div class="agenda-event">
+      el.innerHTML = evts.slice(0,4).map(e=>{
+        const eid = (e.id || (e.title + e.date));
+        const crossed = crossedEvents.indexOf(eid) !== -1;
+        const style = crossed ? 'opacity:.4;text-decoration:line-through' : '';
+        return `<div class="agenda-event" onclick="toggleCrossed('${eid.replace(/'/g,"")}')" style="cursor:pointer;${style}">
           <span class="agenda-event-time">${formatDate(e.date)}</span>
           <span class="agenda-event-title">${e.title}</span>
-        </div>`).join('');
+        </div>`;
+      }).join('');
     }
     
     renderCol(taches, 'col-taches');
     renderCol(meetings, 'col-meetings');
     renderCol(partage, 'col-partage');
+    window._agendaCols = {taches, meetings, partage, renderCol};
   } catch(e) {
     ['col-taches','col-meetings','col-partage'].forEach(id=>{
       document.getElementById(id).innerHTML='<div class="agenda-empty">Erreur</div>';
     });
   }
+}
+function toggleCrossed(eid){
+  const idx = crossedEvents.indexOf(eid);
+  if(idx === -1) crossedEvents.push(eid);
+  else crossedEvents.splice(idx,1);
+  // Re-render avec le nouvel état
+  if(window._agendaCols){
+    const {taches, meetings, partage, renderCol} = window._agendaCols;
+    renderCol(taches, 'col-taches');
+    renderCol(meetings, 'col-meetings');
+    renderCol(partage, 'col-partage');
+  }
+  // Sauvegarder
+  saveCrossed();
+}
+async function saveCrossed(){
+  const body = JSON.stringify({data: {list: crossedEvents}});
+  try {
+    const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events`, {
+      method: 'PATCH',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'},
+      body
+    });
+    const res = await patch.json();
+    if(!res || res.length === 0){
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'crossed_events', data: {list: crossedEvents}})
+      });
+    }
+  } catch(e){}
 }
 loadAgenda();
 
