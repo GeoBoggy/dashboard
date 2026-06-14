@@ -1173,13 +1173,14 @@ function formatDate(d){
 let crossedEvents = [];
 async function loadAgenda(){
   try {
-    // Charger les événements barrés depuis Supabase
+    // Charger les événements barrés depuis Supabase (sans cache)
     try {
-      const cr = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events&select=data`, {
-        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+      const cr = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events&select=data&_=${Date.now()}`, {
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+        cache: 'no-store'
       });
       const crows = await cr.json();
-      crossedEvents = (crows && crows[0] && crows[0].data && crows[0].data.list) ? crows[0].data.list : [];
+      crossedEvents = (crows && crows[0] && crows[0].data && Array.isArray(crows[0].data.list)) ? crows[0].data.list : [];
     } catch(e){ crossedEvents = []; }
 
     const r = await fetch(AGENDA_URL);
@@ -1242,13 +1243,18 @@ async function saveCrossed(){
     });
     const res = await patch.json();
     if(!res || res.length === 0){
-      await fetch(`${SB_URL}/rest/v1/journal`, {
+      // La ligne n'existe pas encore → on la crée
+      const post = await fetch(`${SB_URL}/rest/v1/journal`, {
         method: 'POST',
-        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'},
         body: JSON.stringify({date: 'crossed_events', data: {list: crossedEvents}})
       });
+      const pres = await post.json();
+      console.log('crossed_events créé', pres);
+    } else {
+      console.log('crossed_events mis à jour', res.length, 'ligne(s)');
     }
-  } catch(e){}
+  } catch(e){ console.log('Erreur sauvegarde crossed_events', e); }
 }
 loadAgenda();
 
@@ -1777,10 +1783,24 @@ function renderShop(){
     const s = SHOPS[key];
     const items = shopItems.filter(t => t.shop === key);
     html += `<div data-shop="${key}" ondrop="shopDrop(event,'${key}')" ondragover="shopAllowDrop(event)" style="background:${s.bg};border-radius:10px;padding:10px;min-height:110px">
-      <div style="font-size:12px;font-weight:700;color:${s.color};margin-bottom:8px">${s.titre}</div>${shopItemsHtml(items)}</div>`;
+      <div style="font-size:12px;font-weight:700;color:${s.color};margin-bottom:8px">${s.titre}</div>${shopItemsHtml(items)}
+      <input type="text" placeholder="+ ajouter" onkeydown="if(event.key==='Enter')addShopTo('${key}',this)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 7px;margin-top:4px;border:1px dashed ${s.color}55;border-radius:6px;background:rgba(255,255,255,.6);color:#1A1814;outline:none">
+    </div>`;
   }
   html += '</div>';
   cont.innerHTML = html;
+}
+function addShopTo(shop, inputEl){
+  const txt = inputEl.value.trim();
+  if(!txt) return;
+  shopItems.push({id: uid(), txt, done:false, shop});
+  renderShop();
+  saveShop();
+  // Re-focus sur le même champ (qui a été recréé) pour enchaîner les ajouts
+  setTimeout(()=>{
+    const zone = document.querySelector(`[data-shop="${shop}"] input`);
+    if(zone) zone.focus();
+  }, 50);
 }
 function shopItemsHtml(items){
   if(items.length === 0) return `<div style="font-size:10px;color:#C4BDB0;font-style:italic">Vide</div>`;
