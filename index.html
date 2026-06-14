@@ -491,6 +491,14 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-users"/></svg></div></div>
       <span class="tile-lbl">Fédérer</span>
     </div>
+    <div class="tile" onclick="tgl(this,'divert')" data-field="divert">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-tv"/></svg></div></div>
+      <span class="tile-lbl">Divertissement</span>
+      <div onclick="event.stopPropagation()" style="display:flex;flex-direction:column;gap:3px;margin-top:-2px">
+        <a href="audible://library" onclick="event.stopPropagation();openApp('audible://library','https://www.audible.fr/library');return false;" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📖 Harry Potter</a>
+        <a href="https://app.primevideo.com/detail?gti=amzn1.dv.gti.the-boys" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📺 The Boys</a>
+      </div>
+    </div>
   </div>
   <div class="card" style="margin-top:.75rem">
     <div style="padding:.7rem .9rem">
@@ -559,14 +567,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'cigarette')" data-field="cigarette">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-no-smoke"/></svg></div></div>
       <span class="tile-lbl">Cigarette refusée</span>
-      <span class="smoke-day" id="smoke-day"></span>
-      <span onclick="event.stopPropagation();resetSmoke()" style="font-size:18px;cursor:pointer;margin-top:-2px">😔</span>
     </div>
     <div class="tile" onclick="tgl(this,'verre')" data-field="verre">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-glass"/></svg></div></div>
       <span class="tile-lbl">Verre refusé</span>
-      <span class="smoke-day" id="verre-day"></span>
-      <span onclick="event.stopPropagation();resetVerre()" style="font-size:18px;cursor:pointer;margin-top:-2px">🤷</span>
     </div>
     <div class="tile" onclick="tgl(this,'pas')" data-field="pas">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-steps"/></svg></div></div>
@@ -609,16 +613,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <div class="page" style="background:#3A5A9A">
-  <div class="page-title">Divertissement</div>
+  <div class="page-title">Rire & légèreté</div>
   <div class="sg">
-    <div class="tile" onclick="tgl(this,'divert')" data-field="divert">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-tv"/></svg></div></div>
-      <span class="tile-lbl">Divertissement</span>
-      <div onclick="event.stopPropagation()" style="display:flex;flex-direction:column;gap:3px;margin-top:-2px">
-        <a href="audible://library" onclick="event.stopPropagation();openApp('audible://library','https://www.audible.fr/library');return false;" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📖 Harry Potter</a>
-        <a href="https://app.primevideo.com/detail?gti=amzn1.dv.gti.the-boys" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📺 The Boys</a>
-      </div>
-    </div>
     <div class="tile" onclick="tgl(this,'rigole')" data-field="rigole">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-smile"/></svg></div></div>
       <span class="tile-lbl">J'ai rigolé</span>
@@ -675,14 +671,17 @@ const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août'
 document.getElementById('hdr-day').textContent=DAYS[now.getDay()];
 document.getElementById('hdr-date').textContent=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
 
-// Smoke days - date stockée dans state
+// Smoke days - date stockée dans state (compteur record conservé en mémoire)
 function updateSmokeDisplay(){
   const startDate = state.smoke_start || '2026-06-06';
   const sd = Math.max(0, Math.floor((new Date() - new Date(startDate + 'T00:00:00')) / 864e5));
   const record = state.smoke_record || 0;
-  const trophy = (sd > 0 && sd >= record) ? ' 🏆' : '';
   if(sd > record){ state.smoke_record = sd; }
-  document.getElementById('smoke-day').textContent = (sd === 0 ? "Aujourd'hui, jour 1 !" : 'Jour ' + sd + ' sans fumer') + trophy;
+  const el = document.getElementById('smoke-day');
+  if(el){
+    const trophy = (sd > 0 && sd >= record) ? ' 🏆' : '';
+    el.textContent = (sd === 0 ? "Aujourd'hui, jour 1 !" : 'Jour ' + sd + ' sans fumer') + trophy;
+  }
 }
 function resetSmoke(){
   if(!confirm('Tu as craqué ? Le compteur repart à zéro.')) return;
@@ -694,9 +693,12 @@ function updateVerreDisplay(){
   const startDate = state.verre_start || '2026-06-09';
   const sd = Math.max(0, Math.floor((new Date() - new Date(startDate + 'T00:00:00')) / 864e5));
   const record = state.verre_record || 0;
-  const trophy = (sd > 0 && sd >= record) ? ' 🏆' : '';
   if(sd > record){ state.verre_record = sd; }
-  document.getElementById('verre-day').textContent = (sd === 0 ? "Aujourd'hui, jour 1 !" : 'Jour ' + sd + ' sans verre') + trophy;
+  const el = document.getElementById('verre-day');
+  if(el){
+    const trophy = (sd > 0 && sd >= record) ? ' 🏆' : '';
+    el.textContent = (sd === 0 ? "Aujourd'hui, jour 1 !" : 'Jour ' + sd + ' sans verre') + trophy;
+  }
 }
 function resetVerre(){
   if(!confirm('Tu as craqué 🤷 ? Le compteur repart à zéro.')) return;
@@ -2425,6 +2427,7 @@ const STRAVA_CLIENT_SECRET = '9b4d29eb5568ffc2fc5a5ecc454e1c8dbe3950a3';
 const STRAVA_REFRESH_TOKEN = 'a5c96c1b9227a1bf9add88dcd67c93b93df3a01b';
 const HOKA_NAME = 'Clifton 10 B';
 
+const STRAVA_GOAL_YEAR = 1600; // objectif km annuel (modifiable)
 async function loadStrava(){
   const el = document.getElementById('strava-content');
   try {
@@ -2443,7 +2446,6 @@ async function loadStrava(){
     const token = tokenData.access_token;
     if(!token) throw new Error('no token');
 
-    // 2. Récupérer les stats de l'athlète (km année + semaine via activités)
     const athleteRes = await fetch('https://www.strava.com/api/v3/athlete', {
       headers: {'Authorization': 'Bearer ' + token}
     });
@@ -2453,37 +2455,99 @@ async function loadStrava(){
       headers: {'Authorization': 'Bearer ' + token}
     });
     const stats = await statsRes.json();
+    const kmAnnee = stats.ytd_run_totals ? (stats.ytd_run_totals.distance/1000) : 0;
 
-    // km année (course à pied)
-    const kmAnnee = stats.ytd_run_totals ? (stats.ytd_run_totals.distance/1000).toFixed(0) : 0;
-
-    // 3. km de la semaine : activités depuis lundi
+    // Dates de référence
     const now = new Date();
-    const monday = new Date(now);
     const day = (now.getDay()+6)%7;
-    monday.setDate(now.getDate()-day);
-    monday.setHours(0,0,0,0);
-    const after = Math.floor(monday.getTime()/1000);
+    const monday = new Date(now); monday.setDate(now.getDate()-day); monday.setHours(0,0,0,0);
+    const lastMonday = new Date(monday); lastMonday.setDate(monday.getDate()-7);
+    const after = Math.floor(lastMonday.getTime()/1000); // on récupère 2 semaines
 
-    const actRes = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=50`, {
+    const actRes = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${after}&per_page=100`, {
       headers: {'Authorization': 'Bearer ' + token}
     });
-    const activities = await actRes.json();
-    let kmSemaine = 0;
-    if(Array.isArray(activities)){
-      kmSemaine = activities.reduce((sum,a) => sum + (a.distance||0), 0) / 1000;
+    const activitiesRaw = await actRes.json();
+    const activities = Array.isArray(activitiesRaw) ? activitiesRaw : [];
+
+    const mondayTs = monday.getTime();
+    let kmSemaine=0, kmSemPrec=0, denivSemaine=0, tempsSemaine=0, nbSorties=0;
+    let totalDist=0, totalTime=0;
+    activities.forEach(a => {
+      const t = new Date(a.start_date).getTime();
+      const dist = a.distance||0, elev = a.total_elevation_gain||0, mt = a.moving_time||0;
+      if(t >= mondayTs){
+        kmSemaine += dist; denivSemaine += elev; tempsSemaine += mt; nbSorties++;
+        if(a.type==='Run'){ totalDist += dist; totalTime += mt; }
+      } else {
+        kmSemPrec += dist;
+      }
+    });
+    kmSemaine/=1000; kmSemPrec/=1000;
+
+    // Dernière activité
+    let derniere = null;
+    if(activities.length){
+      derniere = activities.reduce((latest,a)=> new Date(a.start_date) > new Date(latest.start_date) ? a : latest, activities[0]);
     }
 
-    // 4. Chaussures Hoka Clifton 10 B
+    // Allure moyenne semaine (course) : min/km
+    let allure = '–';
+    if(totalDist > 0){
+      const paceSec = totalTime / (totalDist/1000); // s par km
+      const m = Math.floor(paceSec/60), s = Math.round(paceSec%60);
+      allure = `${m}'${s.toString().padStart(2,'0')}`;
+    }
+
+    // Comparaison semaine précédente
+    let compHtml = '';
+    if(kmSemPrec > 0){
+      const diff = Math.round((kmSemaine-kmSemPrec)/kmSemPrec*100);
+      const up = diff>=0;
+      compHtml = `<span style="color:${up?'#2D7A4F':'#E8845A'};font-weight:600">${up?'+':''}${diff}%</span> vs sem. dernière`;
+    } else {
+      compHtml = `<span style="color:#B0AA9E">1ère semaine de données</span>`;
+    }
+
+    // Format dernière activité
+    let derniereHtml = '';
+    if(derniere){
+      const d = (derniere.distance/1000).toFixed(1);
+      const mt = derniere.moving_time;
+      const h = Math.floor(mt/3600), mn = Math.floor((mt%3600)/60);
+      const duree = h>0 ? `${h}h${mn.toString().padStart(2,'0')}` : `${mn}min`;
+      const jours = Math.floor((now - new Date(derniere.start_date))/864e5);
+      const quand = jours===0 ? "aujourd'hui" : jours===1 ? "hier" : `il y a ${jours}j`;
+      let pace = '';
+      if(derniere.type==='Run' && derniere.distance>0){
+        const ps = derniere.moving_time/(derniere.distance/1000);
+        pace = ` · ${Math.floor(ps/60)}'${Math.round(ps%60).toString().padStart(2,'0')}/km`;
+      }
+      derniereHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid #E2DDD4">
+        <div style="font-size:10px;color:#7A7468;margin-bottom:2px">Dernière sortie · ${quand}</div>
+        <div style="font-size:12px;color:#1A1814;font-weight:600">${derniere.name||'Activité'}</div>
+        <div style="font-size:11px;color:#7A7468">${d} km · ${duree}${pace}</div>
+      </div>`;
+    }
+
+    // Objectif annuel
+    const pctGoal = Math.min(Math.round(kmAnnee/STRAVA_GOAL_YEAR*100),100);
+    const goalHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid #E2DDD4">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+        <span style="color:#7A7468">🎯 Objectif annuel</span>
+        <span style="color:#FC4C02;font-weight:600">${kmAnnee.toFixed(0)} / ${STRAVA_GOAL_YEAR} km</span>
+      </div>
+      <div style="height:5px;background:#E2DDD4;border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${pctGoal}%;background:#FC4C02;border-radius:3px"></div>
+      </div>
+      <div style="font-size:9px;color:#B0AA9E;margin-top:6px;line-height:1.6">📅 2021: 1000 · 2022: 1000 · 2023: 1138 · 2024: 1500 · 2025: 1530 · <span style="color:#FC4C02;font-weight:600">2026: ${kmAnnee.toFixed(0)}</span></div>
+    </div>`;
+
+    // Chaussures Hoka
     let shoeHtml = '';
-    const gear = athlete.shoes || [];
-    const hoka = gear.find(s => s.name && s.name.includes(HOKA_NAME));
+    const hoka = (athlete.shoes||[]).find(s => s.name && s.name.includes(HOKA_NAME));
     if(hoka){
-      // Récupérer le détail pour avoir la distance
-      const gearRes = await fetch(`https://www.strava.com/api/v3/gear/${hoka.id}`, {
-        headers: {'Authorization': 'Bearer ' + token}
-      });
-      const gearData = await gearRes.json();
+      const gearData = await (await fetch(`https://www.strava.com/api/v3/gear/${hoka.id}`,{headers:{'Authorization':'Bearer '+token}})).json();
       const kmShoe = (gearData.distance/1000).toFixed(0);
       const maxKm = 800;
       const pct = Math.min(Math.round(kmShoe/maxKm*100), 100);
@@ -2499,17 +2563,74 @@ async function loadStrava(){
       </div>`;
     }
 
+    // Temps total formaté
+    const th = Math.floor(tempsSemaine/3600), tm = Math.floor((tempsSemaine%3600)/60);
+    const tempsStr = th>0 ? `${th}h${tm.toString().padStart(2,'0')}` : `${tm}min`;
+
+    // Mini-graphe : km par semaine sur les 6 dernières semaines
+    let chartHtml = '';
+    try {
+      const sixWeeksAgo = new Date(monday); sixWeeksAgo.setDate(monday.getDate() - 7*5);
+      const afterChart = Math.floor(sixWeeksAgo.getTime()/1000);
+      const chartActs = await (await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${afterChart}&per_page=200`,{headers:{'Authorization':'Bearer '+token}})).json();
+      if(Array.isArray(chartActs)){
+        const weeks = [0,0,0,0,0,0]; // 6 semaines (0 = il y a 5 sem ... 5 = cette sem)
+        chartActs.forEach(a => {
+          const t = new Date(a.start_date).getTime();
+          const weeksAgo = Math.floor((mondayTs - t)/(7*864e5));
+          const idx = 5 - weeksAgo;
+          if(idx>=0 && idx<6) weeks[idx] += (a.distance||0)/1000;
+        });
+        const maxW = Math.max(...weeks, 1);
+        let bars = '';
+        weeks.forEach((km,i) => {
+          const h = Math.round(km/maxW*36);
+          const isCurrent = i===5;
+          bars += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px">
+            <div style="font-size:8px;color:#7A7468">${km.toFixed(0)}</div>
+            <div style="width:70%;height:${h}px;background:${isCurrent?'#FC4C02':'#FCB89A'};border-radius:2px"></div>
+          </div>`;
+        });
+        chartHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid #E2DDD4">
+          <div style="font-size:10px;color:#7A7468;margin-bottom:4px">📈 km par semaine (6 dernières)</div>
+          <div style="display:flex;align-items:flex-end;gap:3px;height:48px">${bars}</div>
+        </div>`;
+      }
+    } catch(e){}
+
     el.innerHTML = `
-      <div style="display:flex;gap:8px;text-align:center">
+      <div style="display:flex;gap:8px;text-align:center;margin-bottom:8px">
         <div style="flex:1;background:#F5F2EC;border-radius:8px;padding:8px 4px">
           <div style="font-size:20px;font-weight:800;color:#FC4C02">${kmSemaine.toFixed(1)}</div>
-          <div style="font-size:10px;color:#7A7468">km cette semaine</div>
+          <div style="font-size:10px;color:#7A7468">km semaine</div>
         </div>
         <div style="flex:1;background:#F5F2EC;border-radius:8px;padding:8px 4px">
-          <div style="font-size:20px;font-weight:800;color:#FC4C02">${kmAnnee}</div>
-          <div style="font-size:10px;color:#7A7468">km cette année</div>
+          <div style="font-size:20px;font-weight:800;color:#FC4C02">${kmAnnee.toFixed(0)}</div>
+          <div style="font-size:10px;color:#7A7468">km année</div>
         </div>
       </div>
+      <div style="display:flex;gap:8px;text-align:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:60px;background:#F5F2EC;border-radius:8px;padding:6px 4px">
+          <div style="font-size:15px;font-weight:700;color:#1A1814">${nbSorties}</div>
+          <div style="font-size:9px;color:#7A7468">sorties</div>
+        </div>
+        <div style="flex:1;min-width:60px;background:#F5F2EC;border-radius:8px;padding:6px 4px">
+          <div style="font-size:15px;font-weight:700;color:#1A1814">${tempsStr}</div>
+          <div style="font-size:9px;color:#7A7468">temps</div>
+        </div>
+        <div style="flex:1;min-width:60px;background:#F5F2EC;border-radius:8px;padding:6px 4px">
+          <div style="font-size:15px;font-weight:700;color:#1A1814">${allure}</div>
+          <div style="font-size:9px;color:#7A7468">allure /km</div>
+        </div>
+        <div style="flex:1;min-width:60px;background:#F5F2EC;border-radius:8px;padding:6px 4px">
+          <div style="font-size:15px;font-weight:700;color:#1A1814">${Math.round(denivSemaine)}</div>
+          <div style="font-size:9px;color:#7A7468">D+ (m)</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:#7A7468;text-align:center;margin-top:6px">${compHtml}</div>
+      ${chartHtml}
+      ${derniereHtml}
+      ${goalHtml}
       ${shoeHtml}`;
   } catch(e){
     el.innerHTML = '<div style="font-size:11px;color:#B0AA9E;text-align:center;padding:6px 0">Strava indisponible</div>';
