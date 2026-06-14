@@ -47,9 +47,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .tile.done .streak-badge{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
 .tile-lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.95);text-align:center;line-height:1.3;max-width:130px}
 .water-inner{display:flex;flex-direction:column;align-items:center;gap:1px}
-.water-num{font-size:28px;font-weight:800;color:#1A1814;line-height:1;transition:color .25s}
-.water-sub{font-size:11px;color:rgba(0,0,0,.45);transition:color .25s}
-.tile.done .water-num{color:#fff}.tile.done .water-sub{color:rgba(255,255,255,.7)}
+.water-num{font-size:28px;font-weight:800;color:#fff;line-height:1;transition:color .25s}
+.water-sub{font-size:11px;color:rgba(255,255,255,.6);transition:color .25s}
 .smoke-day{font-size:11px;color:rgba(255,255,255,.65);text-align:center;margin-top:-2px}
 .card{background:#fff;border:1px solid #E2DDD4;border-radius:14px;overflow:hidden;margin-top:.85rem}
 .row{display:flex;align-items:center;padding:.7rem .9rem;gap:.7rem;cursor:pointer;transition:background .12s}
@@ -447,7 +446,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <div class="page-title">Corps &amp; santé</div>
   <div class="sg">
     <div class="tile" id="water-tile" onclick="addWater()" data-field="water">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" id="water-ring" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner"><div class="water-inner"><span class="water-num" id="water-n">0</span><span class="water-sub">/ 8</span></div></div></div>
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" id="water-ring" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><div class="water-inner"><span class="water-num" id="water-n">0</span><span class="water-sub">/ 8</span></div></div></div>
       <span class="tile-lbl">Eau</span>
     </div>
     <div class="tile" onclick="tgl(this,'sport')" data-field="sport">
@@ -1167,6 +1166,7 @@ const AGENDA_URL = 'https://script.google.com/macros/s/AKfycbzY9K_Li_iZ9czdB-gRO
 function formatDate(d){
   const days=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
   const dt=new Date(d);
+  if(isNaN(dt.getTime())) return '';
   return days[dt.getDay()]+' '+dt.getDate();
 }
 
@@ -1183,22 +1183,26 @@ async function loadAgenda(){
     } catch(e){ crossedEvents = []; }
 
     const r = await fetch(AGENDA_URL);
-    const events = await r.json();
+    let events = await r.json();
+    // Sécurité : si la réponse n'est pas un tableau (erreur Apps Script, semaine vide...)
+    if(!Array.isArray(events)) events = [];
     
-    const taches = events.filter(e=>e.type==='taches');
-    const meetings = events.filter(e=>e.type==='meetings');
-    const partage = events.filter(e=>e.type==='partage');
+    const taches = events.filter(e=>e && e.type==='taches');
+    const meetings = events.filter(e=>e && e.type==='meetings');
+    const partage = events.filter(e=>e && e.type==='partage');
     
     function renderCol(evts, colId) {
       const el = document.getElementById(colId);
+      if(!el) return;
       if(!evts.length){el.innerHTML='<div class="agenda-empty">Rien cette semaine</div>';return;}
       el.innerHTML = evts.slice(0,4).map(e=>{
-        const eid = (e.id || (e.title + e.date));
+        const eid = String(e.id || (e.title + e.date) || '').replace(/[^a-zA-Z0-9]/g,'');
         const crossed = crossedEvents.indexOf(eid) !== -1;
         const style = crossed ? 'opacity:.4;text-decoration:line-through' : '';
-        return `<div class="agenda-event" onclick="toggleCrossed('${eid.replace(/'/g,"")}')" style="cursor:pointer;${style}">
+        const title = (e.title || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        return `<div class="agenda-event" onclick="toggleCrossed('${eid}')" style="cursor:pointer;${style}">
           <span class="agenda-event-time">${formatDate(e.date)}</span>
-          <span class="agenda-event-title">${e.title}</span>
+          <span class="agenda-event-title">${title}</span>
         </div>`;
       }).join('');
     }
@@ -1209,7 +1213,8 @@ async function loadAgenda(){
     window._agendaCols = {taches, meetings, partage, renderCol};
   } catch(e) {
     ['col-taches','col-meetings','col-partage'].forEach(id=>{
-      document.getElementById(id).innerHTML='<div class="agenda-empty">Erreur</div>';
+      const el = document.getElementById(id);
+      if(el) el.innerHTML='<div class="agenda-empty">Rien cette semaine</div>';
     });
   }
 }
