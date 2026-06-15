@@ -126,6 +126,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openTodo()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes tâches">✅</div>
       <div onclick="openWatch()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="À regarder">🎥</div>
       <div onclick="openDreams()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes rêves">🌍</div>
+      <div onclick="openWins()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes fiertés">🏆</div>
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
@@ -150,6 +151,26 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div id="journal-content" style="padding:1.25rem;max-width:600px;margin:0 auto">
     <div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Chargement...</div>
+  </div>
+</div>
+
+<!-- MES FIERTÉS (overlay) -->
+<div id="wins-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🏆 Mes fiertés</span>
+    <div onclick="closeWins()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem">Tes réalisations dont tu es le plus fier 🌟</div>
+    <div style="display:flex;gap:6px;margin-bottom:.5rem">
+      <input id="win-input" type="text" placeholder="Une réalisation, un accomplissement..." style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none">
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:1rem;align-items:center">
+      <span style="font-size:12px;color:#7A7468">📅 Date :</span>
+      <input id="win-date" type="date" style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none">
+      <button onclick="addWin()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;background:#C4A030;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+    </div>
+    <div id="wins-list"></div>
   </div>
 </div>
 
@@ -747,8 +768,8 @@ async function loadICloudPhotos(){
     const urls = data.photos || [];
     if(urls.length === 0){ console.log('Aucune photo renvoyée', data); return; }
 
-    // Rotation quotidienne (s'il n'y a qu'une photo, c'est toujours elle)
-    const idx = dayOfYear % urls.length;
+    // Photo aléatoire à chaque ouverture de l'app
+    const idx = Math.floor(Math.random() * urls.length);
     const chosen = urls[idx];
     // Précharge l'image avant de l'afficher (évite le flash)
     const img = new Image();
@@ -1236,26 +1257,20 @@ function toggleCrossed(eid){
   saveCrossed();
 }
 async function saveCrossed(){
-  const body = JSON.stringify({data: {list: crossedEvents}});
   try {
-    const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events`, {
-      method: 'PATCH',
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'},
-      body
+    // Upsert : crée ou met à jour la ligne en une seule requête
+    const r = await fetch(`${SB_URL}/rest/v1/journal?on_conflict=date`, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=representation'
+      },
+      body: JSON.stringify({date: 'crossed_events', data: {list: crossedEvents}})
     });
-    const res = await patch.json();
-    if(!res || res.length === 0){
-      // La ligne n'existe pas encore → on la crée
-      const post = await fetch(`${SB_URL}/rest/v1/journal`, {
-        method: 'POST',
-        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation'},
-        body: JSON.stringify({date: 'crossed_events', data: {list: crossedEvents}})
-      });
-      const pres = await post.json();
-      console.log('crossed_events créé', pres);
-    } else {
-      console.log('crossed_events mis à jour', res.length, 'ligne(s)');
-    }
+    const res = await r.json();
+    console.log('crossed_events sauvé', res);
   } catch(e){ console.log('Erreur sauvegarde crossed_events', e); }
 }
 loadAgenda();
@@ -1412,6 +1427,80 @@ function openBilan(){
 function closeBilan(){
   document.getElementById('bilan-overlay').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+// ── MES FIERTÉS (réalisations datées) ──
+let winsItems = [];
+async function openWins(){
+  document.getElementById('wins-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  // Date du jour par défaut
+  const di = document.getElementById('win-date');
+  if(di && !di.value) di.value = new Date().toISOString().slice(0,10);
+  await loadWins();
+}
+function closeWins(){
+  document.getElementById('wins-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadWins(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.wins_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    winsItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ winsItems = []; }
+  renderWins();
+}
+async function saveWins(){
+  try {
+    await fetch(`${SB_URL}/rest/v1/journal?on_conflict=date`, {
+      method: 'POST',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'},
+      body: JSON.stringify({date: 'wins_global', data: {list: winsItems}})
+    });
+  } catch(e){}
+}
+function addWin(){
+  const inp = document.getElementById('win-input');
+  const dateInp = document.getElementById('win-date');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  winsItems.push({id: uid(), txt, date: dateInp.value || new Date().toISOString().slice(0,10)});
+  inp.value = '';
+  renderWins();
+  saveWins();
+}
+function delWin(id){
+  winsItems = winsItems.filter(w => w.id !== id);
+  renderWins();
+  saveWins();
+}
+function renderWins(){
+  const el = document.getElementById('wins-list');
+  if(winsItems.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Aucune fierté pour l\'instant.<br>Ajoute ta première réalisation ! 🌟</div>';
+    return;
+  }
+  // Trier par date décroissante (plus récent en haut)
+  const sorted = [...winsItems].sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  el.innerHTML = sorted.map(w => {
+    let dateStr = '';
+    if(w.date){
+      const d = new Date(w.date + 'T12:00:00');
+      dateStr = d.getDate() + ' ' + MOIS[d.getMonth()] + ' ' + d.getFullYear();
+    }
+    return `<div style="display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px;margin-bottom:8px">
+      <div style="font-size:22px;flex-shrink:0">🏆</div>
+      <div style="flex:1">
+        <div style="font-size:14px;color:#1A1814;font-weight:600;line-height:1.4">${w.txt}</div>
+        <div style="font-size:11px;color:#C4A030;font-weight:600;margin-top:3px">${dateStr}</div>
+      </div>
+      <span onclick="delWin(${w.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+    </div>`;
+  }).join('');
 }
 
 // ── MES RÊVES (carte pays + mission + objectifs) ──
