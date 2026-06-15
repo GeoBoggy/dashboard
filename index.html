@@ -127,6 +127,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openWatch()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="À regarder">🎥</div>
       <div onclick="openDreams()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes rêves">🌍</div>
       <div onclick="openWins()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes fiertés">🏆</div>
+      <div onclick="openBooks()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes lectures">📚</div>
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
@@ -151,6 +152,37 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div id="journal-content" style="padding:1.25rem;max-width:600px;margin:0 auto">
     <div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Chargement...</div>
+  </div>
+</div>
+
+<!-- MES LECTURES (overlay) -->
+<div id="books-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">📚 Mes lectures</span>
+    <div onclick="closeBooks()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <!-- Ajout manuel -->
+    <details style="margin-bottom:1.25rem;background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:10px 12px">
+      <summary style="font-size:13px;font-weight:600;color:#7B4FA0;cursor:pointer">+ Ajouter un livre</summary>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+        <input id="book-title" type="text" placeholder="Titre du livre" style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+        <input id="book-author" type="text" placeholder="Auteur (optionnel)" style="font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+        <div style="display:flex;gap:6px">
+          <select id="book-type" style="flex:1;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+            <option value="apprentissage">📖 J'apprends</option>
+            <option value="roman">📕 Roman</option>
+          </select>
+          <select id="book-status" style="flex:1;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+            <option value="termine">✅ Terminé</option>
+            <option value="encours">📲 En cours</option>
+          </select>
+          <input id="book-year" type="number" placeholder="Année" value="2026" style="width:70px;font-family:'DM Sans',sans-serif;font-size:12px;padding:8px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+        </div>
+        <button onclick="addBook()" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:9px;background:#7B4FA0;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+      </div>
+    </details>
+    <div id="books-list"></div>
   </div>
 </div>
 
@@ -1427,6 +1459,170 @@ function openBilan(){
 function closeBilan(){
   document.getElementById('bilan-overlay').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+// ── MES LECTURES (bibliothèque par année) ──
+const BOOKS_SEED = [
+  {id:1, title:"Votre temps est infini", author:"", type:"apprentissage", status:"termine", year:2026, points:[
+    "Le temps n'est pas une ressource rare mais une question de priorités et de choix conscients.",
+    "Distingue l'urgent de l'important : ce qui compte vraiment est rarement urgent.",
+    "Apprends à dire non pour protéger ton temps et tes objectifs profonds.",
+    "Le multitâche est un mythe : la concentration sur une seule chose est bien plus efficace.",
+    "Planifie tes journées autour de tes grandes priorités, pas l'inverse.",
+    "Les petites habitudes quotidiennes ont plus d'impact que les grands efforts ponctuels.",
+    "Élimine les distractions (notifications, sollicitations) qui fragmentent ton attention.",
+    "Le repos et les pauses font partie de la productivité, pas contre elle.",
+    "Aligne ton emploi du temps avec tes valeurs pour donner du sens à ton temps.",
+    "Agis maintenant : la procrastination coûte plus cher que l'imperfection."
+  ]},
+  {id:2, title:"Le paradoxe de l'abondance", author:"Hugo Clément", type:"apprentissage", status:"termine", year:2026, points:[
+    "Nous produisons plus de nourriture que jamais, tout en détruisant les écosystèmes qui la rendent possible.",
+    "L'agriculture industrielle épuise les sols, pollue les eaux et appauvrit la biodiversité.",
+    "L'usage massif de pesticides et d'engrais chimiques dégrade durablement les terres.",
+    "L'élevage intensif a un impact écologique et éthique considérable.",
+    "La logique de surproduction et de rentabilité se fait au détriment de la qualité nutritionnelle.",
+    "La disparition des pollinisateurs menace directement notre capacité à nous nourrir.",
+    "Le modèle agricole actuel est dépendant des énergies fossiles et donc fragile.",
+    "Des alternatives existent : agroécologie, circuits courts, diversification des cultures.",
+    "Le consommateur a un pouvoir réel par ses choix alimentaires.",
+    "Préserver la nature, ce n'est pas un luxe mais une condition de notre survie alimentaire."
+  ]},
+  {id:3, title:"Il n'y a pas de parent parfait", author:"Isabelle Filliozat", type:"apprentissage", status:"termine", year:2026, points:[
+    "Les réactions excessives de l'enfant ont souvent une cause physiologique ou émotionnelle cachée.",
+    "Nos propres blessures d'enfance ressurgissent dans notre façon d'élever nos enfants.",
+    "L'objectif n'est pas d'être parfait mais d'être conscient et réparateur.",
+    "Derrière un comportement difficile se cache toujours un besoin non comblé.",
+    "L'empathie désamorce les conflits mieux que l'autorité pure.",
+    "Nommer les émotions de l'enfant l'aide à les réguler.",
+    "Les punitions traitent le symptôme, pas la cause du comportement.",
+    "Le parent doit gérer ses propres émotions avant celles de l'enfant.",
+    "Chaque âge a ses besoins développementaux spécifiques à comprendre.",
+    "La relation prime sur la performance éducative : le lien d'abord."
+  ]},
+  {id:4, title:"J'ai tout essayé", author:"Isabelle Filliozat", type:"apprentissage", status:"termine", year:2026, points:[
+    "Entre 1 et 5 ans, le cerveau de l'enfant est immature : il ne peut pas toujours se contrôler.",
+    "L'opposition n'est pas de la provocation mais une étape normale du développement.",
+    "Les crises sont des décharges émotionnelles, pas des caprices calculés.",
+    "Un enfant qui refuse a souvent faim, soif, sommeil ou besoin de connexion.",
+    "Crier amplifie le stress de l'enfant et bloque son cerveau rationnel.",
+    "Donner des choix réduit les conflits et responsabilise l'enfant.",
+    "Le jeu est un levier puissant pour obtenir la coopération.",
+    "Accueillir l'émotion ne veut pas dire céder sur la limite.",
+    "Le contact physique et la présence rassurent plus que les mots.",
+    "Comprendre le fonctionnement du cerveau de l'enfant change tout dans la relation."
+  ]},
+  {id:5, title:"Harry Potter à l'école des sorciers (T1)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
+  {id:6, title:"Harry Potter et la Chambre des secrets (T2)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
+  {id:7, title:"Harry Potter et le Prisonnier d'Azkaban (T3)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
+  {id:8, title:"Harry Potter et la Coupe de feu (T4)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
+  {id:9, title:"Harry Potter et l'Ordre du phénix (T5)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
+  {id:10, title:"Les Animaux fantastiques (pièce)", author:"J.K. Rowling", type:"roman", status:"encours", year:2026},
+  {id:11, title:"HugoDécrypte - Russie", author:"", type:"apprentissage", status:"encours", year:2026},
+  {id:12, title:"Un monde sans fin", author:"Jancovici & Blain", type:"apprentissage", status:"encours", year:2026},
+  {id:13, title:"Les 7 habitudes de ceux qui réalisent tout ce qu'ils entreprennent", author:"Stephen Covey", type:"apprentissage", status:"encours", year:2026},
+];
+
+let booksItems = [];
+async function openBooks(){
+  document.getElementById('books-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await loadBooks();
+}
+function closeBooks(){
+  document.getElementById('books-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadBooks(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.books_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    booksItems = d.list || [];
+    if(!d.seeded){
+      booksItems = BOOKS_SEED.slice();
+      await saveBooks();
+    }
+  } catch(e){ booksItems = BOOKS_SEED.slice(); }
+  renderBooks();
+}
+async function saveBooks(){
+  try {
+    await fetch(`${SB_URL}/rest/v1/journal?on_conflict=date`, {
+      method: 'POST',
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'},
+      body: JSON.stringify({date: 'books_global', data: {list: booksItems, seeded: true}})
+    });
+  } catch(e){}
+}
+function addBook(){
+  const title = document.getElementById('book-title').value.trim();
+  if(!title) return;
+  const author = document.getElementById('book-author').value.trim();
+  const type = document.getElementById('book-type').value;
+  const status = document.getElementById('book-status').value;
+  const year = parseInt(document.getElementById('book-year').value) || new Date().getFullYear();
+  booksItems.push({id: uid(), title, author, type, status, year, points:[]});
+  document.getElementById('book-title').value = '';
+  document.getElementById('book-author').value = '';
+  renderBooks();
+  saveBooks();
+}
+function delBook(id){
+  booksItems = booksItems.filter(b => b.id !== id);
+  renderBooks();
+  saveBooks();
+}
+function renderBooks(){
+  const el = document.getElementById('books-list');
+  let html = '';
+
+  // EN COURS
+  const encours = booksItems.filter(b => b.status === 'encours');
+  if(encours.length){
+    html += `<h2 style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;margin:0 0 .5rem">📲 En cours de lecture</h2>`;
+    encours.forEach(b => html += bookCard(b));
+    html += '<div style="height:1.5rem"></div>';
+  }
+
+  // TERMINÉS par année (décroissant), séparés apprentissage / romans en 2 colonnes
+  const termines = booksItems.filter(b => b.status === 'termine');
+  const years = [...new Set(termines.map(b => b.year))].sort((a,b)=>b-a);
+  years.forEach(year => {
+    html += `<h2 style="font-family:'DM Serif Display',serif;font-size:18px;color:#7B4FA0;margin:1rem 0 .5rem;border-bottom:2px solid #E9E0F0;padding-bottom:4px">${year}</h2>`;
+    const appr = termines.filter(b => b.year===year && b.type==='apprentissage');
+    const rom = termines.filter(b => b.year===year && b.type==='roman');
+    html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#7A7468;text-transform:uppercase;letter-spacing:.05em;margin:.25rem 0 .5rem">📖 J'ai appris</div>
+        ${appr.length ? appr.map(b=>bookCard(b)).join('') : '<div style="font-size:11px;color:#C4BDB0;font-style:italic">—</div>'}
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#7A7468;text-transform:uppercase;letter-spacing:.05em;margin:.25rem 0 .5rem">📕 Romans</div>
+        ${rom.length ? rom.map(b=>bookCard(b)).join('') : '<div style="font-size:11px;color:#C4BDB0;font-style:italic">—</div>'}
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML = html || '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Aucun livre. Ajoute ta première lecture !</div>';
+}
+function bookCard(b){
+  const hasPoints = b.points && b.points.length;
+  let inner = `<div style="display:flex;align-items:flex-start;gap:8px">
+    <div style="flex:1">
+      <div style="font-size:14px;font-weight:600;color:#1A1814;line-height:1.35">${b.title}</div>
+      ${b.author ? `<div style="font-size:11px;color:#9A9488;margin-top:1px">${b.author}</div>` : ''}
+    </div>
+    <span onclick="delBook(${b.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
+  </div>`;
+  if(hasPoints){
+    inner += `<details style="margin-top:8px"><summary style="font-size:11px;color:#7B4FA0;cursor:pointer;font-weight:600">${b.points.length} points clés</summary>
+      <ul style="margin:8px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:5px">
+        ${b.points.map(p=>`<li style="font-size:12px;color:#3A3631;line-height:1.5">${p}</li>`).join('')}
+      </ul></details>`;
+  }
+  return `<div style="background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:12px;margin-bottom:8px">${inner}</div>`;
 }
 
 // ── MES FIERTÉS (réalisations datées) ──
