@@ -373,6 +373,11 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
         <span style="font-size:11px;color:rgba(255,255,255,.8)">h de sommeil</span>
       </div>
     </div>
+    <div class="tile" onclick="tgl(this,'muscu')" data-field="muscu">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-dumbbell"/></svg></div></div>
+      <span class="tile-lbl">Muscu 5'</span>
+      <a onclick="event.stopPropagation();openWorkout()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px;cursor:pointer">→ Muscu</a>
+    </div>
     <div class="tile" onclick="tgl(this,'dejeuner')" data-field="dejeuner">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-plate"/></svg></div></div>
       <span class="tile-lbl">Déjeuner sainement</span>
@@ -514,7 +519,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
         <a href="https://connect.garmin.com/modern/" target="_blank" onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:8px;text-decoration:none"><img src="data:image/png;base64,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" alt="Garmin" style="width:26px;height:26px;border-radius:6px;object-fit:contain"><span style="font-size:13px;font-weight:600;color:#1A1814">Garmin</span></a>
         <a href="https://apps.apple.com/app/kiprun-pacer-running-coach/id6446933906" target="_blank" onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:8px;text-decoration:none"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAIAAABKGoy8AAAFFUlEQVR42u2YyW8TVxzH3zYeO57xyiJR0QQkGiguSlUFqAghEeUPSCNEoWoohyxlOaC2ByK6nEo4VQiaUhCUE4uQAjm0vRQFcqShEkUiTYVFkHAIxE4czzie5S09PDGKshElkeAw72B57DfzPvP7/b6/9/s9aBrj4E0dCLzBw4fz4Xw4H86H8+F8OB/uzRhk8oUQQggx4zwIIYTwtcEJIQghwWCQMTZ9HmPMsiyM8euBI4Rks7l0Oh2LxwTnQggAIAACQkgpSyaTa9auNQrj0oRCCM75jAZGCC0xnFwsFApduXrtwoULkUiEECJNCCHknAdDoe+/+7a5ucUuTdiOraqqGgwBMDUGBOfFYnGpAgB6PYTn1jNnfjrW3u66VNM013UlH2OsVCrt3990sqNj2fJl6UePHj7sV4MqZxxACACAADDONE37cOtWy7KWxH5wcoMjBaFHYr13brd9cXBg4L9EIs4YE0IghCCEuVxu06ZNnZ2dGze+m0q9l8lkVFVljIGXtmKcX7p48bOmpvxYjhCySBPC6d0XpTQaiw1lhg4eOtzd3R2Px6VnZVyapokxOXXqx7dXr274uDEQCCCEpMYRQq7rMsbO/XJ2775Pi2aBMbYYDeH29mNTUx9CpYmJaDSyZ88ejHFPTw8AIBBQOBecc1VVAQDXr18PqGp1dXVfXx/GWJqccy6/d924QSndUbs9rGm2ZXHOF5aJ4Gx9q3yipke7b948fOTI8PBwLBajlHqSHB0dTaVSjuNkMhlFUbwEKbU8Pj6+rWbbN8ePf7RzJ8KkNGG+DF8EIZgnKJyjqRZCMMaiscTAwL9tbW23b99JJBJeosYYW5alKMpsCcUwDIzxrl279jc17dixPblsBQCCuo7jOPIlX+lx+MqOn1IaDmu2bR9rb+/s/DkcDiuK4mWZ6TuK96OMRcMwIITr1q2rr6+rr6tLpTauXLkyFk8AIIxCYW53w/kcRzDGCCFlYf3Srxe//OrrYrGo67p8+9kmexqSUWhZVqlUwhgnEomKiopkMtHQ0NDc3DxRNCmls5kQzvOsRMZ7JBrv++tuc0vr/fv3k8mkzDJTxBSJRJ4/f8451zRNxq4QAkKIMeacM8Zs23YcB0DY1traceKHsrKQaZqEkIXDeS6ORCPZ7OjRo0cvX74SjUYRQpP3Mc55eXl5VVVVf3+/FLKmaXJhj9JzZS6Xq6mpOX/+3Pr1G8bzoxjjKS6eIZXMVWAhZFlWWSi0e/duXdP+vHWLUqqqqrcqxnhkZMQwjNaWlgMHPi9OFJ8+fTo2NmZZlvwXYyw3DyGEruvpdLqrq2tNRXnV+x+41JXPWSCc5GOMOY5TV79zy5bq3t7eoaFniqJwzqXXCCHZbPa33/94a9Wq06dP79v7SWVlpa7rtu3k83nTNE3TtG2bUuo4jqqqhULh6tVrjm3X1tZK13t8cMHnc5TSaCz+ZHDw0KEj9/6+J/m8FwAAjIyMbN68+fy5s+9UbhCcZrPZwcEn/zx48Pjx48HBJy9evMhms/l8Xkonl8s1Njae7Dih6xpjTPLBxRweUsrC4TLXdZ89G56eEQjBhmGqQXXF8uVCiEAgEFAURAIAAM5c13Vdl9q25VJKXYoxtmwrFo3KIFms5TwFIIRmTMUACIQw58x1qVdVcCHAyzJCfnr6gBBSSifLHy7Jsetsxb2Xlud545SZZGmqwoWWRnPf6LeGPpwP58P5cD6cD+fD+XCvHP8DOVPc1aL209UAAAAASUVORK5CYII=" alt="Kiprun" style="width:26px;height:26px;border-radius:6px;object-fit:contain"><span style="font-size:13px;font-weight:600;color:#1A1814">Kiprun</span></a>
         <a href="https://apps.apple.com/app/my-weight-tracker-bmi/id1170615301" target="_blank" onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:6px;text-decoration:none"><img src="data:image/png;base64,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" alt="MY Weight" style="width:26px;height:26px;border-radius:6px;object-fit:cover"><span style="font-size:13px;font-weight:600;color:#1A1814">MY Weight</span></a>
-        <a onclick="event.stopPropagation();openWorkout()" style="display:flex;align-items:center;gap:6px;text-decoration:none;cursor:pointer"><img src="data:image/png;base64,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" alt="Workout" style="width:26px;height:26px;border-radius:6px;object-fit:contain"><span style="font-size:13px;font-weight:600;color:#1A1814">Muscu</span></a>
+        
       </div>
       <div id="strava-content">
         <div style="font-size:12px;color:#B0AA9E;text-align:center;padding:6px 0">Chargement Strava...</div>
@@ -1289,20 +1294,30 @@ function toggleCrossed(eid){
   saveCrossed();
 }
 async function saveCrossed(){
+  const body = JSON.stringify({data: {list: crossedEvents}});
   try {
-    // Upsert : crée ou met à jour la ligne en une seule requête
-    const r = await fetch(`${SB_URL}/rest/v1/journal?on_conflict=date`, {
-      method: 'POST',
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=representation'
-      },
-      body: JSON.stringify({date: 'crossed_events', data: {list: crossedEvents}})
+    // Vérifie si la ligne existe déjà
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
     });
-    const res = await r.json();
-    console.log('crossed_events sauvé', res);
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      // La ligne existe → PATCH
+      const p = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body
+      });
+      console.log('crossed_events PATCH', p.status);
+    } else {
+      // La ligne n'existe pas → POST
+      const po = await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'crossed_events', data: {list: crossedEvents}})
+      });
+      console.log('crossed_events POST', po.status);
+    }
   } catch(e){ console.log('Erreur sauvegarde crossed_events', e); }
 }
 loadAgenda();
@@ -1511,11 +1526,11 @@ const BOOKS_SEED = [
     "Le contact physique et la présence rassurent plus que les mots.",
     "Comprendre le fonctionnement du cerveau de l'enfant change tout dans la relation."
   ]},
-  {id:5, title:"Harry Potter à l'école des sorciers (T1)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
-  {id:6, title:"Harry Potter et la Chambre des secrets (T2)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
-  {id:7, title:"Harry Potter et le Prisonnier d'Azkaban (T3)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
-  {id:8, title:"Harry Potter et la Coupe de feu (T4)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
-  {id:9, title:"Harry Potter et l'Ordre du phénix (T5)", author:"J.K. Rowling", type:"roman", status:"termine", year:2025},
+  {id:5, title:"Harry Potter à l'école des sorciers (T1)", author:"J.K. Rowling", type:"roman", status:"termine", year:2026},
+  {id:6, title:"Harry Potter et la Chambre des secrets (T2)", author:"J.K. Rowling", type:"roman", status:"termine", year:2026},
+  {id:7, title:"Harry Potter et le Prisonnier d'Azkaban (T3)", author:"J.K. Rowling", type:"roman", status:"termine", year:2026},
+  {id:8, title:"Harry Potter et la Coupe de feu (T4)", author:"J.K. Rowling", type:"roman", status:"termine", year:2026},
+  {id:9, title:"Harry Potter et l'Ordre du phénix (T5)", author:"J.K. Rowling", type:"roman", status:"termine", year:2026},
   {id:10, title:"Les Animaux fantastiques (pièce)", author:"J.K. Rowling", type:"roman", status:"encours", year:2026},
   {id:11, title:"HugoDécrypte - Russie", author:"", type:"apprentissage", status:"encours", year:2026},
   {id:12, title:"Un monde sans fin", author:"Jancovici & Blain", type:"apprentissage", status:"encours", year:2026},
@@ -1548,12 +1563,25 @@ async function loadBooks(){
   renderBooks();
 }
 async function saveBooks(){
+  const payload = {data: {list: booksItems, seeded: true}};
   try {
-    await fetch(`${SB_URL}/rest/v1/journal?on_conflict=date`, {
-      method: 'POST',
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'},
-      body: JSON.stringify({date: 'books_global', data: {list: booksItems, seeded: true}})
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.books_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
     });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.books_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'books_global', ...payload})
+      });
+    }
   } catch(e){}
 }
 function addBook(){
@@ -1650,12 +1678,25 @@ async function loadWins(){
   renderWins();
 }
 async function saveWins(){
+  const payload = {data: {list: winsItems}};
   try {
-    await fetch(`${SB_URL}/rest/v1/journal?on_conflict=date`, {
-      method: 'POST',
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates'},
-      body: JSON.stringify({date: 'wins_global', data: {list: winsItems}})
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.wins_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
     });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.wins_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'wins_global', ...payload})
+      });
+    }
   } catch(e){}
 }
 function addWin(){
@@ -2379,6 +2420,49 @@ function closeWorkout(){
   document.getElementById('workout-overlay').style.display = 'none';
   document.body.style.overflow = '';
 }
+function detectMuscles(workout){
+  // Analyse les exercices pour repérer les zones travaillées
+  const muscles = new Set();
+  const txt = workout.ex.map(e => (e.n + ' ' + (e.e||'')).toLowerCase()).join(' ');
+  if(/pompe|pectoraux|pecs|larg/.test(txt)) muscles.add('pecs');
+  if(/triceps|diamant|serr|dips/.test(txt)) muscles.add('triceps');
+  if(/épaule|epaule|piqué|pike|cercles de bras/.test(txt)) muscles.add('epaules');
+  if(/gainage|abdo|planche|gaine/.test(txt)) muscles.add('abdos');
+  if(/superman|dos|posture/.test(txt)) muscles.add('dos');
+  if(/biceps/.test(txt)) muscles.add('biceps');
+  return muscles;
+}
+function bodySchema(muscles){
+  const on = '#D4694A', off = '#E2DDD4';
+  const c = (m) => muscles.has(m) ? on : off;
+  // Silhouette simple de face : épaules, pecs, bras (triceps/biceps), abdos
+  return `<div style="display:flex;justify-content:center;gap:24px;align-items:center;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:16px;margin-bottom:1rem">
+    <svg viewBox="0 0 120 200" width="90" height="150">
+      <!-- tête -->
+      <circle cx="60" cy="18" r="13" fill="#C4BDB0"/>
+      <!-- épaules -->
+      <rect x="28" y="36" width="64" height="12" rx="6" fill="${c('epaules')}"/>
+      <!-- pecs -->
+      <path d="M35 50 H85 V72 Q60 82 35 72 Z" fill="${c('pecs')}"/>
+      <!-- abdos -->
+      <rect x="44" y="84" width="32" height="40" rx="5" fill="${c('abdos')}"/>
+      <!-- bras gauche (triceps/biceps) -->
+      <rect x="18" y="50" width="13" height="48" rx="6" fill="${c('triceps')}"/>
+      <!-- bras droit -->
+      <rect x="89" y="50" width="13" height="48" rx="6" fill="${c('triceps')}"/>
+      <!-- jambes (neutres) -->
+      <rect x="44" y="128" width="14" height="60" rx="6" fill="#E2DDD4"/>
+      <rect x="62" y="128" width="14" height="60" rx="6" fill="#E2DDD4"/>
+    </svg>
+    <div style="font-size:11px;line-height:1.9">
+      <div style="font-weight:700;color:#1A1814;margin-bottom:4px;font-size:12px">Zones travaillées</div>
+      ${[['epaules','Épaules'],['pecs','Pectoraux'],['triceps','Bras / triceps'],['abdos','Abdos / gainage'],['dos','Dos']].map(([k,label])=>
+        `<div style="display:flex;align-items:center;gap:6px;color:${muscles.has(k)?'#1A1814':'#C4BDB0'}">
+          <span style="width:9px;height:9px;border-radius:50%;background:${muscles.has(k)?on:off};display:inline-block"></span>${label}
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
 function renderWorkout(){
   // Rotation quotidienne basée sur le jour de l'année
   const now = new Date();
@@ -2392,6 +2476,9 @@ function renderWorkout(){
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#1A1814;margin-top:2px">${w.nom}</div>
     <div style="font-size:12px;color:#7A7468;margin-top:4px">Séance du jour · environ 5 minutes</div>
   </div>`;
+
+  // Schéma du corps
+  html += bodySchema(detectMuscles(w));
 
   w.ex.forEach((e, i) => {
     html += `<div style="background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px">
