@@ -128,6 +128,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openDreams()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes rêves">🌍</div>
       <div onclick="openWins()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes fiertés">🏆</div>
       <div onclick="openBooks()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes lectures">📚</div>
+      <div onclick="openDebts()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes dettes">💰</div>
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
@@ -152,6 +153,39 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div id="journal-content" style="padding:1.25rem;max-width:600px;margin:0 auto">
     <div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Chargement...</div>
+  </div>
+</div>
+
+<!-- MES DETTES (overlay) -->
+<div id="debts-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">💰 Mes dettes</span>
+    <div onclick="closeDebts()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+
+    <!-- Bilan -->
+    <div id="debts-balance" style="display:flex;gap:8px;margin-bottom:1.25rem"></div>
+
+    <!-- On me doit -->
+    <h2 style="font-family:'DM Serif Display',serif;font-size:17px;color:#2D7A4F;margin:0 0 .5rem">🟢 On me doit</h2>
+    <div style="display:flex;gap:6px;margin-bottom:.5rem">
+      <input id="owed-who" type="text" placeholder="Qui ?" style="flex:1.2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+      <input id="owed-what" type="text" placeholder="Pourquoi ?" style="flex:2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+      <input id="owed-amount" type="number" placeholder="€" style="width:62px;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+      <button onclick="addDebt('owed')" style="font-size:16px;padding:0 13px;background:#2D7A4F;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+    </div>
+    <div id="owed-list" style="margin-bottom:1.75rem"></div>
+
+    <!-- Je dois -->
+    <h2 style="font-family:'DM Serif Display',serif;font-size:17px;color:#D4694A;margin:0 0 .5rem">🔴 Je dois</h2>
+    <div style="display:flex;gap:6px;margin-bottom:.5rem">
+      <input id="owe-who" type="text" placeholder="À qui ?" style="flex:1.2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+      <input id="owe-what" type="text" placeholder="Pourquoi ?" style="flex:2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+      <input id="owe-amount" type="number" placeholder="€" style="width:62px;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+      <button onclick="addDebt('owe')" style="font-size:16px;padding:0 13px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+    </div>
+    <div id="owe-list"></div>
   </div>
 </div>
 
@@ -1474,6 +1508,138 @@ function openBilan(){
 function closeBilan(){
   document.getElementById('bilan-overlay').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+// ── MES DETTES (on me doit / je dois) ──
+let debtsData = {owed: [], owe: []}; // owed = on me doit ; owe = je dois
+async function openDebts(){
+  document.getElementById('debts-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await loadDebts();
+}
+function closeDebts(){
+  document.getElementById('debts-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadDebts(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.debts_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    debtsData = {owed: d.owed || [], owe: d.owe || []};
+  } catch(e){ debtsData = {owed: [], owe: []}; }
+  renderDebts();
+}
+async function saveDebts(){
+  const payload = {data: {owed: debtsData.owed, owe: debtsData.owe}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.debts_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.debts_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'debts_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addDebt(kind){
+  const who = document.getElementById(kind+'-who').value.trim();
+  const what = document.getElementById(kind+'-what').value.trim();
+  const amount = parseFloat(document.getElementById(kind+'-amount').value) || 0;
+  if(!who) return;
+  debtsData[kind].push({id: uid(), who, what, amount, date: new Date().toISOString().slice(0,10)});
+  document.getElementById(kind+'-who').value = '';
+  document.getElementById(kind+'-what').value = '';
+  document.getElementById(kind+'-amount').value = '';
+  renderDebts();
+  saveDebts();
+}
+function delDebt(kind, id){
+  debtsData[kind] = debtsData[kind].filter(d => d.id !== id);
+  renderDebts();
+  saveDebts();
+}
+function renderDebts(){
+  const sum = (arr) => arr.reduce((s,d)=>s+(d.amount||0),0);
+  const totalOwed = sum(debtsData.owed);
+  const totalOwe = sum(debtsData.owe);
+  const net = totalOwed - totalOwe;
+
+  // Bilan
+  document.getElementById('debts-balance').innerHTML = `
+    <div style="flex:1;background:#E9F3ED;border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:20px;font-weight:800;color:#2D7A4F">${totalOwed.toFixed(0)}€</div>
+      <div style="font-size:10px;color:#7A7468">on me doit</div>
+    </div>
+    <div style="flex:1;background:#FBEEE9;border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:20px;font-weight:800;color:#D4694A">${totalOwe.toFixed(0)}€</div>
+      <div style="font-size:10px;color:#7A7468">je dois</div>
+    </div>
+    <div style="flex:1;background:${net>=0?'#E9F3ED':'#FBEEE9'};border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:20px;font-weight:800;color:${net>=0?'#2D7A4F':'#D4694A'}">${net>=0?'+':''}${net.toFixed(0)}€</div>
+      <div style="font-size:10px;color:#7A7468">solde net</div>
+    </div>`;
+
+  const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+
+  // Regroupe les dettes par personne (insensible à la casse)
+  function groupByPerson(arr){
+    const groups = {};
+    arr.forEach(d => {
+      const key = (d.who||'').trim().toLowerCase();
+      if(!groups[key]) groups[key] = {who: d.who, items: [], total: 0};
+      groups[key].items.push(d);
+      groups[key].total += (d.amount||0);
+    });
+    // Trie par total décroissant
+    return Object.values(groups).sort((a,b)=>b.total-a.total);
+  }
+
+  const personBlock = (kind, group, color) => {
+    const lines = group.items.map(d => {
+      let dateStr = '';
+      if(d.date){ const dt = new Date(d.date+'T12:00:00'); dateStr = dt.getDate()+' '+MOIS[dt.getMonth()]; }
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0 6px 12px;border-top:1px solid #F0ECE4">
+        <div style="flex:1">
+          ${d.what ? `<span style="font-size:12px;color:#3A3631">${d.what}</span>` : '<span style="font-size:12px;color:#C4BDB0;font-style:italic">—</span>'}
+          ${dateStr ? `<span style="font-size:10px;color:#C4BDB0;margin-left:6px">${dateStr}</span>` : ''}
+        </div>
+        <span style="font-size:13px;font-weight:600;color:${color}">${(d.amount||0).toFixed(0)}€</span>
+        <span onclick="delDebt('${kind}',${d.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✓</span>
+      </div>`;
+    }).join('');
+    return `<div style="background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:11px 13px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:15px;font-weight:700;color:#1A1814">${group.who}</span>
+        <span style="font-size:17px;font-weight:800;color:${color}">${group.total.toFixed(0)}€</span>
+      </div>
+      ${group.items.length > 1 || group.items[0].what ? lines : lines}
+    </div>`;
+  };
+
+  const owedEl = document.getElementById('owed-list');
+  const owedGroups = groupByPerson(debtsData.owed);
+  owedEl.innerHTML = owedGroups.length
+    ? owedGroups.map(g=>personBlock('owed',g,'#2D7A4F')).join('')
+    : '<div style="font-size:12px;color:#B0AA9E;text-align:center;padding:.5rem">Personne ne te doit d\'argent 👍</div>';
+
+  const oweEl = document.getElementById('owe-list');
+  const oweGroups = groupByPerson(debtsData.owe);
+  oweEl.innerHTML = oweGroups.length
+    ? oweGroups.map(g=>personBlock('owe',g,'#D4694A')).join('')
+    : '<div style="font-size:12px;color:#B0AA9E;text-align:center;padding:.5rem">Tu ne dois rien à personne 🎉</div>';
 }
 
 // ── MES LECTURES (bibliothèque par année) ──
