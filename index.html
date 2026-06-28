@@ -169,21 +169,25 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
     <!-- On me doit -->
     <h2 style="font-family:'DM Serif Display',serif;font-size:17px;color:#2D7A4F;margin:0 0 .5rem">🟢 On me doit</h2>
-    <div style="display:flex;gap:6px;margin-bottom:.5rem">
-      <input id="owed-who" type="text" placeholder="Qui ?" style="flex:1.2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
-      <input id="owed-what" type="text" placeholder="Pourquoi ?" style="flex:2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
-      <input id="owed-amount" type="number" placeholder="€" style="width:62px;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
-      <button onclick="addDebt('owed')" style="font-size:16px;padding:0 13px;background:#2D7A4F;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+    <div style="margin-bottom:.5rem">
+      <input id="owed-who" type="text" placeholder="Qui ?" onkeydown="if(event.key==='Enter')addDebt('owed')" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none;margin-bottom:6px">
+      <input id="owed-what" type="text" placeholder="Pourquoi ?" onkeydown="if(event.key==='Enter')addDebt('owed')" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px">
+        <input id="owed-amount" type="number" inputmode="decimal" placeholder="Montant €" onkeydown="if(event.key==='Enter')addDebt('owed')" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+        <button onclick="addDebt('owed')" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:8px 22px;background:#2D7A4F;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+      </div>
     </div>
     <div id="owed-list" style="margin-bottom:1.75rem"></div>
 
     <!-- Je dois -->
     <h2 style="font-family:'DM Serif Display',serif;font-size:17px;color:#D4694A;margin:0 0 .5rem">🔴 Je dois</h2>
-    <div style="display:flex;gap:6px;margin-bottom:.5rem">
-      <input id="owe-who" type="text" placeholder="À qui ?" style="flex:1.2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
-      <input id="owe-what" type="text" placeholder="Pourquoi ?" style="flex:2;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
-      <input id="owe-amount" type="number" placeholder="€" style="width:62px;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
-      <button onclick="addDebt('owe')" style="font-size:16px;padding:0 13px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+    <div style="margin-bottom:.5rem">
+      <input id="owe-who" type="text" placeholder="À qui ?" onkeydown="if(event.key==='Enter')addDebt('owe')" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none;margin-bottom:6px">
+      <input id="owe-what" type="text" placeholder="Pourquoi ?" onkeydown="if(event.key==='Enter')addDebt('owe')" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px">
+        <input id="owe-amount" type="number" inputmode="decimal" placeholder="Montant €" onkeydown="if(event.key==='Enter')addDebt('owe')" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+        <button onclick="addDebt('owe')" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:8px 22px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+      </div>
     </div>
     <div id="owe-list"></div>
   </div>
@@ -287,7 +291,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 <div id="shop-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
     <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🛒 Liste de courses</span>
-    <div onclick="closeShop()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div onclick="printShop()" style="font-size:18px;cursor:pointer;color:#2D7A4F" title="Imprimer / PDF">🖨️</div>
+      <div onclick="closeShop()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+    </div>
   </div>
   <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
     <div style="display:flex;gap:6px;margin-bottom:1rem">
@@ -2310,6 +2317,45 @@ function shopTouchEnd(e){
   const zone = el && el.closest('[data-shop]');
   if(zone && shopDragId!==null) moveShop(shopDragId, zone.getAttribute('data-shop'));
   shopDragId = null; shopTouchEl = null;
+}
+function printShop(){
+  const order = ['inbox','brico','inter','lidl','action','decath','autres'];
+  let body = '';
+  let hasItems = false;
+  order.forEach(key => {
+    const items = shopItems.filter(t => t.shop === key && !t.done);
+    if(items.length === 0) return;
+    hasItems = true;
+    const s = SHOPS[key];
+    body += `<div class="store">
+      <h2>${s.titre}</h2>
+      <ul>${items.map(it => `<li><span class="box"></span>${(it.txt||'').replace(/</g,'&lt;')}</li>`).join('')}</ul>
+    </div>`;
+  });
+  if(!hasItems){ alert('Ta liste de courses est vide !'); return; }
+
+  const today = new Date().toLocaleDateString('fr-BE', {weekday:'long', day:'numeric', month:'long'});
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Liste de courses</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; color: #1a1a1a; padding: 24px; max-width: 700px; margin: 0 auto; }
+      h1 { font-size: 24px; margin: 0 0 2px; }
+      .date { color: #888; font-size: 13px; margin-bottom: 20px; }
+      .store { margin-bottom: 20px; break-inside: avoid; }
+      .store h2 { font-size: 17px; border-bottom: 2px solid #333; padding-bottom: 4px; margin: 0 0 8px; }
+      ul { list-style: none; padding: 0; margin: 0; columns: 2; }
+      li { font-size: 15px; padding: 5px 0; display: flex; align-items: center; gap: 9px; break-inside: avoid; }
+      .box { width: 15px; height: 15px; border: 1.5px solid #555; border-radius: 3px; display: inline-block; flex-shrink: 0; }
+      @media print { body { padding: 10px; } }
+    </style></head>
+    <body>
+      <h1>🛒 Liste de courses</h1>
+      <div class="date">${today}</div>
+      ${body}
+      <script>window.onload = function(){ window.print(); }<\/script>
+    </body></html>`);
+  w.document.close();
 }
 function renderShop(){
   const cont = document.getElementById('shop-list');
