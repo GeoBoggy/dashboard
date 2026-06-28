@@ -466,12 +466,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
   </div>
   <div class="card" style="margin-top:.75rem">
-    <div class="row" onclick="toggleNote(this)">
-      <div class="row-ico">💡</div>
-      <div class="row-body"><span class="row-lbl">Ce que j'ai appris aujourd'hui</span></div>
-      <div class="row-right">▾</div>
+    <div style="padding:.7rem .9rem">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.5rem">💡 Ce que j'ai appris aujourd'hui</div>
+      <textarea rows="2" placeholder="Une idée, une citation, une découverte..." data-key="note_lecture" onblur="saveNote('note_lecture',this.value)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5"></textarea>
     </div>
-    <div class="note-wrap"><textarea rows="2" placeholder="Une idée, une citation, une découverte..." data-key="note_lecture" onblur="saveNote('note_lecture',this.value)"></textarea></div>
   </div>
   <div class="sg" style="margin-top:.75rem">
     <div class="tile" onclick="tgl(this,'news')" data-field="news">
@@ -493,6 +491,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
         <a href="https://open.spotify.com/playlist/2X0951r00s5YALHz5MntHv" target="_blank" class="pl-chip">Prog</a>
         <a href="https://open.spotify.com/playlist/1B8gsiH7eqkOWuKY01I2DW" target="_blank" class="pl-chip">Fr Tek</a>
         <a href="https://open.spotify.com/playlist/2d8j6yBdFyMnOUTU6Tg3sK" target="_blank" class="pl-chip">US</a>
+        <a href="https://open.spotify.com/playlist/6fJWDCeL4UWbIwIyTTXZTc" target="_blank" class="pl-chip">Dirtbag</a>
       </div>
     </div>
   </div>
@@ -525,12 +524,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
   </div>
   <div class="card" style="margin-top:.75rem">
-    <div class="row" onclick="toggleNote(this)">
-      <div class="row-ico">💪</div>
-      <div class="row-body"><span class="row-lbl">Qu'ai-je fait aujourd'hui dont je suis fier ?</span></div>
-      <div class="row-right">▾</div>
+    <div style="padding:.7rem .9rem">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.5rem">💪 Qu'ai-je fait aujourd'hui dont je suis fier ?</div>
+      <textarea rows="2" placeholder="Une réalisation, un accomplissement..." data-key="note_fierte" onblur="saveNote('note_fierte',this.value)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5"></textarea>
     </div>
-    <div class="note-wrap"><textarea rows="2" placeholder="Une réalisation, un accomplissement..." data-key="note_fierte" onblur="saveNote('note_fierte',this.value)"></textarea></div>
   </div>
 </div>
 
@@ -595,8 +592,12 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <div class="card" style="margin-top:.75rem">
     <div style="padding:.7rem .9rem">
       <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.6rem">👤 Qui ? Information importante retenue</div>
-      <input type="text" placeholder="Qui ?" data-key="social_qui" onblur="saveNote('social_qui',this.value)" style="width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
-      <textarea rows="2" placeholder="Information importante à retenir..." data-key="social_info" onblur="saveNote('social_info',this.value)" style="width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5"></textarea>
+      <div style="display:flex;gap:6px;margin-bottom:.5rem">
+        <input id="learn-who" type="text" placeholder="Qui ?" style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+        <input id="learn-what" type="text" placeholder="Information importante à retenir..." onkeydown="if(event.key==='Enter')addLearning()" style="flex:2;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+        <button onclick="addLearning()" style="font-size:16px;padding:0 12px;background:#3D8C5E;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+      </div>
+      <div id="learn-list"></div>
     </div>
   </div>
 </div>
@@ -1132,7 +1133,41 @@ function applyState(){
   updateSmokeDisplay();
   updateVerreDisplay();
   renderTasks();
+  renderLearnings();
   updateScore();
+}
+
+// ── CE QUE J'AI APPRIS DES GENS (lié au jour) ──
+function addLearning(){
+  const who = document.getElementById('learn-who').value.trim();
+  const what = document.getElementById('learn-what').value.trim();
+  if(!who || !what) return;
+  if(!Array.isArray(state.learnings)) state.learnings = [];
+  state.learnings.push({who, what});
+  document.getElementById('learn-who').value = '';
+  document.getElementById('learn-what').value = '';
+  renderLearnings();
+  updateScore();
+  saveData();
+  document.getElementById('learn-who').focus();
+}
+function delLearning(i){
+  if(Array.isArray(state.learnings)){
+    state.learnings.splice(i,1);
+    renderLearnings();
+    updateScore();
+    saveData();
+  }
+}
+function renderLearnings(){
+  const el = document.getElementById('learn-list');
+  if(!el) return;
+  const list = Array.isArray(state.learnings) ? state.learnings : [];
+  if(list.length === 0){ el.innerHTML = ''; return; }
+  el.innerHTML = list.map((l,i) => `<div style="display:flex;align-items:flex-start;gap:8px;background:#F5F2EC;border-radius:8px;padding:7px 10px;margin-bottom:5px">
+    <div style="flex:1;font-size:13px;color:#1A1814;line-height:1.4"><strong style="color:#3D8C5E">${l.who}</strong> · ${l.what}</div>
+    <span onclick="delLearning(${i})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
+  </div>`).join('');
 }
 
 function tgl(tile,key){
@@ -2530,66 +2565,224 @@ pickMeals();
 const WORKOUTS = [
   {nom:"Pompes & gainage", ex:[
     {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Mains sous les épaules, corps gainé bien droit. Descends la poitrine vers le sol, coudes à 45°, puis remonte."},
-    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"30s repos", e:"Mains jointes sous la poitrine formant un losange. Cible les triceps. Coudes près du corps."},
+    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Pieds largeur d'épaules, descends comme pour t'asseoir, genoux dans l'axe des pieds, dos droit. Pousse sur les talons."},
     {n:"Gainage planche", d:"3 × 30 secondes", r:"20s repos", e:"Sur les avant-bras, corps aligné des talons à la tête. Serre les abdos et les fessiers, ne creuse pas le dos."},
   ]},
-  {nom:"Dips & épaules", ex:[
-    {n:"Pompes triceps au sol", d:"3 × 12 répétitions", r:"30s repos", e:"À genoux ou en planche, mains serrées sous la poitrine, coudes le long du corps. Cible les triceps, aucun matériel."},
+  {nom:"Bas du corps & abdos", ex:[
+    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"30s repos", e:"Grand pas en avant, descends le genou arrière vers le sol, remonte. Garde le buste droit, alterne les jambes."},
+    {n:"Chaise contre le mur", d:"3 × 40 secondes", r:"30s repos", e:"Dos contre le mur, cuisses à l'horizontale comme assis sur une chaise invisible. Tiens la position, gainé."},
+    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Allongé, genoux pliés, mains derrière la tête. Décolle les omoplates en soufflant, sans tirer sur la nuque."},
+  ]},
+  {nom:"Full body dynamique", ex:[
+    {n:"Burpees doux", d:"3 × 8 répétitions", r:"40s repos", e:"Accroupi, mains au sol, recule les pieds en planche, reviens et redresse-toi. Sans saut si tu veux ménager les voisins."},
+    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains plus larges que les épaules. Cible davantage les pectoraux. Descente contrôlée."},
+    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"En position de planche, ramène alternativement les genoux vers la poitrine, rythme soutenu, gainage serré."},
+  ]},
+  {nom:"Jambes & fessiers", ex:[
+    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Squat classique puis pousse pour décoller légèrement (ou juste sur la pointe des pieds si sans saut). Amorti à la réception."},
+    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Allongé sur le dos, genoux pliés, pieds au sol. Soulève le bassin en serrant les fessiers, redescends sans poser."},
+    {n:"Mollets debout", d:"3 × 20 répétitions", r:"20s repos", e:"Debout, monte sur la pointe des pieds le plus haut possible, redescends lentement. Sollicite les mollets."},
+  ]},
+  {nom:"Pompes & triceps", ex:[
+    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"30s repos", e:"Mains jointes sous la poitrine formant un losange. Cible les triceps. Coudes près du corps."},
+    {n:"Pompes triceps lentes", d:"3 × 10 répétitions", r:"30s repos", e:"Pompes mains serrées, descente lente en 3 secondes. Coudes près du corps pour cibler les triceps."},
+    {n:"Gainage planche", d:"3 × 40 secondes", r:"20s repos", e:"Sur les avant-bras, corps aligné. Serre les abdos et fessiers, respiration calme."},
+  ]},
+  {nom:"Cardio sans saut", ex:[
+    {n:"Montées de genoux", d:"3 × 40 secondes", r:"20s repos", e:"Debout, monte alternativement les genoux à hauteur de hanche, rythme rapide, balance les bras."},
+    {n:"Squats rapides", d:"3 × 20 répétitions", r:"30s repos", e:"Squats enchaînés à bon rythme, sans à-coups, amplitude complète. Le cœur monte vite."},
+    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"En planche, touche alternativement chaque épaule avec la main opposée sans bouger le bassin."},
+  ]},
+  {nom:"Épaules & dos", ex:[
     {n:"Pompes piquées (épaules)", d:"3 × 10 répétitions", r:"30s repos", e:"Bassin relevé en V inversé, tête vers le sol. Fléchis les coudes pour descendre le sommet du crâne, cible les épaules."},
+    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Allongé sur le ventre, bras tendus devant. Lève simultanément bras et jambes, contracte le bas du dos."},
+    {n:"Cercles de bras (sans poids)", d:"3 × 30 secondes", r:"15s repos", e:"Bras tendus à l'horizontale, fais de petits cercles continus. Brûlure garantie sur les épaules."},
+  ]},
+  {nom:"Abdos complets", ex:[
+    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Allongé, genoux pliés. Décolle les omoplates en soufflant, sans tirer sur la nuque."},
+    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Allongé, jambes tendues. Lève-les jusqu'à la verticale puis redescends lentement sans toucher le sol."},
     {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"Sur un avant-bras, corps de profil aligné. Hanches hautes, maintiens sans tomber. Change de côté."},
   ]},
-  {nom:"Pompes explosives", ex:[
-    {n:"Pompes claquées", d:"3 × 8 répétitions", r:"40s repos", e:"Pompe normale mais pousse fort pour décoller les mains, claque-les si possible, réceptionne en douceur."},
-    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains plus larges que les épaules. Cible davantage les pectoraux. Descente contrôlée."},
-    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Allongé sur le ventre, bras tendus devant. Lève simultanément bras et jambes, contracte le bas du dos."},
+  {nom:"Full body force", ex:[
+    {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée, coudes à 45°. La base indémodable."},
+    {n:"Fentes arrière", d:"3 × 10 par jambe", r:"30s repos", e:"Grand pas en arrière, descends le genou vers le sol, reviens. Plus doux pour les genoux que la fente avant."},
+    {n:"Gainage planche", d:"3 × 30 secondes", r:"20s repos", e:"Corps aligné, abdos et fessiers serrés. Respire calmement."},
   ]},
-  {nom:"Triceps & pecs", ex:[
-    {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Mains rapprochées sous la poitrine. Coudes le long du corps. Cible intensément les triceps."},
-    {n:"Pompes triceps lentes", d:"3 × 10 répétitions", r:"30s repos", e:"Pompes mains serrées, descente lente en 3 secondes. Coudes près du corps pour cibler les triceps."},
-    {n:"Pompes piquées", d:"3 × 10 répétitions", r:"30s repos", e:"Bassin relevé en V inversé, tête vers le sol. Reporte le poids sur le haut des pectoraux et les épaules, sans matériel."},
+  {nom:"Explosif & gainage", ex:[
+    {n:"Pompes claquées", d:"3 × 8 répétitions", r:"40s repos", e:"Pompe normale mais pousse fort pour décoller les mains, réceptionne en douceur."},
+    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Squat puis impulsion vers le haut, réception amortie genoux souples."},
+    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"En planche, genoux vers la poitrine en alternance, rythme soutenu."},
+  ]},
+  {nom:"Jambes brûlantes", ex:[
+    {n:"Chaise contre le mur", d:"3 × 45 secondes", r:"30s repos", e:"Dos au mur, cuisses horizontales. Tiens bon, le brûlement est normal."},
+    {n:"Fentes avant alternées", d:"3 × 12 par jambe", r:"30s repos", e:"Grand pas devant, genou arrière vers le sol. Buste droit."},
+    {n:"Mollets debout", d:"3 × 25 répétitions", r:"20s repos", e:"Montée sur pointes, descente lente. Tiens-toi à un mur pour l'équilibre si besoin."},
+  ]},
+  {nom:"Haut du corps complet", ex:[
+    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux. Descente contrôlée."},
+    {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Mains rapprochées, coudes le long du corps. Cible les triceps."},
+    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Lève bras et jambes simultanément, contracte le bas du dos."},
+  ]},
+  {nom:"Core & équilibre", ex:[
+    {n:"Gainage planche", d:"3 × 40 secondes", r:"20s repos", e:"Corps aligné, abdos serrés, respiration calme."},
+    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale puis descente lente."},
+    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"En planche, touche chaque épaule avec la main opposée sans bouger le bassin."},
+  ]},
+  {nom:"Cardio full body", ex:[
+    {n:"Burpees doux", d:"3 × 8 répétitions", r:"40s repos", e:"Accroupi, planche, retour, redressement. Sans saut si besoin."},
+    {n:"Montées de genoux", d:"3 × 40 secondes", r:"20s repos", e:"Genoux hauts en alternance, rythme rapide."},
+    {n:"Squats rapides", d:"3 × 20 répétitions", r:"30s repos", e:"Squats enchaînés à bon rythme, amplitude complète."},
+  ]},
+  {nom:"Pecs & fessiers", ex:[
+    {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée. La base."},
+    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Soulève le bassin en serrant les fessiers, redescends sans poser."},
+    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Décolle les omoplates en soufflant, sans tirer la nuque."},
+  ]},
+  {nom:"Jambes & gainage", ex:[
+    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Descends comme pour t'asseoir, dos droit, pousse sur les talons."},
+    {n:"Fentes arrière", d:"3 × 10 par jambe", r:"30s repos", e:"Pas en arrière, genou vers le sol, reviens. Doux pour les genoux."},
+    {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"De profil sur un avant-bras, hanches hautes. Change de côté."},
+  ]},
+  {nom:"Triceps & core", ex:[
+    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"30s repos", e:"Mains en losange sous la poitrine, cible les triceps."},
+    {n:"Pompes triceps lentes", d:"3 × 10 répétitions", r:"30s repos", e:"Descente en 3 secondes, coudes près du corps."},
+    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale, descente lente sans toucher le sol."},
+  ]},
+  {nom:"Full body express", ex:[
+    {n:"Pompes classiques", d:"2 × 15 répétitions", r:"30s repos", e:"Corps gainé, rythme régulier."},
+    {n:"Squats", d:"2 × 20 répétitions", r:"30s repos", e:"Amplitude complète, dos droit."},
+    {n:"Gainage planche", d:"2 × 45 secondes", r:"20s repos", e:"Corps aligné, abdos serrés."},
+  ]},
+  {nom:"Endurance jambes", ex:[
+    {n:"Squats", d:"3 × 20 répétitions", r:"30s repos", e:"Tempo régulier, amplitude complète."},
+    {n:"Fentes avant alternées", d:"3 × 12 par jambe", r:"30s repos", e:"Buste droit, genou arrière vers le sol."},
+    {n:"Chaise contre le mur", d:"2 × 40 secondes", r:"30s repos", e:"Cuisses horizontales, tiens la position."},
   ]},
   {nom:"Dos & posture", ex:[
-    {n:"Superman", d:"3 × 15 répétitions", r:"20s repos", e:"Allongé sur le ventre, lève bras et jambes ensemble. Tiens 1 seconde en haut, contracte le dos."},
-    {n:"Pompes prise large", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, descente contrôlée. Ouvre la poitrine et travaille le haut du dos en stabilisation."},
-    {n:"Gainage planche + tape épaules", d:"3 × 20 tapes", r:"30s repos", e:"En planche sur les mains, tape ton épaule opposée en alternance sans bouger le bassin."},
+    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Bras et jambes levés, contracte le bas du dos."},
+    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
+    {n:"Gainage planche", d:"3 × 30 secondes", r:"20s repos", e:"Corps aligné, n'affaisse pas les hanches."},
   ]},
-  {nom:"Circuit complet", ex:[
-    {n:"Pompes classiques", d:"2 × 15 répétitions", r:"20s repos", e:"Corps gainé, descente poitrine vers le sol, coudes à 45°. Rythme régulier."},
-    {n:"Pompes triceps au sol", d:"2 × 12 répétitions", r:"20s repos", e:"Mains serrées sous la poitrine, coudes le long du corps. Cible les triceps, au sol."},
-    {n:"Pompes piquées", d:"2 × 10 répétitions", r:"20s repos", e:"Bassin en V inversé, descends le crâne vers le sol pour cibler les épaules."},
-    {n:"Gainage", d:"2 × 40 secondes", r:"20s repos", e:"Sur les avant-bras, corps aligné, abdos serrés. Tiens la position sans creuser le dos."},
+  {nom:"Pompes variées", ex:[
+    {n:"Pompes larges", d:"3 × 10 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux."},
+    {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Mains serrées, cible les triceps."},
+    {n:"Pompes piquées (épaules)", d:"3 × 8 répétitions", r:"30s repos", e:"V inversé, descends le crâne, cible les épaules."},
   ]},
-  {nom:"Épaules & galbe", ex:[
-    {n:"Pompes piquées", d:"3 × 10 répétitions", r:"30s repos", e:"Bassin relevé en V inversé. Fléchis les coudes pour descendre la tête, pousse avec les épaules."},
-    {n:"Cercles de bras (sans poids)", d:"3 × 30 secondes", r:"15s repos", e:"Bras tendus à l'horizontale, fais de petits cercles continus. Brûlure garantie sur les épaules."},
-    {n:"Pompes Pike (en V)", d:"3 × 8 répétitions", r:"30s repos", e:"Comme les piquées mais bassin encore plus haut, presque vertical. Très ciblé épaules."},
+  {nom:"Abdos & cardio", ex:[
+    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"Genoux vers la poitrine en alternance, rythme soutenu."},
+    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Décolle les omoplates en soufflant."},
+    {n:"Montées de genoux", d:"3 × 30 secondes", r:"20s repos", e:"Genoux hauts, rythme rapide."},
   ]},
-  {nom:"Pyramide pompes", ex:[
-    {n:"Pompes — montée", d:"5, 10, 15 répétitions", r:"30s entre séries", e:"Augmente le nombre à chaque série : 5 puis 10 puis 15. Garde une forme propre."},
-    {n:"Pompes — descente", d:"15, 10, 5 répétitions", r:"30s entre séries", e:"Redescends la pyramide : 15 puis 10 puis 5. Termine en force quand la fatigue monte."},
-    {n:"Gainage final", d:"1 × 1 minute", r:"—", e:"Planche sur les avant-bras pendant une minute pleine pour finir. Reste gainé jusqu'au bout."},
+  {nom:"Full body tonique", ex:[
+    {n:"Squats sautés", d:"3 × 10 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
+    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
+    {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"De profil, hanches hautes."},
   ]},
-  {nom:"Tempo lent (force)", ex:[
-    {n:"Pompes 3s descente / 1s montée", d:"3 × 8 répétitions", r:"40s repos", e:"Descends très lentement en comptant 3 secondes, remonte en 1 seconde. Le tempo lent décuple l'effort."},
-    {n:"Pompes triceps lentes", d:"3 × 8 répétitions", r:"40s repos", e:"Pompes mains serrées, descente lente et contrôlée. Sens le travail dans les triceps."},
-    {n:"Gainage planche", d:"3 × 45 secondes", r:"20s repos", e:"Planche longue durée, corps parfaitement aligné. Respire calmement et tiens."},
+  {nom:"Cuisses & mollets", ex:[
+    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"30s repos", e:"Genou arrière vers le sol, buste droit."},
+    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Dos droit, pousse sur les talons."},
+    {n:"Mollets debout", d:"3 × 25 répétitions", r:"20s repos", e:"Montée sur pointes, descente lente."},
   ]},
-  {nom:"Full bras", ex:[
-    {n:"Pompes serrées (triceps)", d:"3 × 10 répétitions", r:"30s repos", e:"Mains rapprochées, coudes le long du corps. Cible les triceps."},
-    {n:"Pompes larges (pecs)", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, ouvre la poitrine. Cible les pectoraux."},
-    {n:"Pompes diamant (triceps)", d:"3 × 12 répétitions", r:"30s repos", e:"Mains jointes en losange sous la poitrine. Sollicite intensément l'arrière du bras, au sol."},
-    {n:"Superman (dos)", d:"2 × 15 répétitions", r:"20s repos", e:"Lève bras et jambes au sol pour équilibrer avec un peu de travail du dos."},
+  {nom:"Gainage intense", ex:[
+    {n:"Gainage planche", d:"3 × 45 secondes", r:"30s repos", e:"Corps parfaitement aligné, abdos et fessiers serrés."},
+    {n:"Gainage latéral", d:"2 × 35s par côté", r:"20s repos", e:"De profil, ne laisse pas tomber les hanches."},
+    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"Touche les épaules en alternance, bassin stable."},
+  ]},
+  {nom:"Haut du corps explosif", ex:[
+    {n:"Pompes claquées", d:"3 × 8 répétitions", r:"40s repos", e:"Pousse fort pour décoller les mains, réception douce."},
+    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux."},
+    {n:"Cercles de bras (sans poids)", d:"3 × 30 secondes", r:"15s repos", e:"Petits cercles continus, bras à l'horizontale."},
+  ]},
+  {nom:"Bas du corps puissant", ex:[
+    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
+    {n:"Fentes arrière", d:"3 × 10 par jambe", r:"30s repos", e:"Pas en arrière, genou vers le sol."},
+    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
+  ]},
+  {nom:"Circuit complet 1", ex:[
+    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"25s repos", e:"Corps gainé, descente contrôlée."},
+    {n:"Squats", d:"3 × 15 répétitions", r:"25s repos", e:"Amplitude complète, dos droit."},
+    {n:"Crunchs", d:"3 × 15 répétitions", r:"25s repos", e:"Décolle les omoplates en soufflant."},
+  ]},
+  {nom:"Circuit complet 2", ex:[
+    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"25s repos", e:"Genou arrière vers le sol, buste droit."},
+    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"25s repos", e:"Mains en losange, cible les triceps."},
+    {n:"Gainage planche", d:"3 × 30 secondes", r:"25s repos", e:"Corps aligné, abdos serrés."},
+  ]},
+  {nom:"Tonus général", ex:[
+    {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Coudes le long du corps, cible les triceps."},
+    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
+    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale, descente lente."},
+  ]},
+  {nom:"Cardio brûle-graisses", ex:[
+    {n:"Burpees doux", d:"3 × 10 répétitions", r:"40s repos", e:"Accroupi, planche, retour, redressement."},
+    {n:"Montées de genoux", d:"3 × 40 secondes", r:"20s repos", e:"Genoux hauts, rythme rapide."},
+    {n:"Squats rapides", d:"3 × 20 répétitions", r:"25s repos", e:"Enchaînés à bon rythme, amplitude complète."},
+  ]},
+  {nom:"Pecs & abdos", ex:[
+    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux."},
+    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
+    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Décolle les omoplates en soufflant."},
+  ]},
+  {nom:"Jambes & core", ex:[
+    {n:"Chaise contre le mur", d:"3 × 40 secondes", r:"30s repos", e:"Cuisses horizontales, tiens la position."},
+    {n:"Mollets debout", d:"3 × 20 répétitions", r:"20s repos", e:"Montée sur pointes, descente lente."},
+    {n:"Gainage planche", d:"3 × 35 secondes", r:"20s repos", e:"Corps aligné, abdos serrés."},
+  ]},
+  {nom:"Force & explosivité", ex:[
+    {n:"Pompes claquées", d:"3 × 8 répétitions", r:"40s repos", e:"Décolle les mains, réception douce."},
+    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
+    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"Touche les épaules en alternance, bassin stable."},
+  ]},
+  {nom:"Dos & épaules", ex:[
+    {n:"Pompes piquées (épaules)", d:"3 × 10 répétitions", r:"30s repos", e:"V inversé, descends le crâne, cible les épaules."},
+    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Bras et jambes levés, contracte le bas du dos."},
+    {n:"Cercles de bras (sans poids)", d:"3 × 30 secondes", r:"15s repos", e:"Petits cercles continus, bras tendus."},
+  ]},
+  {nom:"Full body équilibré", ex:[
+    {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
+    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Amplitude complète, dos droit."},
+    {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"De profil, hanches hautes."},
+  ]},
+  {nom:"Abdos gainage avancé", ex:[
+    {n:"Relevés de jambes", d:"3 × 15 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale, descente lente."},
+    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"Genoux vers la poitrine, rythme soutenu."},
+    {n:"Gainage planche", d:"3 × 45 secondes", r:"30s repos", e:"Corps parfaitement aligné, abdos serrés."},
+  ]},
+  {nom:"Bas du corps complet", ex:[
+    {n:"Squats", d:"3 × 18 répétitions", r:"30s repos", e:"Amplitude complète, pousse sur les talons."},
+    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"30s repos", e:"Genou arrière vers le sol, buste droit."},
+    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
+  ]},
+  {nom:"Le grand mix", ex:[
+    {n:"Burpees doux", d:"3 × 8 répétitions", r:"40s repos", e:"Accroupi, planche, retour, redressement."},
+    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
+    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Amplitude complète, dos droit."},
+  ]},
+  {nom:"Défi complet", ex:[
+    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"30s repos", e:"Mains en losange, cible les triceps."},
+    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
+    {n:"Gainage planche", d:"3 × 40 secondes", r:"20s repos", e:"Corps aligné, abdos et fessiers serrés."},
   ]},
 ];
 
+let workoutOverride = null; // null = séance du jour, sinon index choisi
 function openWorkout(){
   document.getElementById('workout-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
+  workoutOverride = null; // repart sur la séance du jour à chaque ouverture
   renderWorkout();
 }
 function closeWorkout(){
   document.getElementById('workout-overlay').style.display = 'none';
   document.body.style.overflow = '';
+}
+function switchWorkout(){
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 864e5);
+  const current = workoutOverride !== null ? workoutOverride : (dayOfYear % WORKOUTS.length);
+  workoutOverride = (current + 1) % WORKOUTS.length;
+  renderWorkout();
 }
 function detectMuscles(workout){
   // Analyse les exercices pour repérer les zones travaillées
@@ -2635,17 +2828,20 @@ function bodySchema(muscles){
   </div>`;
 }
 function renderWorkout(){
-  // Rotation quotidienne basée sur le jour de l'année
+  // Rotation quotidienne basée sur le jour de l'année (ou choix manuel)
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now - start) / 864e5);
-  const w = WORKOUTS[dayOfYear % WORKOUTS.length];
+  const idx = workoutOverride !== null ? workoutOverride : (dayOfYear % WORKOUTS.length);
+  const w = WORKOUTS[idx];
   const JOURS = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const isToday = workoutOverride === null;
 
   let html = `<div style="text-align:center;margin-bottom:1.25rem">
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#B0AA9E">${JOURS[now.getDay()]}</div>
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#B0AA9E">${isToday ? JOURS[now.getDay()] : 'Séance ' + (idx+1) + '/' + WORKOUTS.length}</div>
     <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#1A1814;margin-top:2px">${w.nom}</div>
-    <div style="font-size:12px;color:#7A7468;margin-top:4px">Séance du jour · environ 5 minutes</div>
+    <div style="font-size:12px;color:#7A7468;margin-top:4px">${isToday ? 'Séance du jour' : 'Autre séance'} · environ 5 minutes</div>
+    <button onclick="switchWorkout()" style="margin-top:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 18px;background:#D4694A;color:#fff;border:none;border-radius:20px;cursor:pointer">🔄 Une autre séance</button>
   </div>`;
 
   // Schéma du corps
@@ -3066,10 +3262,22 @@ async function loadStrava(){
         const ps = derniere.moving_time/(derniere.distance/1000);
         pace = ` · ${Math.floor(ps/60)}'${Math.round(ps%60).toString().padStart(2,'0')}/km`;
       }
+      // Tente de récupérer la photo de l'activité
+      let photoHtml = '';
+      try {
+        if(derniere.total_photo_count > 0){
+          const photos = await (await fetch(`https://www.strava.com/api/v3/activities/${derniere.id}/photos?size=600`,{headers:{'Authorization':'Bearer '+token}})).json();
+          if(Array.isArray(photos) && photos.length){
+            const url = photos[0].urls && (photos[0].urls['600'] || photos[0].urls[Object.keys(photos[0].urls)[0]]);
+            if(url) photoHtml = `<img src="${url}" style="width:100%;border-radius:8px;margin-top:6px;display:block" alt="Photo activité">`;
+          }
+        }
+      } catch(e){}
       derniereHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid #E2DDD4">
         <div style="font-size:10px;color:#7A7468;margin-bottom:2px">Dernière sortie · ${quand}</div>
         <div style="font-size:12px;color:#1A1814;font-weight:600">${derniere.name||'Activité'}</div>
         <div style="font-size:11px;color:#7A7468">${d} km · ${duree}${pace}</div>
+        ${photoHtml}
       </div>`;
     }
 
@@ -3086,11 +3294,14 @@ async function loadStrava(){
       <div style="font-size:9px;color:#B0AA9E;margin-top:6px;line-height:1.6">📅 2021: 1000 · 2022: 1000 · 2023: 1138 · 2024: 1500 · 2025: 1530 · <span style="color:#FC4C02;font-weight:600">2026: ${kmAnnee.toFixed(0)}</span></div>
     </div>`;
 
-    // Chaussures Hoka
+    // Chaussures : on prend la chaussure par défaut, sinon celle avec le plus de km, sinon le nom Hoka
     let shoeHtml = '';
-    const hoka = (athlete.shoes||[]).find(s => s.name && s.name.includes(HOKA_NAME));
-    if(hoka){
-      const gearData = await (await fetch(`https://www.strava.com/api/v3/gear/${hoka.id}`,{headers:{'Authorization':'Bearer '+token}})).json();
+    const shoes = athlete.shoes || [];
+    let shoe = shoes.find(s => s.primary)
+            || shoes.find(s => s.name && s.name.includes(HOKA_NAME))
+            || shoes.slice().sort((a,b)=>(b.distance||0)-(a.distance||0))[0];
+    if(shoe){
+      const gearData = await (await fetch(`https://www.strava.com/api/v3/gear/${shoe.id}`,{headers:{'Authorization':'Bearer '+token}})).json();
       const kmShoe = (gearData.distance/1000).toFixed(0);
       const maxKm = 800;
       const pct = Math.min(Math.round(kmShoe/maxKm*100), 100);
