@@ -1304,12 +1304,20 @@ async function loadAgenda(){
   try {
     // Charger les événements barrés depuis Supabase (sans cache)
     try {
-      const cr = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events&select=data&_=${Date.now()}`, {
+      const cr = await fetch(`${SB_URL}/rest/v1/journal?date=eq.crossed_events&select=data`, {
         headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
         cache: 'no-store'
       });
       const crows = await cr.json();
-      crossedEvents = (crows && crows[0] && crows[0].data && Array.isArray(crows[0].data.list)) ? crows[0].data.list : [];
+      // S'il y a plusieurs lignes (doublons d'anciens bugs), prend celle qui a le plus d'éléments
+      crossedEvents = [];
+      if(Array.isArray(crows)){
+        crows.forEach(row => {
+          if(row && row.data && Array.isArray(row.data.list) && row.data.list.length >= crossedEvents.length){
+            crossedEvents = row.data.list;
+          }
+        });
+      }
     } catch(e){ crossedEvents = []; }
 
     const r = await fetch(AGENDA_URL);
