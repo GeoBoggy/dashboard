@@ -3297,6 +3297,7 @@ async function loadStrava(){
     // Chaussures : on prend la chaussure par défaut, sinon celle avec le plus de km, sinon le nom Hoka
     let shoeHtml = '';
     const shoes = athlete.shoes || [];
+    console.log('Strava chaussures:', shoes);
     let shoe = shoes.find(s => s.primary)
             || shoes.find(s => s.name && s.name.includes(HOKA_NAME))
             || shoes.slice().sort((a,b)=>(b.distance||0)-(a.distance||0))[0];
@@ -3315,6 +3316,8 @@ async function loadStrava(){
           <div style="height:100%;width:${pct}%;background:${color};border-radius:3px"></div>
         </div>
       </div>`;
+    } else {
+      shoeHtml = `<div style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid #E2DDD4;font-size:11px;color:#B0AA9E;text-align:center">👟 Aucune chaussure configurée sur Strava.<br>Ajoute-la dans ton profil et associe-la à tes sorties.</div>`;
     }
 
     // Temps total formaté
