@@ -81,6 +81,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
 <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
 <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -137,6 +139,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <div class="hdr-bar">
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
     <span class="bar-lbl" id="score-lbl">0/0</span>
+  </div>
+  <div id="countdown-banner" style="margin-top:.6rem;background:linear-gradient(135deg,#D4694A,#C4632A);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff">
+    <span style="font-size:13px;font-weight:600">🚀 Nouvelle fonction</span>
+    <span id="countdown-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
   </div>
   <div class="save-st" id="save-st"></div>
 </div>
@@ -288,6 +294,18 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- LISTE DE COURSES (overlay) -->
+<!-- MAGASIN PLEIN ÉCRAN (liste + carte fidélité) -->
+<div id="store-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:110;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span id="store-title" style="font-family:'DM Serif Display',serif;font-size:20px;color:#1A1814"></span>
+    <div onclick="closeStore()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1.25rem;max-width:600px;margin:0 auto">
+    <div id="store-card" style="background:#fff;border:1px solid #E2DDD4;border-radius:14px;padding:18px;text-align:center;margin-bottom:1.25rem"></div>
+    <div id="store-items"></div>
+  </div>
+</div>
+
 <div id="shop-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
     <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🛒 Liste de courses</span>
@@ -770,6 +788,27 @@ const DAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 document.getElementById('hdr-day').textContent=DAYS[now.getDay()];
 document.getElementById('hdr-date').textContent=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
+
+// Compte à rebours jusqu'au 21 septembre 2026 (nouvelle fonction)
+function updateCountdown(){
+  const target = new Date('2026-09-21T00:00:00');
+  const now = new Date();
+  const diff = target - now;
+  const el = document.getElementById('countdown-val');
+  const banner = document.getElementById('countdown-banner');
+  if(!el) return;
+  if(diff <= 0){
+    if(banner) banner.style.display = 'none';
+    return;
+  }
+  const days = Math.floor(diff / 864e5);
+  const hours = Math.floor((diff % 864e5) / 36e5);
+  const mins = Math.floor((diff % 36e5) / 6e4);
+  const secs = Math.floor((diff % 6e4) / 1000);
+  el.innerHTML = `<span style="font-size:18px">J-${days}</span> <span style="font-size:12px;font-weight:600;opacity:.9">${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}</span>`;
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
 
 // Smoke days - date stockée dans state (compteur record conservé en mémoire)
 function updateSmokeDisplay(){
@@ -2182,11 +2221,22 @@ function renderWatch(){
 const SHOPS = {
   inbox: {titre:'📥 À trier', sous:'Glisse vers un magasin', color:'#7A7468', bg:'#FFFFFF'},
   brico: {titre:'🔨 Brico', sous:'', color:'#C4632A', bg:'#FBEEE6'},
-  inter: {titre:'🛒 Intermarché', sous:'', color:'#C42030', bg:'#FBE9EB'},
-  lidl: {titre:'🟡 Lidl', sous:'', color:'#0050AA', bg:'#E6EEF7'},
+  inter: {titre:'🛒 Intermarché/Delhaize', sous:'', color:'#C42030', bg:'#FBE9EB'},
+  lidl: {titre:'🟡 Lidl', sous:'', color:'#0050AA', bg:'#FEF7E0'},
   action: {titre:'🛍️ Action', sous:'', color:'#2050A4', bg:'#E8EEF8'},
   decath: {titre:'🏅 Décathlon', sous:'', color:'#0082C3', bg:'#E4F2F9'},
+  pharma: {titre:'💊 Pharmacie', sous:'', color:'#1A9E6C', bg:'#E5F4EE'},
+  boulang: {titre:'🥖 Boulangerie', sous:'', color:'#B07A2A', bg:'#F7EFE2'},
   autres: {titre:'📦 Autres', sous:'', color:'#7A7468', bg:'#F0EDE7'},
+};
+// Cartes de fidélité : type 'barcode' (CODE128) ou 'qr'. Une case peut avoir plusieurs cartes.
+const LOYALTY = {
+  inter:   [{name:'Intermarché', code:'3250390040021133402', type:'barcode'},
+            {name:'Delhaize', code:'0450031074837', type:'barcode'}],
+  lidl:    [{name:'Lidl Plus', code:'77320008094447885', type:'qr'}],
+  decath:  [{name:'Décathlon', code:'2090474865944', type:'barcode'}],
+  action:  [{name:'Action', code:'L6842677266945', type:'qr'}],
+  boulang: [{name:'Boulangerie Louise', code:'5003e86v7ztbNGj5FZ1E', type:'qr'}],
 };
 let _uidCounter = 0;
 function uid(){ return Date.now() * 1000 + (_uidCounter++ % 1000); }
@@ -2293,6 +2343,9 @@ function toggleShop(id){
   const it = shopItems.find(t => t.id === id);
   if(it) it.done = !it.done;
   renderShop(); saveShop();
+  // Si la vue plein écran d'un magasin est ouverte, la rafraîchir aussi
+  const so = document.getElementById('store-overlay');
+  if(so && so.style.display === 'block' && it){ openStore(it.shop); }
 }
 function delShop(id){
   shopItems = shopItems.filter(t => t.id !== id);
@@ -2319,7 +2372,7 @@ function shopTouchEnd(e){
   shopDragId = null; shopTouchEl = null;
 }
 function printShop(){
-  const order = ['inbox','brico','inter','lidl','action','decath','autres'];
+  const order = ['inbox','brico','inter','lidl','action','decath','pharma','boulang','autres'];
   let body = '';
   let hasItems = false;
   order.forEach(key => {
@@ -2367,16 +2420,69 @@ function renderShop(){
     <div style="font-size:11px;font-weight:700;color:${q.color};margin-bottom:8px">${q.titre} <span style="font-weight:400;color:#B0AA9E">· ${q.sous}</span></div>${shopItemsHtml(inbox)}</div>`;
   // 4 magasins en grille
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-  for(const key of ['brico','inter','lidl','action','decath','autres']){
+  for(const key of ['brico','inter','lidl','action','decath','pharma','boulang','autres']){
     const s = SHOPS[key];
     const items = shopItems.filter(t => t.shop === key);
     html += `<div data-shop="${key}" ondrop="shopDrop(event,'${key}')" ondragover="shopAllowDrop(event)" style="background:${s.bg};border-radius:10px;padding:10px;min-height:110px">
-      <div style="font-size:12px;font-weight:700;color:${s.color};margin-bottom:8px">${s.titre}</div>${shopItemsHtml(items)}
+      <div onclick="openStore('${key}')" style="font-size:12px;font-weight:700;color:${s.color};margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">${s.titre}<span style="font-size:11px;opacity:.6">⤢</span></div>${shopItemsHtml(items)}
       <input type="text" placeholder="+ ajouter" onkeydown="if(event.key==='Enter')addShopTo('${key}',this)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 7px;margin-top:4px;border:1px dashed ${s.color}55;border-radius:6px;background:rgba(255,255,255,.6);color:#1A1814;outline:none">
     </div>`;
   }
   html += '</div>';
   cont.innerHTML = html;
+}
+function openStore(key){
+  const s = SHOPS[key];
+  document.getElementById('store-title').textContent = s.titre;
+  document.getElementById('store-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  // Carte(s) de fidélité
+  const cardEl = document.getElementById('store-card');
+  const loy = LOYALTY[key];
+  if(loy && loy.length){
+    cardEl.style.display = 'block';
+    const cardsHtml = loy.map((c, i) => `<div style="flex:1;min-width:140px;text-align:center">
+      <div style="font-size:13px;font-weight:700;color:#1A1814;margin-bottom:10px">💳 ${c.name}</div>
+      <div id="store-code-${i}" style="display:flex;justify-content:center;align-items:center;min-height:80px"></div>
+      <div style="font-size:11px;color:#7A7468;margin-top:8px;letter-spacing:.04em">${c.code}</div>
+    </div>`).join('');
+    cardEl.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center">${cardsHtml}</div>`;
+    setTimeout(() => {
+      loy.forEach((c, i) => {
+        const holder = document.getElementById('store-code-'+i);
+        if(!holder) return;
+        holder.innerHTML = '';
+        try {
+          if(c.type === 'barcode'){
+            const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+            holder.appendChild(svg);
+            JsBarcode(svg, c.code, {format:'CODE128', width:1.8, height:75, displayValue:false, margin:0});
+          } else {
+            new QRCode(holder, {text: c.code, width:150, height:150, correctLevel: QRCode.CorrectLevel.M});
+          }
+        } catch(e){ holder.innerHTML = '<span style="font-size:12px;color:#B0AA9E">Code non disponible</span>'; }
+      });
+    }, 50);
+  } else {
+    cardEl.style.display = 'none';
+  }
+
+  // Liste du magasin (gros format)
+  const items = shopItems.filter(t => t.shop === key);
+  const itemsEl = document.getElementById('store-items');
+  if(items.length === 0){
+    itemsEl.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:14px;padding:2rem">Liste vide pour ce magasin</div>';
+  } else {
+    itemsEl.innerHTML = items.map(it => `<div onclick="toggleShop(${it.id})" style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:14px 16px;margin-bottom:8px;cursor:pointer">
+      <span style="font-size:20px">${it.done?'✅':'⬜'}</span>
+      <span style="flex:1;font-size:16px;color:#1A1814;${it.done?'text-decoration:line-through;color:#B0AA9E':''}">${(it.txt||'').replace(/</g,'&lt;')}</span>
+    </div>`).join('');
+  }
+}
+function closeStore(){
+  document.getElementById('store-overlay').style.display = 'none';
+  document.body.style.overflow = 'hidden'; // on reste dans shop-overlay
 }
 function addShopTo(shop, inputEl){
   const txt = inputEl.value.trim();
@@ -2938,12 +3044,17 @@ function closeTodo(){
   document.body.style.overflow = '';
 }
 const TODO_SEED = ["Fixer points forts et points faibles","Dresser liste rêves et ce qui m'apporte de la joie","Faire le travail de ma vie rêvée dans 12 mois","Changer évier cuisine","5 objectifs pour les 10 prochaines années","Faire un album photo qui retrace la première année de Colin","StrengthsFinder","Pendre aspirateur","Monter cabine de douche","Faire les corniches","Écouter album Infectés","Zootopia","Suikers","Récupérer les tables chez Quentin","Cadre de Colin","Dragons","Trier téléchargements ordi","Faire compte travaux","Trier les documents pour les travaux dans l'ordi","Vidéo online"];
+let todosLoadFailed = false;
 async function loadTodos(){
   try {
     const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.todos_global&select=data`, {
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+      cache: 'no-store'
     });
+    if(!r.ok) throw new Error('HTTP ' + r.status);
     const rows = await r.json();
+    if(!Array.isArray(rows)) throw new Error('réponse invalide');
+    todosLoadFailed = false;
     const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
     todos = d.list || [];
     // Réparer les ids en double (ancien bug de seed)
@@ -2958,7 +3069,6 @@ async function loadTodos(){
     const before = todos.length;
     todos = todos.filter(it => {
       const key = it.txt + '|' + it.quad;
-      // On ne déduplique que les doublons en inbox (les re-seeds)
       if(it.quad === 'inbox'){
         if(seenTxt[it.txt]) return false;
         seenTxt[it.txt] = true;
@@ -2967,12 +3077,22 @@ async function loadTodos(){
     });
     if(todos.length !== before) repairedT = true;
     if(repairedT) await saveTodos();
-    // Pré-chargement unique des tâches TickTick
-    if(!d.seeded){
+    // Pré-chargement unique des tâches TickTick (seulement si jamais initialisé ET liste vide)
+    if(!d.seeded && todos.length === 0){
       TODO_SEED.forEach((txt) => todos.push({id: uid(), txt, quad:'inbox', done:false}));
       await saveTodosSeeded();
+    } else if(!d.seeded){
+      // Données déjà présentes mais sans marqueur : on marque sans réinjecter le seed
+      await saveTodosSeeded();
     }
-  } catch(e){ todos = []; }
+  } catch(e){
+    // ÉCHEC DE LECTURE : on ne touche À RIEN pour ne pas écraser les données
+    todosLoadFailed = true;
+    console.log('Échec chargement todos — données préservées', e);
+    const el = document.getElementById('todo-list') || document.getElementById('todos-list');
+    if(el) el.innerHTML = '<div style="text-align:center;color:#D4694A;font-size:13px;padding:1.5rem">⚠️ Connexion impossible. Tes tâches sont en sécurité, recharge dans un instant.</div>';
+    return;
+  }
   renderTodos();
 }
 async function saveTodosSeeded(){
@@ -2994,6 +3114,8 @@ async function saveTodosSeeded(){
   } catch(e){}
 }
 async function saveTodos(){
+  // Garde-fou : ne jamais sauvegarder si le chargement a échoué (éviter d'écraser les données)
+  if(todosLoadFailed){ console.log('Sauvegarde todos bloquée (chargement avait échoué)'); return; }
   const body = JSON.stringify({data: {list: todos, seeded: true}});
   try {
     const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.todos_global`, {
