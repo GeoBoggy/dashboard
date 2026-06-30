@@ -83,6 +83,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -132,6 +133,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openBooks()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes lectures">📚</div>
       <div onclick="openDebts()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes dettes">💰</div>
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
+      <div onclick="openBaby()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Checklist enfants">👶</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
     </div>
@@ -294,15 +296,37 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- LISTE DE COURSES (overlay) -->
+<!-- CHECKLIST ENFANTS (overlay) -->
+<div id="baby-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">👶 Avant de déposer les enfants</span>
+    <div onclick="closeBaby()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem">Ta checklist à vérifier à chaque fois 🧸</div>
+    <div style="display:flex;gap:6px;margin-bottom:1rem">
+      <input id="baby-input" type="text" placeholder="Ajouter un élément à ne pas oublier..." onkeydown="if(event.key==='Enter')addBaby()" style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none">
+      <button onclick="addBaby()" style="font-size:16px;padding:0 14px;background:#C97BA0;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+    </div>
+    <div id="baby-list"></div>
+    <button id="baby-reset" onclick="resetBaby()" style="display:none;width:100%;margin-top:1rem;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:11px;background:#fff;color:#C97BA0;border:1px solid #C97BA0;border-radius:10px;cursor:pointer">↺ Tout décocher (nouveau départ)</button>
+  </div>
+</div>
+
 <!-- MAGASIN PLEIN ÉCRAN (liste + carte fidélité) -->
 <div id="store-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:110;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
     <span id="store-title" style="font-family:'DM Serif Display',serif;font-size:20px;color:#1A1814"></span>
-    <div onclick="closeStore()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div onclick="saveStoreImage()" style="font-size:18px;cursor:pointer;color:#2D7A4F" title="Enregistrer en photo">📸</div>
+      <div onclick="closeStore()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+    </div>
   </div>
   <div style="padding:1.25rem;max-width:600px;margin:0 auto">
-    <div id="store-card" style="background:#fff;border:1px solid #E2DDD4;border-radius:14px;padding:18px;text-align:center;margin-bottom:1.25rem"></div>
-    <div id="store-items"></div>
+    <div id="store-capture" style="background:#F5F2EC;padding:4px">
+      <div id="store-card" style="background:#fff;border:1px solid #E2DDD4;border-radius:14px;padding:18px;text-align:center;margin-bottom:1.25rem"></div>
+      <div id="store-items"></div>
+    </div>
   </div>
 </div>
 
@@ -1599,6 +1623,94 @@ function closeBilan(){
   document.body.style.overflow = '';
 }
 
+// ── CHECKLIST ENFANTS (à déposer pour dormir) ──
+let babyItems = [];
+async function openBaby(){
+  document.getElementById('baby-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await loadBaby();
+}
+function closeBaby(){
+  document.getElementById('baby-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadBaby(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.baby_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    babyItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ babyItems = []; }
+  renderBaby();
+}
+async function saveBaby(){
+  const payload = {data: {list: babyItems}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.baby_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.baby_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'baby_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addBaby(){
+  const inp = document.getElementById('baby-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  babyItems.push({id: uid(), txt, done: false});
+  inp.value = '';
+  renderBaby();
+  saveBaby();
+  inp.focus();
+}
+function toggleBaby(id){
+  const it = babyItems.find(t => t.id === id);
+  if(it) it.done = !it.done;
+  renderBaby();
+  saveBaby();
+}
+function delBaby(id){
+  babyItems = babyItems.filter(t => t.id !== id);
+  renderBaby();
+  saveBaby();
+}
+function resetBaby(){
+  babyItems.forEach(t => t.done = false);
+  renderBaby();
+  saveBaby();
+}
+function renderBaby(){
+  const el = document.getElementById('baby-list');
+  const resetBtn = document.getElementById('baby-reset');
+  if(babyItems.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Ajoute ce que tu ne dois jamais oublier :<br>doudou, sucette, pyjama, brosse à dents...</div>';
+    if(resetBtn) resetBtn.style.display = 'none';
+    return;
+  }
+  if(resetBtn) resetBtn.style.display = 'block';
+  const doneCount = babyItems.filter(t => t.done).length;
+  let html = `<div style="font-size:12px;color:#7A7468;margin-bottom:8px">${doneCount} / ${babyItems.length} vérifié${doneCount>1?'s':''}</div>`;
+  html += babyItems.map(t => `<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:14px 16px;margin-bottom:8px">
+    <span onclick="toggleBaby(${t.id})" style="cursor:pointer;font-size:22px">${t.done?'✅':'⬜'}</span>
+    <span onclick="toggleBaby(${t.id})" style="flex:1;cursor:pointer;font-size:16px;color:#1A1814;${t.done?'text-decoration:line-through;color:#B0AA9E':''}">${(t.txt||'').replace(/</g,'&lt;')}</span>
+    <span onclick="delBaby(${t.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+  </div>`).join('');
+  el.innerHTML = html;
+}
+
 // ── MES DETTES (on me doit / je dois) ──
 let debtsData = {owed: [], owe: []}; // owed = on me doit ; owe = je dois
 async function openDebts(){
@@ -1818,9 +1930,35 @@ async function loadBooks(){
     if(!d.seeded){
       booksItems = BOOKS_SEED.slice();
       await saveBooks();
+    } else if(!d.fixedHP){
+      // Correction unique : Harry Potter lus en 2026, pas 2025
+      let changed = false;
+      booksItems.forEach(b => {
+        if(b.title && b.title.includes('Harry Potter') && b.year === 2025){
+          b.year = 2026; changed = true;
+        }
+      });
+      // Marque la correction comme faite (même si rien à changer, pour ne pas reboucler)
+      await saveBooksFixed();
     }
   } catch(e){ booksItems = BOOKS_SEED.slice(); }
   renderBooks();
+}
+async function saveBooksFixed(){
+  const payload = {data: {list: booksItems, seeded: true, fixedHP: true}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.books_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.books_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    }
+  } catch(e){}
 }
 async function saveBooks(){
   const payload = {data: {list: booksItems, seeded: true}};
@@ -2483,6 +2621,18 @@ function openStore(key){
 function closeStore(){
   document.getElementById('store-overlay').style.display = 'none';
   document.body.style.overflow = 'hidden'; // on reste dans shop-overlay
+}
+function saveStoreImage(){
+  const node = document.getElementById('store-capture');
+  const title = document.getElementById('store-title').textContent || 'liste';
+  if(typeof html2canvas === 'undefined'){ alert('Génération d\'image indisponible (connexion requise)'); return; }
+  html2canvas(node, {backgroundColor:'#F5F2EC', scale:2, useCORS:true}).then(canvas => {
+    const link = document.createElement('a');
+    const safe = title.replace(/[^a-zA-Z0-9]/g,'_');
+    link.download = 'courses_' + safe + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(e => { alert('Impossible de générer l\'image'); });
 }
 function addShopTo(shop, inputEl){
   const txt = inputEl.value.trim();
