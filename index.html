@@ -134,6 +134,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openDebts()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes dettes">💰</div>
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
       <div onclick="openBaby()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Checklist enfants">👶</div>
+      <div onclick="openLends()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Objets prêtés">📦</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
     </div>
@@ -296,6 +297,38 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- LISTE DE COURSES (overlay) -->
+<!-- OBJETS PRÊTÉS (overlay) -->
+<div id="lends-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">📦 Objets prêtés</span>
+    <div onclick="closeLends()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+
+    <!-- J'ai prêté (à récupérer) -->
+    <h2 style="font-family:'DM Serif Display',serif;font-size:17px;color:#2D7A4F;margin:0 0 .5rem">🟢 J'ai prêté (à récupérer)</h2>
+    <div style="margin-bottom:.5rem">
+      <input id="lent-what" type="text" placeholder="Quoi ?" onkeydown="if(event.key==='Enter')addLend('lent')" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px">
+        <input id="lent-who" type="text" placeholder="À qui ?" onkeydown="if(event.key==='Enter')addLend('lent')" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+        <button onclick="addLend('lent')" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:8px 22px;background:#2D7A4F;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+      </div>
+    </div>
+    <div id="lent-list" style="margin-bottom:1.75rem"></div>
+
+    <!-- On m'a prêté (à rendre) -->
+    <h2 style="font-family:'DM Serif Display',serif;font-size:17px;color:#D4694A;margin:0 0 .5rem">🔴 On m'a prêté (à rendre)</h2>
+    <div style="margin-bottom:.5rem">
+      <input id="borrowed-what" type="text" placeholder="Quoi ?" onkeydown="if(event.key==='Enter')addLend('borrowed')" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px">
+        <input id="borrowed-who" type="text" placeholder="À qui je dois rendre ?" onkeydown="if(event.key==='Enter')addLend('borrowed')" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;outline:none">
+        <button onclick="addLend('borrowed')" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:8px 22px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+      </div>
+    </div>
+    <div id="borrowed-list"></div>
+  </div>
+</div>
+
 <!-- CHECKLIST ENFANTS (overlay) -->
 <div id="baby-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
@@ -1621,6 +1654,90 @@ function openBilan(){
 function closeBilan(){
   document.getElementById('bilan-overlay').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+// ── OBJETS PRÊTÉS (à récupérer / à rendre) ──
+let lendsData = {lent: [], borrowed: []};
+async function openLends(){
+  document.getElementById('lends-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await loadLends();
+}
+function closeLends(){
+  document.getElementById('lends-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadLends(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.lends_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    lendsData = {lent: d.lent || [], borrowed: d.borrowed || []};
+  } catch(e){ lendsData = {lent: [], borrowed: []}; }
+  renderLends();
+}
+async function saveLends(){
+  const payload = {data: {lent: lendsData.lent, borrowed: lendsData.borrowed}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.lends_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.lends_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'lends_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addLend(kind){
+  const what = document.getElementById(kind+'-what').value.trim();
+  const who = document.getElementById(kind+'-who').value.trim();
+  if(!what) return;
+  lendsData[kind].push({id: uid(), what, who, date: new Date().toISOString().slice(0,10)});
+  document.getElementById(kind+'-what').value = '';
+  document.getElementById(kind+'-who').value = '';
+  renderLends();
+  saveLends();
+  document.getElementById(kind+'-what').focus();
+}
+function delLend(kind, id){
+  lendsData[kind] = lendsData[kind].filter(l => l.id !== id);
+  renderLends();
+  saveLends();
+}
+function renderLends(){
+  const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  const row = (kind, l, color) => {
+    let dateStr = '';
+    if(l.date){ const dt = new Date(l.date+'T12:00:00'); dateStr = dt.getDate()+' '+MOIS[dt.getMonth()]; }
+    return `<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:12px 14px;margin-bottom:6px">
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:600;color:#1A1814">${(l.what||'').replace(/</g,'&lt;')}</div>
+        ${l.who ? `<div style="font-size:12px;color:#9A9488">${(l.who||'').replace(/</g,'&lt;')}</div>` : ''}
+        ${dateStr ? `<div style="font-size:10px;color:#C4BDB0;margin-top:1px">depuis le ${dateStr}</div>` : ''}
+      </div>
+      <span onclick="delLend('${kind}',${l.id})" style="cursor:pointer;font-size:14px;color:${color}" title="Récupéré / rendu">✓</span>
+    </div>`;
+  };
+  const lentEl = document.getElementById('lent-list');
+  lentEl.innerHTML = lendsData.lent.length
+    ? lendsData.lent.map(l=>row('lent',l,'#2D7A4F')).join('')
+    : '<div style="font-size:12px;color:#B0AA9E;text-align:center;padding:.5rem">Rien de prêté en ce moment 👍</div>';
+  const borrowedEl = document.getElementById('borrowed-list');
+  borrowedEl.innerHTML = lendsData.borrowed.length
+    ? lendsData.borrowed.map(l=>row('borrowed',l,'#D4694A')).join('')
+    : '<div style="font-size:12px;color:#B0AA9E;text-align:center;padding:.5rem">Tu n\'as rien à rendre 🎉</div>';
 }
 
 // ── CHECKLIST ENFANTS (à déposer pour dormir) ──
