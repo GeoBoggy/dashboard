@@ -151,6 +151,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <span style="font-size:13px;font-weight:600">🏃 Semi Dinant</span>
     <span id="semi-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
   </div>
+  <div id="vacances-banner" style="margin-top:.5rem;background:linear-gradient(135deg,#E8A23D,#D4832A);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff">
+    <span style="font-size:13px;font-weight:600">🏖️ Vacances en famille</span>
+    <span id="vacances-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
+  </div>
   <div class="save-st" id="save-st"></div>
 </div>
 
@@ -900,6 +904,24 @@ function updateSemi(){
 }
 updateSemi();
 setInterval(updateSemi, 1000);
+
+// Compte à rebours vacances en famille (24 juillet 2026, 13h00)
+function updateVacances(){
+  const target = new Date('2026-07-24T13:00:00');
+  const now = new Date();
+  const diff = target - now;
+  const el = document.getElementById('vacances-val');
+  const banner = document.getElementById('vacances-banner');
+  if(!el) return;
+  if(diff <= 0){ if(banner) banner.style.display = 'none'; return; }
+  const days = Math.floor(diff / 864e5);
+  const hours = Math.floor((diff % 864e5) / 36e5);
+  const mins = Math.floor((diff % 36e5) / 6e4);
+  const secs = Math.floor((diff % 6e4) / 1000);
+  el.innerHTML = `<span style="font-size:18px">J-${days}</span> <span style="font-size:12px;font-weight:600;opacity:.9">${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}</span>`;
+}
+updateVacances();
+setInterval(updateVacances, 1000);
 
 // Smoke days - date stockée dans state (compteur record conservé en mémoire)
 function updateSmokeDisplay(){
