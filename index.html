@@ -135,6 +135,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
       <div onclick="openBaby()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Checklist enfants">👶</div>
       <div onclick="openLends()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Objets prêtés">📦</div>
+      <div onclick="openReno()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Travaux maison">🚧</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
     </div>
@@ -305,6 +306,18 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- LISTE DE COURSES (overlay) -->
+<!-- TRAVAUX MAISON (overlay) -->
+<div id="reno-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🚧 Travaux maison</span>
+    <div onclick="closeReno()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div id="reno-progress" style="margin-bottom:1rem"></div>
+    <div id="reno-list"></div>
+  </div>
+</div>
+
 <!-- OBJETS PRÊTÉS (overlay) -->
 <div id="lends-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
@@ -401,9 +414,9 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- WORKOUT HAUT DU CORPS (overlay) -->
-<div id="workout-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
-  <div style="position:sticky;top:0;background:#1A1814;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
-    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#fff">💪 Haut du corps · 5 min</span>
+<div id="workout-overlay" style="display:none;position:fixed;inset:0;background:#1A1814;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#1A1814;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2;border-bottom:1px solid rgba(255,255,255,.1)">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#fff">🔥 Tabata · 4 min</span>
     <div onclick="closeWorkout()" style="font-size:18px;cursor:pointer;color:rgba(255,255,255,.6);padding:2px 6px">✕</div>
   </div>
   <div id="workout-content" style="padding:1.25rem;max-width:600px;margin:0 auto"></div>
@@ -511,12 +524,17 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
     <div class="tile" onclick="tgl(this,'muscu')" data-field="muscu">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-dumbbell"/></svg></div></div>
-      <span class="tile-lbl">Muscu 5'</span>
-      <a onclick="event.stopPropagation();openWorkout()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px;cursor:pointer">→ Muscu</a>
+      <span class="tile-lbl">Tabata 4'</span>
+      <a onclick="event.stopPropagation();openWorkout()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px;cursor:pointer">→ Tabata</a>
     </div>
     <div class="tile" onclick="tgl(this,'dejeuner')" data-field="dejeuner">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-plate"/></svg></div></div>
       <span class="tile-lbl">Déjeuner sainement</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'cuisiner')" data-field="cuisiner">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2);font-size:26px">🍽️</div></div>
+      <span class="tile-lbl">Cuisiner</span>
+      <a onclick="event.stopPropagation();document.querySelector('#meals-page').scrollIntoView({behavior:'smooth'})" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px;cursor:pointer">→ Mes plats</a>
     </div>
   </div>
   <div class="card" style="margin-top:.75rem">
@@ -704,12 +722,15 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
 </div>
 
-<!-- IDÉES REPAS -->
-<div class="page" style="background:#3D8C5E">
-  <div class="page-title">🍽️ Idées repas</div>
+<!-- MES PLATS -->
+<div class="page" id="meals-page" style="background:#3D8C5E">
+  <div class="page-title">🍽️ Mes plats</div>
   <div style="padding:0 .25rem">
-    <div id="meal-suggestions" style="display:flex;flex-direction:column;gap:8px"></div>
-    <button onclick="shuffleMeals()" style="width:100%;margin-top:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:11px;background:rgba(255,255,255,.95);color:#2D7A4F;border:none;border-radius:10px;cursor:pointer">Autres suggestions svp 🤤</button>
+    <div style="display:flex;gap:6px;margin-bottom:12px">
+      <input id="meal-input" type="text" placeholder="Ajouter un plat que j'adore..." onkeydown="if(event.key==='Enter')addMeal()" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;border:none;border-radius:10px;background:rgba(255,255,255,.95);color:#1A1814;outline:none">
+      <button onclick="addMeal()" style="font-size:18px;padding:0 16px;background:rgba(255,255,255,.95);color:#2D7A4F;border:none;border-radius:10px;cursor:pointer">+</button>
+    </div>
+    <div id="meal-list"></div>
   </div>
 </div>
 
@@ -1712,6 +1733,146 @@ function closeBilan(){
   document.body.style.overflow = '';
 }
 
+// ── TRAVAUX MAISON (suivi par pièce, 4 catégories) ──
+const RENO_ROOMS = {
+  "🌳 Extérieur": ["Terrasse couverte","Jardin avant gauche","Jardin avant droit","Par terre voisine","Par terre jardin","Jardin voisine","Jardin cuisine","Jardin salle à manger","Jardin salon"],
+  "🏚️ Cave": ["Cave principale","Cave pièce d'eau","Cave rangement","Cave établi","Cave à vin"],
+  "🛋️ Rez-de-chaussée": ["Hall d'entrée","Couloir","Salon","Salle à manger","Cuisine","Arrière cuisine","Toilette","Appartement"],
+  "🛏️ Étage": ["Escalier","Hall de nuit","Chambre Colin","Chambre Mona","Chambre d'amis","Buanderie","Salle de bain enfants","Salle de bain parents","Chambre parents","Grenier"]
+};
+let renoData = {}; // { "Nom pièce": [ {id, txt, done}, ... ] }
+let renoOpenRoom = null;
+async function openReno(){
+  document.getElementById('reno-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await loadReno();
+}
+function closeReno(){
+  document.getElementById('reno-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadReno(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.reno_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    renoData = (rows && rows[0] && rows[0].data && rows[0].data.rooms) ? rows[0].data.rooms : {};
+  } catch(e){ renoData = {}; }
+  renderReno();
+}
+async function saveReno(){
+  const payload = {data: {rooms: renoData}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.reno_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.reno_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'reno_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function toggleRenoRoom(room){
+  renoOpenRoom = (renoOpenRoom === room) ? null : room;
+  renderReno();
+}
+function addRenoTask(room, inputEl){
+  const txt = inputEl.value.trim();
+  if(!txt) return;
+  if(!renoData[room]) renoData[room] = [];
+  renoData[room].push({id: uid(), txt, done: false});
+  inputEl.value = '';
+  renderReno();
+  saveReno();
+  // Garder le focus sur le champ de la pièce
+  setTimeout(() => { const el = document.getElementById('reno-input-'+room.replace(/[^a-zA-Z0-9]/g,'')); if(el) el.focus(); }, 50);
+}
+function toggleRenoTask(room, id){
+  const t = (renoData[room]||[]).find(x => x.id === id);
+  if(t) t.done = !t.done;
+  renderReno();
+  saveReno();
+}
+function delRenoTask(room, id){
+  renoData[room] = (renoData[room]||[]).filter(x => x.id !== id);
+  renderReno();
+  saveReno();
+}
+function renderReno(){
+  // Progression globale
+  let totalTasks = 0, doneTasks = 0;
+  Object.values(renoData).forEach(tasks => {
+    tasks.forEach(t => { totalTasks++; if(t.done) doneTasks++; });
+  });
+  const pct = totalTasks ? Math.round(doneTasks/totalTasks*100) : 0;
+  const prog = document.getElementById('reno-progress');
+  if(prog){
+    prog.innerHTML = `<div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+        <span style="color:#7A7468;font-weight:600">Avancement global</span>
+        <span style="color:#C4632A;font-weight:700">${doneTasks}/${totalTasks} · ${pct}%</span>
+      </div>
+      <div style="height:8px;background:#E2DDD4;border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#E8A23D,#C4632A);border-radius:4px;transition:width .3s"></div>
+      </div>
+    </div>`;
+  }
+
+  const el = document.getElementById('reno-list');
+  let html = '';
+  Object.keys(RENO_ROOMS).forEach(cat => {
+    html += `<div style="font-family:'DM Serif Display',serif;font-size:16px;color:#1A1814;margin:1.25rem 0 .6rem">${cat}</div>`;
+    RENO_ROOMS[cat].forEach(room => {
+      const tasks = renoData[room] || [];
+      const done = tasks.filter(t => t.done).length;
+      const total = tasks.length;
+      const allDone = total > 0 && done === total;
+      const isOpen = renoOpenRoom === room;
+      const safeId = room.replace(/[^a-zA-Z0-9]/g,'');
+      // Badge d'état
+      let badge;
+      if(total === 0) badge = '<span style="font-size:11px;color:#C4BDB0">à définir</span>';
+      else if(allDone) badge = '<span style="font-size:11px;color:#2D7A4F;font-weight:700">✓ terminé</span>';
+      else badge = `<span style="font-size:11px;color:#C4632A;font-weight:600">${done}/${total}</span>`;
+
+      html += `<div style="background:#fff;border:1px solid ${allDone?'#B8DFC8':'#EDE9E1'};border-radius:10px;margin-bottom:6px;overflow:hidden">
+        <div onclick="toggleRenoRoom('${room.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer">
+          <span style="flex:1;font-size:14px;font-weight:600;color:#1A1814">${allDone?'✅ ':''}${room}</span>
+          ${badge}
+          <span style="font-size:11px;color:#C4BDB0;transform:rotate(${isOpen?'180':'0'}deg)">▾</span>
+        </div>`;
+      if(isOpen){
+        html += `<div style="padding:0 14px 12px">`;
+        tasks.forEach(t => {
+          html += `<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid #F0ECE4">
+            <span onclick="toggleRenoTask('${room.replace(/'/g,"\\'")}',${t.id})" style="cursor:pointer;font-size:18px">${t.done?'✅':'⬜'}</span>
+            <span onclick="toggleRenoTask('${room.replace(/'/g,"\\'")}',${t.id})" style="flex:1;cursor:pointer;font-size:13px;color:#1A1814;${t.done?'text-decoration:line-through;color:#B0AA9E':''}">${(t.txt||'').replace(/</g,'&lt;')}</span>
+            <span onclick="delRenoTask('${room.replace(/'/g,"\\'")}',${t.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
+          </div>`;
+        });
+        html += `<div style="display:flex;gap:6px;margin-top:8px">
+          <input id="reno-input-${safeId}" type="text" placeholder="À finaliser..." onkeydown="if(event.key==='Enter')addRenoTask('${room.replace(/'/g,"\\'")}',this)" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+          <button onclick="addRenoTask('${room.replace(/'/g,"\\'")}',document.getElementById('reno-input-${safeId}'))" style="font-size:15px;padding:0 12px;background:#C4632A;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+        </div>`;
+        html += `</div>`;
+      }
+      html += `</div>`;
+    });
+  });
+  el.innerHTML = html;
+}
+
 // ── OBJETS PRÊTÉS (à récupérer / à rendre) ──
 let lendsData = {lent: [], borrowed: []};
 async function openLends(){
@@ -2636,12 +2797,12 @@ const SHOPS = {
   boulang: {titre:'🥖 Boulangerie', sous:'', color:'#B07A2A', bg:'#F7EFE2'},
   autres: {titre:'📦 Autres', sous:'', color:'#7A7468', bg:'#F0EDE7'},
 };
-// Cartes de fidélité : type 'barcode' (CODE128) ou 'qr'. Une case peut avoir plusieurs cartes.
+// Cartes de fidélité : type 'barcode' (avec format) ou 'qr'. Une case peut avoir plusieurs cartes.
 const LOYALTY = {
-  inter:   [{name:'Intermarché', code:'3250390040021133402', type:'barcode'},
-            {name:'Delhaize', code:'0450031074837', type:'barcode'}],
+  inter:   [{name:'Intermarché', code:'3250390040021133402', type:'barcode', format:'CODE128'},
+            {name:'Delhaize', code:'0450031074837', type:'barcode', format:'EAN13'}],
   lidl:    [{name:'Lidl Plus', code:'77320008094447885', type:'qr'}],
-  decath:  [{name:'Décathlon', code:'2090474865944', type:'barcode'}],
+  decath:  [{name:'Décathlon', code:'2090474865944', type:'barcode', format:'EAN13'}],
   action:  [{name:'Action', code:'L6842677266945', type:'qr'}],
   boulang: [{name:'Boulangerie Louise', code:'5003e86v7ztbNGj5FZ1E', type:'qr'}],
 };
@@ -2864,7 +3025,12 @@ function openStore(key){
           if(c.type === 'barcode'){
             const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
             holder.appendChild(svg);
-            JsBarcode(svg, c.code, {format:'CODE128', width:1.8, height:75, displayValue:false, margin:0});
+            try {
+              JsBarcode(svg, c.code, {format: c.format || 'CODE128', width:1.8, height:75, displayValue:false, margin:0});
+            } catch(err){
+              // Si le format échoue (checksum EAN invalide...), on retombe sur CODE128
+              JsBarcode(svg, c.code, {format:'CODE128', width:1.8, height:75, displayValue:false, margin:0});
+            }
           } else {
             new QRCode(holder, {text: c.code, width:150, height:150, correctLevel: QRCode.CorrectLevel.M});
           }
@@ -2928,519 +3094,200 @@ function shopItemsHtml(items){
   return h;
 }
 
-// ── IDÉES REPAS (40 recettes, base 4 personnes) ──
-const MEALS = [
-  {n:"Poulet rôti & légumes", ing:[["Cuisses de poulet",4,"pièces"],["Pommes de terre",800,"g"],["Carottes",4,"pièces"],["Oignon",1,"pièce"],["Huile d'olive",2,"c.à.s"],["Herbes de Provence",1,"c.à.s"]]},
-  {n:"Saumon & riz complet", ing:[["Pavés de saumon",4,"pièces"],["Riz complet",250,"g"],["Brocoli",1,"pièce"],["Citron",1,"pièce"],["Sauce soja",2,"c.à.s"]]},
-  {n:"Spaghetti bolognaise maison", ing:[["Spaghetti",400,"g"],["Viande hachée",400,"g"],["Tomates concassées",400,"g"],["Oignon",1,"pièce"],["Ail",2,"gousses"],["Carotte",1,"pièce"]]},
-  {n:"Chili con carne", ing:[["Viande hachée",400,"g"],["Haricots rouges",400,"g"],["Tomates concassées",400,"g"],["Poivron",1,"pièce"],["Oignon",1,"pièce"],["Riz",250,"g"]]},
-  {n:"Gratin de courgettes", ing:[["Courgettes",4,"pièces"],["Pommes de terre",500,"g"],["Crème fraîche",20,"cl"],["Fromage râpé",100,"g"],["Œufs",2,"pièces"]]},
-  {n:"Poêlée de quinoa & légumes", ing:[["Quinoa",250,"g"],["Courgette",1,"pièce"],["Poivron",1,"pièce"],["Tomates cerises",200,"g"],["Feta",100,"g"],["Huile d'olive",2,"c.à.s"]]},
-  {n:"Cabillaud & purée maison", ing:[["Dos de cabillaud",4,"pièces"],["Pommes de terre",800,"g"],["Lait",15,"cl"],["Beurre",30,"g"],["Épinards",200,"g"]]},
-  {n:"Curry de pois chiches", ing:[["Pois chiches",400,"g"],["Lait de coco",40,"cl"],["Tomates concassées",400,"g"],["Oignon",1,"pièce"],["Curry",2,"c.à.s"],["Riz basmati",250,"g"]]},
-  {n:"Omelette aux légumes", ing:[["Œufs",8,"pièces"],["Courgette",1,"pièce"],["Poivron",1,"pièce"],["Fromage râpé",80,"g"],["Pain complet",4,"tranches"]]},
-  {n:"Tartiflette allégée", ing:[["Pommes de terre",1,"kg"],["Reblochon",1,"pièce"],["Lardons",150,"g"],["Oignon",2,"pièces"],["Salade verte",1,"pièce"]]},
-  {n:"Wok de poulet & nouilles", ing:[["Filet de poulet",400,"g"],["Nouilles chinoises",300,"g"],["Poivron",1,"pièce"],["Carotte",2,"pièces"],["Sauce soja",3,"c.à.s"],["Gingembre",1,"morceau"]]},
-  {n:"Quiche lorraine & salade", ing:[["Pâte brisée",1,"pièce"],["Lardons",200,"g"],["Œufs",4,"pièces"],["Crème fraîche",20,"cl"],["Fromage râpé",100,"g"],["Salade verte",1,"pièce"]]},
-  {n:"Boulettes & purée", ing:[["Viande hachée",500,"g"],["Chapelure",50,"g"],["Œuf",1,"pièce"],["Pommes de terre",800,"g"],["Lait",15,"cl"]]},
-  {n:"Risotto aux champignons", ing:[["Riz arborio",300,"g"],["Champignons",400,"g"],["Oignon",1,"pièce"],["Bouillon de légumes",1,"l"],["Parmesan",80,"g"]]},
-  {n:"Tacos maison", ing:[["Tortillas",8,"pièces"],["Viande hachée",400,"g"],["Maïs",200,"g"],["Tomate",2,"pièces"],["Salade",1,"pièce"],["Fromage râpé",100,"g"]]},
-  {n:"Soupe de légumes & croûtons", ing:[["Poireaux",2,"pièces"],["Carottes",3,"pièces"],["Pommes de terre",400,"g"],["Oignon",1,"pièce"],["Pain complet",4,"tranches"]]},
-  {n:"Filet de dinde & haricots verts", ing:[["Escalopes de dinde",4,"pièces"],["Haricots verts",500,"g"],["Pommes de terre",600,"g"],["Ail",2,"gousses"],["Beurre",30,"g"]]},
-  {n:"Lasagnes maison", ing:[["Plaques de lasagne",250,"g"],["Viande hachée",400,"g"],["Tomates concassées",400,"g"],["Béchamel",50,"cl"],["Fromage râpé",150,"g"]]},
-  {n:"Salade César au poulet", ing:[["Filet de poulet",400,"g"],["Salade romaine",1,"pièce"],["Pain complet",4,"tranches"],["Parmesan",60,"g"],["Sauce César",10,"cl"]]},
-  {n:"Galettes de sarrasin garnies", ing:[["Galettes de sarrasin",8,"pièces"],["Jambon",4,"tranches"],["Œufs",4,"pièces"],["Fromage râpé",120,"g"],["Champignons",200,"g"]]},
-  {n:"Pâtes au saumon & épinards", ing:[["Pâtes",400,"g"],["Saumon fumé",150,"g"],["Épinards",200,"g"],["Crème fraîche",20,"cl"],["Citron",1,"pièce"]]},
-  {n:"Hachis parmentier", ing:[["Viande hachée",500,"g"],["Pommes de terre",1,"kg"],["Oignon",1,"pièce"],["Lait",15,"cl"],["Fromage râpé",80,"g"]]},
-  {n:"Brochettes de poulet mariné", ing:[["Filet de poulet",500,"g"],["Poivron",2,"pièces"],["Courgette",1,"pièce"],["Riz",250,"g"],["Miel",2,"c.à.s"],["Sauce soja",2,"c.à.s"]]},
-  {n:"Dahl de lentilles corail", ing:[["Lentilles corail",300,"g"],["Lait de coco",40,"cl"],["Tomates concassées",400,"g"],["Oignon",1,"pièce"],["Curry",2,"c.à.s"],["Riz basmati",250,"g"]]},
-  {n:"Pizza maison", ing:[["Pâte à pizza",1,"pièce"],["Sauce tomate",20,"cl"],["Mozzarella",150,"g"],["Jambon",4,"tranches"],["Champignons",150,"g"]]},
-  {n:"Cordon bleu & gratin", ing:[["Cordons bleus",4,"pièces"],["Pommes de terre",800,"g"],["Crème fraîche",20,"cl"],["Fromage râpé",80,"g"]]},
-  {n:"Buddha bowl", ing:[["Quinoa",200,"g"],["Pois chiches",200,"g"],["Avocat",2,"pièces"],["Carotte",2,"pièces"],["Concombre",1,"pièce"],["Graines de courge",30,"g"]]},
-  {n:"Poêlée de gnocchis", ing:[["Gnocchis",500,"g"],["Tomates cerises",250,"g"],["Courgette",1,"pièce"],["Mozzarella",125,"g"],["Basilic",1,"bouquet"]]},
-  {n:"Papillote de poisson blanc", ing:[["Filets de poisson blanc",4,"pièces"],["Courgette",1,"pièce"],["Carotte",2,"pièces"],["Citron",1,"pièce"],["Riz",250,"g"]]},
-  {n:"Croque-monsieur & salade", ing:[["Pain de mie",8,"tranches"],["Jambon",4,"tranches"],["Fromage râpé",150,"g"],["Béchamel",20,"cl"],["Salade verte",1,"pièce"]]},
-  {n:"Couscous poulet-légumes", ing:[["Filet de poulet",400,"g"],["Semoule",300,"g"],["Courgette",1,"pièce"],["Carottes",3,"pièces"],["Pois chiches",200,"g"],["Épices couscous",1,"c.à.s"]]},
-  {n:"Riz cantonais maison", ing:[["Riz",300,"g"],["Œufs",3,"pièces"],["Jambon",3,"tranches"],["Petits pois",150,"g"],["Sauce soja",3,"c.à.s"]]},
-  {n:"Tarte aux légumes & chèvre", ing:[["Pâte brisée",1,"pièce"],["Courgette",1,"pièce"],["Tomate",2,"pièces"],["Bûche de chèvre",1,"pièce"],["Œufs",3,"pièces"],["Crème fraîche",15,"cl"]]},
-  {n:"Steak haché & frites maison", ing:[["Steaks hachés",4,"pièces"],["Pommes de terre",800,"g"],["Salade verte",1,"pièce"],["Huile d'olive",3,"c.à.s"]]},
-  {n:"Velouté potiron & lardons", ing:[["Potiron",800,"g"],["Pomme de terre",2,"pièces"],["Oignon",1,"pièce"],["Crème fraîche",10,"cl"],["Lardons",100,"g"]]},
-  {n:"Nuggets maison & légumes", ing:[["Filet de poulet",500,"g"],["Chapelure",100,"g"],["Œufs",2,"pièces"],["Haricots verts",400,"g"],["Pommes de terre",500,"g"]]},
-  {n:"Pâtes pesto & poulet", ing:[["Pâtes",400,"g"],["Filet de poulet",300,"g"],["Pesto",100,"g"],["Tomates cerises",200,"g"],["Parmesan",60,"g"]]},
-  {n:"Gratin de chou-fleur", ing:[["Chou-fleur",1,"pièce"],["Pommes de terre",500,"g"],["Béchamel",50,"cl"],["Fromage râpé",120,"g"],["Jambon",4,"tranches"]]},
-  {n:"Bol de nouilles thaï", ing:[["Nouilles de riz",300,"g"],["Filet de poulet",350,"g"],["Carotte",2,"pièces"],["Lait de coco",20,"cl"],["Cacahuètes",50,"g"],["Coriandre",1,"bouquet"]]},
-  {n:"Œufs cocotte & mouillettes", ing:[["Œufs",8,"pièces"],["Crème fraîche",15,"cl"],["Épinards",200,"g"],["Fromage râpé",80,"g"],["Pain complet",4,"tranches"]]},
-  {n:"Boudin blanc & purée pommes", ing:[["Boudin blanc",4,"pièces"],["Pommes",4,"pièces"],["Pommes de terre",700,"g"],["Lait",15,"cl"],["Beurre",30,"g"]]},
-];
-const MEAL_STEPS = {
-"Poulet rôti & légumes":["Préchauffe le four à 200°C.","Épluche et coupe les pommes de terre et carottes en morceaux.","Dispose les cuisses de poulet et les légumes dans un plat. Arrose d'huile d'olive et saupoudre d'herbes.","Enfourne 45 min en retournant à mi-cuisson.","Vérifie la cuisson du poulet (jus clair) et sers bien chaud."],
-"Saumon & riz complet":["Fais cuire le riz complet selon les indications du paquet.","Cuis le brocoli à la vapeur 8 min.","Poêle les pavés de saumon 4 min de chaque côté.","Arrose de jus de citron et d'un trait de sauce soja.","Dresse le saumon avec le riz et le brocoli."],
-"Spaghetti bolognaise maison":["Émince l'oignon, l'ail et râpe la carotte.","Fais revenir les légumes puis ajoute la viande hachée.","Verse les tomates concassées, sale, poivre, laisse mijoter 20 min.","Cuis les spaghetti al dente.","Mélange et sers avec un peu de parmesan."],
-"Chili con carne":["Émince l'oignon et le poivron.","Fais revenir avec la viande hachée.","Ajoute tomates, haricots rouges et épices, mijote 25 min.","Cuis le riz à part.","Sers le chili sur le riz."],
-"Gratin de courgettes":["Préchauffe le four à 190°C.","Coupe les courgettes et pommes de terre en rondelles.","Dispose en couches dans un plat.","Mélange crème, œufs, sel, poivre et verse dessus. Parsème de fromage.","Enfourne 40 min jusqu'à ce que ce soit doré."],
-"Poêlée de quinoa & légumes":["Cuis le quinoa 15 min dans l'eau bouillante.","Coupe courgette et poivron en dés, poêle-les.","Ajoute les tomates cerises coupées.","Mélange avec le quinoa et l'huile d'olive.","Émiette la feta par-dessus et sers."],
-"Cabillaud & purée maison":["Cuis les pommes de terre 20 min à l'eau.","Écrase-les avec le lait et le beurre pour la purée.","Poêle le cabillaud 4 min de chaque côté.","Fais tomber les épinards à la poêle.","Dresse le poisson sur la purée avec les épinards."],
-"Curry de pois chiches":["Émince l'oignon et fais-le revenir.","Ajoute le curry, puis les tomates et le lait de coco.","Verse les pois chiches égouttés, mijote 15 min.","Cuis le riz basmati à part.","Sers le curry sur le riz."],
-"Omelette aux légumes":["Coupe courgette et poivron en petits dés et poêle-les.","Bats les œufs avec sel et poivre.","Verse les œufs sur les légumes dans la poêle.","Parsème de fromage et laisse prendre à feu doux.","Plie l'omelette et sers avec du pain complet."],
-"Tartiflette allégée":["Cuis les pommes de terre 15 min puis coupe-les en rondelles.","Fais revenir oignons et lardons.","Mélange pommes de terre, oignons et lardons dans un plat.","Coupe le reblochon en deux et pose-le dessus, croûte vers le haut.","Enfourne 25 min à 200°C. Sers avec la salade."],
-"Wok de poulet & nouilles":["Cuis les nouilles, égoutte.","Coupe le poulet en lamelles, fais-le sauter au wok.","Ajoute poivron et carotte émincés, fais sauter vif.","Ajoute le gingembre râpé et la sauce soja.","Incorpore les nouilles, mélange et sers."],
-"Quiche lorraine & salade":["Préchauffe le four à 190°C. Étale la pâte dans un moule.","Fais revenir les lardons.","Bats œufs, crème, sel, poivre.","Répartis lardons et fromage sur la pâte, verse l'appareil.","Enfourne 35 min. Sers avec la salade."],
-"Boulettes & purée":["Mélange viande, chapelure, œuf, sel, poivre. Forme des boulettes.","Poêle-les 10 min en les retournant.","Cuis les pommes de terre, écrase-les avec le lait.","Dresse les boulettes sur la purée.","Nappe d'un peu de jus de cuisson."],
-"Risotto aux champignons":["Émince l'oignon et les champignons.","Fais revenir l'oignon, ajoute le riz jusqu'à transparence.","Ajoute le bouillon louche par louche en remuant.","À mi-cuisson, ajoute les champignons poêlés.","Termine avec le parmesan, mélange crémeux et sers."],
-"Tacos maison":["Fais revenir la viande hachée assaisonnée.","Réchauffe les tortillas.","Coupe tomate et salade.","Garnis chaque tortilla de viande, maïs, légumes, fromage.","Plie et sers aussitôt."],
-"Soupe de légumes & croûtons":["Épluche et coupe poireaux, carottes, pommes de terre, oignon.","Fais revenir puis couvre d'eau, sale.","Laisse mijoter 25 min.","Mixe jusqu'à consistance lisse.","Toaste le pain en croûtons et sers dessus."],
-"Filet de dinde & haricots verts":["Cuis les pommes de terre à l'eau.","Cuis les haricots verts 10 min.","Poêle les escalopes de dinde avec l'ail.","Fais sauter les haricots au beurre.","Dresse le tout ensemble."],
-"Lasagnes maison":["Prépare une sauce bolognaise (viande + tomates, 20 min).","Préchauffe le four à 190°C.","Alterne plaques, bolognaise et béchamel dans un plat.","Termine par de la béchamel et du fromage.","Enfourne 30 min jusqu'à gratiner."],
-"Salade César au poulet":["Poêle le poulet et coupe-le en lamelles.","Toaste le pain en croûtons.","Lave et coupe la salade romaine.","Mélange salade, poulet, croûtons et sauce César.","Parsème de copeaux de parmesan."],
-"Galettes de sarrasin garnies":["Réchauffe une galette dans une poêle.","Casse un œuf au centre, ajoute jambon et fromage.","Laisse fondre le fromage.","Replie les bords de la galette.","Répète pour chaque galette et sers chaud."],
-"Pâtes au saumon & épinards":["Cuis les pâtes al dente.","Fais tomber les épinards à la poêle.","Ajoute la crème et le saumon coupé en lamelles.","Mélange avec les pâtes et un trait de citron.","Sers aussitôt."],
-"Hachis parmentier":["Cuis les pommes de terre et écrase-les avec le lait.","Fais revenir l'oignon et la viande hachée.","Dispose la viande dans un plat, couvre de purée.","Parsème de fromage râpé.","Enfourne 20 min à 200°C jusqu'à gratiner."],
-"Brochettes de poulet mariné":["Coupe le poulet en cubes, marine avec miel et sauce soja 15 min.","Coupe poivron et courgette en morceaux.","Monte les brochettes en alternant poulet et légumes.","Cuis 12 min au four ou à la poêle en retournant.","Sers avec le riz."],
-"Dahl de lentilles corail":["Émince l'oignon et fais-le revenir avec le curry.","Ajoute les tomates et le lait de coco.","Verse les lentilles corail, mijote 20 min.","Cuis le riz basmati à part.","Sers le dahl sur le riz."],
-"Pizza maison":["Préchauffe le four à 220°C.","Étale la pâte, tartine de sauce tomate.","Répartis mozzarella, jambon et champignons.","Enfourne 12 min.","Coupe et sers bien chaud."],
-"Cordon bleu & gratin":["Cuis les pommes de terre en rondelles 15 min.","Dispose-les dans un plat, nappe de crème, parsème de fromage.","Enfourne le gratin 25 min à 200°C.","Poêle les cordons bleus 4 min par face.","Sers ensemble."],
-"Buddha bowl":["Cuis le quinoa 15 min.","Coupe avocat, carotte et concombre.","Égoutte les pois chiches.","Dispose harmonieusement tous les éléments dans un bol.","Parsème de graines de courge et assaisonne."],
-"Poêlée de gnocchis":["Poêle les gnocchis 8 min jusqu'à dorés.","Ajoute les tomates cerises et la courgette en dés.","Laisse cuire 5 min.","Ajoute la mozzarella en morceaux.","Parsème de basilic et sers."],
-"Papillote de poisson blanc":["Préchauffe le four à 190°C.","Émince courgette et carotte.","Place poisson et légumes sur du papier cuisson, ajoute citron.","Ferme la papillote et enfourne 20 min.","Sers avec le riz."],
-"Croque-monsieur & salade":["Tartine les tranches de béchamel.","Garnis de jambon et fromage, referme.","Poêle ou passe au four jusqu'à doré.","Prépare la salade verte assaisonnée.","Sers les croques avec la salade."],
-"Couscous poulet-légumes":["Coupe le poulet et fais-le dorer.","Ajoute courgette et carottes en morceaux, couvre d'eau et épices.","Mijote 25 min, ajoute les pois chiches.","Prépare la semoule selon le paquet.","Sers le poulet et les légumes sur la semoule."],
-"Riz cantonais maison":["Cuis le riz et laisse-le refroidir.","Fais une omelette et coupe-la en lamelles.","Poêle le riz avec le jambon et les petits pois.","Ajoute l'omelette et la sauce soja.","Mélange et sers chaud."],
-"Tarte aux légumes & chèvre":["Préchauffe le four à 190°C. Étale la pâte.","Coupe courgette et tomate en rondelles.","Bats œufs et crème, verse sur la pâte.","Dispose les légumes et le chèvre en rondelles.","Enfourne 35 min."],
-"Steak haché & frites maison":["Coupe les pommes de terre en frites.","Enfourne-les 30 min à 220°C avec l'huile.","Poêle les steaks selon ta cuisson.","Prépare la salade verte.","Sers le tout ensemble."],
-"Velouté potiron & lardons":["Coupe le potiron et la pomme de terre en cubes.","Fais revenir l'oignon, ajoute les légumes et couvre d'eau.","Mijote 25 min puis mixe.","Ajoute la crème, mélange.","Poêle les lardons et parsème dessus."],
-"Nuggets maison & légumes":["Coupe le poulet en morceaux.","Passe-les dans l'œuf battu puis la chapelure.","Cuis 20 min au four à 200°C.","Cuis haricots verts et pommes de terre.","Sers les nuggets avec les légumes."],
-"Pâtes pesto & poulet":["Cuis les pâtes al dente.","Poêle le poulet coupé en dés.","Mélange les pâtes avec le pesto.","Ajoute le poulet et les tomates cerises.","Parsème de parmesan et sers."],
-"Gratin de chou-fleur":["Cuis le chou-fleur et les pommes de terre 15 min.","Dispose dans un plat avec le jambon en morceaux.","Nappe de béchamel, parsème de fromage.","Enfourne 25 min à 200°C.","Sers bien gratiné."],
-"Bol de nouilles thaï":["Cuis les nouilles de riz, égoutte.","Poêle le poulet et la carotte émincée.","Ajoute le lait de coco, laisse mijoter.","Incorpore les nouilles.","Parsème de cacahuètes et coriandre."],
-"Œufs cocotte & mouillettes":["Préchauffe le four à 180°C.","Fais tomber les épinards à la poêle.","Répartis épinards et crème dans des ramequins, casse un œuf dessus.","Parsème de fromage, enfourne 12 min au bain-marie.","Toaste le pain en mouillettes et sers."],
-"Boudin blanc & purée pommes":["Cuis les pommes de terre et écrase-les avec le lait et le beurre.","Coupe les pommes en quartiers et poêle-les.","Poêle les boudins blancs 10 min.","Dresse boudin, purée et pommes.","Sers chaud."],
-};
-
-let currentMeals = [];
-let currentMeal = null;
-let mealPortions = 4;
-function pickMeals(){
-  const shuffled = [...MEALS].sort(()=>Math.random()-0.5);
-  currentMeals = shuffled.slice(0,4);
-  renderMealSuggestions();
-}
-function shuffleMeals(){ pickMeals(); }
-function renderMealSuggestions(){
-  const el = document.getElementById('meal-suggestions');
-  el.innerHTML = currentMeals.map((m) => `
-    <div onclick="openMeal(${MEALS.indexOf(m)})" style="background:rgba(255,255,255,.95);border-radius:10px;padding:13px 15px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-      <span style="font-size:14px;font-weight:600;color:#1A1814">${m.n}</span>
-      <span style="font-size:13px;color:#D4694A">→</span>
-    </div>`).join('');
-}
-function openMeal(idx){
-  currentMeal = MEALS[idx];
-  mealPortions = 4;
-  document.getElementById('meal-title').textContent = currentMeal.n;
-  document.getElementById('meal-portions').textContent = '4';
-  document.getElementById('meal-photos-link').href = 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(currentMeal.n + ' recette');
-  document.getElementById('meal-overlay').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  document.getElementById('meal-added-msg').textContent = '';
-  renderMealIngredients();
-}
-function closeMeal(){
-  document.getElementById('meal-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-function changePortions(d){
-  mealPortions = Math.max(1, Math.min(20, mealPortions + d));
-  document.getElementById('meal-portions').textContent = mealPortions;
-  renderMealIngredients();
-}
-function scaleQty(base){
-  const q = base * mealPortions / 4;
-  return Number.isInteger(q) ? q : Math.round(q*100)/100;
-}
-function renderMealIngredients(){
-  const el = document.getElementById('meal-ingredients');
-  el.innerHTML = currentMeal.ing.map(([name,qty,unit]) => `
-    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #EDE9E1;border-radius:8px;padding:10px 12px;margin-bottom:6px">
-      <span style="font-size:14px;color:#3A3631">${name}</span>
-      <span style="font-size:13px;font-weight:600;color:#D4694A">${scaleQty(qty)} ${unit}</span>
-    </div>`).join('');
-}
-async function addMealToShop(){
+// ── MES PLATS (liste manuelle sauvegardée) ──
+let mealItems = [];
+async function loadMeals(){
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.shopping_global&select=data`, {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.meals_global&select=data`, {
       headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
     });
     const rows = await r.json();
-    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
-    let list = d.list || [];
-    let base = Date.now();
-    currentMeal.ing.forEach(([name,qty,unit],i) => {
-      list.push({id: uid(), txt: `${name} (${scaleQty(qty)} ${unit})`, done:false, shop:'inbox'});
+    mealItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ mealItems = []; }
+  renderMeals();
+}
+async function saveMeals(){
+  const payload = {data: {list: mealItems}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.meals_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
     });
-    const body = JSON.stringify({data: {list, seeded: d.seeded || false}});
-    const patch = await fetch(`${SB_URL}/rest/v1/journal?date=eq.shopping_global`, {
-      method:'PATCH',
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
-      body
-    });
-    const res = await patch.json();
-    if(!res || res.length === 0){
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.meals_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
       await fetch(`${SB_URL}/rest/v1/journal`, {
-        method:'POST',
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
-        body: JSON.stringify({date:'shopping_global', data:{list, seeded:false}})
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'meals_global', ...payload})
       });
     }
-    shopItems = list;
-    document.getElementById('meal-added-msg').textContent = '✓ Ingrédients ajoutés à ta liste de courses !';
-  } catch(e){
-    document.getElementById('meal-added-msg').textContent = 'Erreur, réessaie';
-  }
+  } catch(e){}
 }
+function addMeal(){
+  const inp = document.getElementById('meal-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  mealItems.push({id: uid(), txt});
+  inp.value = '';
+  renderMeals();
+  saveMeals();
+  inp.focus();
+}
+function delMeal(id){
+  mealItems = mealItems.filter(m => m.id !== id);
+  renderMeals();
+  saveMeals();
+}
+function renderMeals(){
+  const el = document.getElementById('meal-list');
+  if(!el) return;
+  if(mealItems.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,.7);font-size:13px;padding:1.5rem">Ajoute les plats que tu adores 🤤<br>On cherchera les recettes ensemble ensuite.</div>';
+    return;
+  }
+  el.innerHTML = mealItems.map(m => `<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.95);border-radius:10px;padding:12px 14px;margin-bottom:6px">
+    <span style="flex:1;font-size:14px;font-weight:600;color:#1A1814">${(m.txt||'').replace(/</g,'&lt;')}</span>
+    <span onclick="delMeal(${m.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+  </div>`).join('');
+}
+loadMeals();
 
-// ── RECETTE EN SLIDES ──
-let recipeStep = 0;
-let recipeSteps = [];
-function openRecipe(){
-  recipeSteps = MEAL_STEPS[currentMeal.n] || ["Recette non disponible pour ce plat."];
-  recipeStep = 0;
-  document.getElementById('recipe-title').textContent = currentMeal.n;
-  document.getElementById('recipe-overlay').style.display = 'flex';
-  renderRecipeStep();
-}
-function closeRecipe(){
-  document.getElementById('recipe-overlay').style.display = 'none';
-}
-function renderRecipeStep(){
-  document.getElementById('recipe-step-num').textContent = `Étape ${recipeStep+1} / ${recipeSteps.length}`;
-  document.getElementById('recipe-step-text').textContent = recipeSteps[recipeStep];
-  // Points de progression
-  let dots = '';
-  for(let i=0;i<recipeSteps.length;i++){
-    dots += `<div style="width:7px;height:7px;border-radius:50%;background:${i===recipeStep?'#5AAE7A':'rgba(255,255,255,.25)'}"></div>`;
-  }
-  document.getElementById('recipe-dots').innerHTML = dots;
-  // Boutons
-  document.getElementById('recipe-prev').style.visibility = recipeStep === 0 ? 'hidden' : 'visible';
-  const next = document.getElementById('recipe-next');
-  if(recipeStep === recipeSteps.length-1){
-    next.textContent = 'Terminé ✓';
-    next.style.background = '#5AAE7A';
-  } else {
-    next.textContent = 'Suivant ›';
-    next.style.background = '#2D7A4F';
-  }
-}
-function recipeNext(){
-  if(recipeStep < recipeSteps.length-1){ recipeStep++; renderRecipeStep(); }
-  else { closeRecipe(); }
-}
-function recipePrev(){
-  if(recipeStep > 0){ recipeStep--; renderRecipeStep(); }
-}
-pickMeals();
-
-// ── WORKOUT HAUT DU CORPS (5 min, 10 routines en rotation) ──
-const WORKOUTS = [
-  {nom:"Pompes & gainage", ex:[
-    {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Mains sous les épaules, corps gainé bien droit. Descends la poitrine vers le sol, coudes à 45°, puis remonte."},
-    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Pieds largeur d'épaules, descends comme pour t'asseoir, genoux dans l'axe des pieds, dos droit. Pousse sur les talons."},
-    {n:"Gainage planche", d:"3 × 30 secondes", r:"20s repos", e:"Sur les avant-bras, corps aligné des talons à la tête. Serre les abdos et les fessiers, ne creuse pas le dos."},
-  ]},
-  {nom:"Bas du corps & abdos", ex:[
-    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"30s repos", e:"Grand pas en avant, descends le genou arrière vers le sol, remonte. Garde le buste droit, alterne les jambes."},
-    {n:"Chaise contre le mur", d:"3 × 40 secondes", r:"30s repos", e:"Dos contre le mur, cuisses à l'horizontale comme assis sur une chaise invisible. Tiens la position, gainé."},
-    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Allongé, genoux pliés, mains derrière la tête. Décolle les omoplates en soufflant, sans tirer sur la nuque."},
-  ]},
-  {nom:"Full body dynamique", ex:[
-    {n:"Burpees doux", d:"3 × 8 répétitions", r:"40s repos", e:"Accroupi, mains au sol, recule les pieds en planche, reviens et redresse-toi. Sans saut si tu veux ménager les voisins."},
-    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains plus larges que les épaules. Cible davantage les pectoraux. Descente contrôlée."},
-    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"En position de planche, ramène alternativement les genoux vers la poitrine, rythme soutenu, gainage serré."},
-  ]},
-  {nom:"Jambes & fessiers", ex:[
-    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Squat classique puis pousse pour décoller légèrement (ou juste sur la pointe des pieds si sans saut). Amorti à la réception."},
-    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Allongé sur le dos, genoux pliés, pieds au sol. Soulève le bassin en serrant les fessiers, redescends sans poser."},
-    {n:"Mollets debout", d:"3 × 20 répétitions", r:"20s repos", e:"Debout, monte sur la pointe des pieds le plus haut possible, redescends lentement. Sollicite les mollets."},
-  ]},
-  {nom:"Pompes & triceps", ex:[
-    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"30s repos", e:"Mains jointes sous la poitrine formant un losange. Cible les triceps. Coudes près du corps."},
-    {n:"Pompes triceps lentes", d:"3 × 10 répétitions", r:"30s repos", e:"Pompes mains serrées, descente lente en 3 secondes. Coudes près du corps pour cibler les triceps."},
-    {n:"Gainage planche", d:"3 × 40 secondes", r:"20s repos", e:"Sur les avant-bras, corps aligné. Serre les abdos et fessiers, respiration calme."},
-  ]},
-  {nom:"Cardio sans saut", ex:[
-    {n:"Montées de genoux", d:"3 × 40 secondes", r:"20s repos", e:"Debout, monte alternativement les genoux à hauteur de hanche, rythme rapide, balance les bras."},
-    {n:"Squats rapides", d:"3 × 20 répétitions", r:"30s repos", e:"Squats enchaînés à bon rythme, sans à-coups, amplitude complète. Le cœur monte vite."},
-    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"En planche, touche alternativement chaque épaule avec la main opposée sans bouger le bassin."},
-  ]},
-  {nom:"Épaules & dos", ex:[
-    {n:"Pompes piquées (épaules)", d:"3 × 10 répétitions", r:"30s repos", e:"Bassin relevé en V inversé, tête vers le sol. Fléchis les coudes pour descendre le sommet du crâne, cible les épaules."},
-    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Allongé sur le ventre, bras tendus devant. Lève simultanément bras et jambes, contracte le bas du dos."},
-    {n:"Cercles de bras (sans poids)", d:"3 × 30 secondes", r:"15s repos", e:"Bras tendus à l'horizontale, fais de petits cercles continus. Brûlure garantie sur les épaules."},
-  ]},
-  {nom:"Abdos complets", ex:[
-    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Allongé, genoux pliés. Décolle les omoplates en soufflant, sans tirer sur la nuque."},
-    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Allongé, jambes tendues. Lève-les jusqu'à la verticale puis redescends lentement sans toucher le sol."},
-    {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"Sur un avant-bras, corps de profil aligné. Hanches hautes, maintiens sans tomber. Change de côté."},
-  ]},
-  {nom:"Full body force", ex:[
-    {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée, coudes à 45°. La base indémodable."},
-    {n:"Fentes arrière", d:"3 × 10 par jambe", r:"30s repos", e:"Grand pas en arrière, descends le genou vers le sol, reviens. Plus doux pour les genoux que la fente avant."},
-    {n:"Gainage planche", d:"3 × 30 secondes", r:"20s repos", e:"Corps aligné, abdos et fessiers serrés. Respire calmement."},
-  ]},
-  {nom:"Explosif & gainage", ex:[
-    {n:"Pompes claquées", d:"3 × 8 répétitions", r:"40s repos", e:"Pompe normale mais pousse fort pour décoller les mains, réceptionne en douceur."},
-    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Squat puis impulsion vers le haut, réception amortie genoux souples."},
-    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"En planche, genoux vers la poitrine en alternance, rythme soutenu."},
-  ]},
-  {nom:"Jambes brûlantes", ex:[
-    {n:"Chaise contre le mur", d:"3 × 45 secondes", r:"30s repos", e:"Dos au mur, cuisses horizontales. Tiens bon, le brûlement est normal."},
-    {n:"Fentes avant alternées", d:"3 × 12 par jambe", r:"30s repos", e:"Grand pas devant, genou arrière vers le sol. Buste droit."},
-    {n:"Mollets debout", d:"3 × 25 répétitions", r:"20s repos", e:"Montée sur pointes, descente lente. Tiens-toi à un mur pour l'équilibre si besoin."},
-  ]},
-  {nom:"Haut du corps complet", ex:[
-    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux. Descente contrôlée."},
-    {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Mains rapprochées, coudes le long du corps. Cible les triceps."},
-    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Lève bras et jambes simultanément, contracte le bas du dos."},
-  ]},
-  {nom:"Core & équilibre", ex:[
-    {n:"Gainage planche", d:"3 × 40 secondes", r:"20s repos", e:"Corps aligné, abdos serrés, respiration calme."},
-    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale puis descente lente."},
-    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"En planche, touche chaque épaule avec la main opposée sans bouger le bassin."},
-  ]},
-  {nom:"Cardio full body", ex:[
-    {n:"Burpees doux", d:"3 × 8 répétitions", r:"40s repos", e:"Accroupi, planche, retour, redressement. Sans saut si besoin."},
-    {n:"Montées de genoux", d:"3 × 40 secondes", r:"20s repos", e:"Genoux hauts en alternance, rythme rapide."},
-    {n:"Squats rapides", d:"3 × 20 répétitions", r:"30s repos", e:"Squats enchaînés à bon rythme, amplitude complète."},
-  ]},
-  {nom:"Pecs & fessiers", ex:[
-    {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée. La base."},
-    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Soulève le bassin en serrant les fessiers, redescends sans poser."},
-    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Décolle les omoplates en soufflant, sans tirer la nuque."},
-  ]},
-  {nom:"Jambes & gainage", ex:[
-    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Descends comme pour t'asseoir, dos droit, pousse sur les talons."},
-    {n:"Fentes arrière", d:"3 × 10 par jambe", r:"30s repos", e:"Pas en arrière, genou vers le sol, reviens. Doux pour les genoux."},
-    {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"De profil sur un avant-bras, hanches hautes. Change de côté."},
-  ]},
-  {nom:"Triceps & core", ex:[
-    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"30s repos", e:"Mains en losange sous la poitrine, cible les triceps."},
-    {n:"Pompes triceps lentes", d:"3 × 10 répétitions", r:"30s repos", e:"Descente en 3 secondes, coudes près du corps."},
-    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale, descente lente sans toucher le sol."},
-  ]},
-  {nom:"Full body express", ex:[
-    {n:"Pompes classiques", d:"2 × 15 répétitions", r:"30s repos", e:"Corps gainé, rythme régulier."},
-    {n:"Squats", d:"2 × 20 répétitions", r:"30s repos", e:"Amplitude complète, dos droit."},
-    {n:"Gainage planche", d:"2 × 45 secondes", r:"20s repos", e:"Corps aligné, abdos serrés."},
-  ]},
-  {nom:"Endurance jambes", ex:[
-    {n:"Squats", d:"3 × 20 répétitions", r:"30s repos", e:"Tempo régulier, amplitude complète."},
-    {n:"Fentes avant alternées", d:"3 × 12 par jambe", r:"30s repos", e:"Buste droit, genou arrière vers le sol."},
-    {n:"Chaise contre le mur", d:"2 × 40 secondes", r:"30s repos", e:"Cuisses horizontales, tiens la position."},
-  ]},
-  {nom:"Dos & posture", ex:[
-    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Bras et jambes levés, contracte le bas du dos."},
-    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
-    {n:"Gainage planche", d:"3 × 30 secondes", r:"20s repos", e:"Corps aligné, n'affaisse pas les hanches."},
-  ]},
-  {nom:"Pompes variées", ex:[
-    {n:"Pompes larges", d:"3 × 10 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux."},
-    {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Mains serrées, cible les triceps."},
-    {n:"Pompes piquées (épaules)", d:"3 × 8 répétitions", r:"30s repos", e:"V inversé, descends le crâne, cible les épaules."},
-  ]},
-  {nom:"Abdos & cardio", ex:[
-    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"Genoux vers la poitrine en alternance, rythme soutenu."},
-    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Décolle les omoplates en soufflant."},
-    {n:"Montées de genoux", d:"3 × 30 secondes", r:"20s repos", e:"Genoux hauts, rythme rapide."},
-  ]},
-  {nom:"Full body tonique", ex:[
-    {n:"Squats sautés", d:"3 × 10 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
-    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
-    {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"De profil, hanches hautes."},
-  ]},
-  {nom:"Cuisses & mollets", ex:[
-    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"30s repos", e:"Genou arrière vers le sol, buste droit."},
-    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Dos droit, pousse sur les talons."},
-    {n:"Mollets debout", d:"3 × 25 répétitions", r:"20s repos", e:"Montée sur pointes, descente lente."},
-  ]},
-  {nom:"Gainage intense", ex:[
-    {n:"Gainage planche", d:"3 × 45 secondes", r:"30s repos", e:"Corps parfaitement aligné, abdos et fessiers serrés."},
-    {n:"Gainage latéral", d:"2 × 35s par côté", r:"20s repos", e:"De profil, ne laisse pas tomber les hanches."},
-    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"Touche les épaules en alternance, bassin stable."},
-  ]},
-  {nom:"Haut du corps explosif", ex:[
-    {n:"Pompes claquées", d:"3 × 8 répétitions", r:"40s repos", e:"Pousse fort pour décoller les mains, réception douce."},
-    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux."},
-    {n:"Cercles de bras (sans poids)", d:"3 × 30 secondes", r:"15s repos", e:"Petits cercles continus, bras à l'horizontale."},
-  ]},
-  {nom:"Bas du corps puissant", ex:[
-    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
-    {n:"Fentes arrière", d:"3 × 10 par jambe", r:"30s repos", e:"Pas en arrière, genou vers le sol."},
-    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
-  ]},
-  {nom:"Circuit complet 1", ex:[
-    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"25s repos", e:"Corps gainé, descente contrôlée."},
-    {n:"Squats", d:"3 × 15 répétitions", r:"25s repos", e:"Amplitude complète, dos droit."},
-    {n:"Crunchs", d:"3 × 15 répétitions", r:"25s repos", e:"Décolle les omoplates en soufflant."},
-  ]},
-  {nom:"Circuit complet 2", ex:[
-    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"25s repos", e:"Genou arrière vers le sol, buste droit."},
-    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"25s repos", e:"Mains en losange, cible les triceps."},
-    {n:"Gainage planche", d:"3 × 30 secondes", r:"25s repos", e:"Corps aligné, abdos serrés."},
-  ]},
-  {nom:"Tonus général", ex:[
-    {n:"Pompes serrées", d:"3 × 10 répétitions", r:"30s repos", e:"Coudes le long du corps, cible les triceps."},
-    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
-    {n:"Relevés de jambes", d:"3 × 12 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale, descente lente."},
-  ]},
-  {nom:"Cardio brûle-graisses", ex:[
-    {n:"Burpees doux", d:"3 × 10 répétitions", r:"40s repos", e:"Accroupi, planche, retour, redressement."},
-    {n:"Montées de genoux", d:"3 × 40 secondes", r:"20s repos", e:"Genoux hauts, rythme rapide."},
-    {n:"Squats rapides", d:"3 × 20 répétitions", r:"25s repos", e:"Enchaînés à bon rythme, amplitude complète."},
-  ]},
-  {nom:"Pecs & abdos", ex:[
-    {n:"Pompes larges", d:"3 × 12 répétitions", r:"30s repos", e:"Mains larges, cible les pectoraux."},
-    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
-    {n:"Crunchs", d:"3 × 20 répétitions", r:"20s repos", e:"Décolle les omoplates en soufflant."},
-  ]},
-  {nom:"Jambes & core", ex:[
-    {n:"Chaise contre le mur", d:"3 × 40 secondes", r:"30s repos", e:"Cuisses horizontales, tiens la position."},
-    {n:"Mollets debout", d:"3 × 20 répétitions", r:"20s repos", e:"Montée sur pointes, descente lente."},
-    {n:"Gainage planche", d:"3 × 35 secondes", r:"20s repos", e:"Corps aligné, abdos serrés."},
-  ]},
-  {nom:"Force & explosivité", ex:[
-    {n:"Pompes claquées", d:"3 × 8 répétitions", r:"40s repos", e:"Décolle les mains, réception douce."},
-    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
-    {n:"Gainage dynamique", d:"3 × 30 secondes", r:"20s repos", e:"Touche les épaules en alternance, bassin stable."},
-  ]},
-  {nom:"Dos & épaules", ex:[
-    {n:"Pompes piquées (épaules)", d:"3 × 10 répétitions", r:"30s repos", e:"V inversé, descends le crâne, cible les épaules."},
-    {n:"Superman (dos)", d:"3 × 15 répétitions", r:"20s repos", e:"Bras et jambes levés, contracte le bas du dos."},
-    {n:"Cercles de bras (sans poids)", d:"3 × 30 secondes", r:"15s repos", e:"Petits cercles continus, bras tendus."},
-  ]},
-  {nom:"Full body équilibré", ex:[
-    {n:"Pompes classiques", d:"3 × 12 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
-    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Amplitude complète, dos droit."},
-    {n:"Gainage latéral", d:"2 × 30s par côté", r:"20s repos", e:"De profil, hanches hautes."},
-  ]},
-  {nom:"Abdos gainage avancé", ex:[
-    {n:"Relevés de jambes", d:"3 × 15 répétitions", r:"30s repos", e:"Jambes tendues vers la verticale, descente lente."},
-    {n:"Mountain climbers", d:"3 × 30 secondes", r:"20s repos", e:"Genoux vers la poitrine, rythme soutenu."},
-    {n:"Gainage planche", d:"3 × 45 secondes", r:"30s repos", e:"Corps parfaitement aligné, abdos serrés."},
-  ]},
-  {nom:"Bas du corps complet", ex:[
-    {n:"Squats", d:"3 × 18 répétitions", r:"30s repos", e:"Amplitude complète, pousse sur les talons."},
-    {n:"Fentes avant alternées", d:"3 × 10 par jambe", r:"30s repos", e:"Genou arrière vers le sol, buste droit."},
-    {n:"Pont fessier", d:"3 × 15 répétitions", r:"30s repos", e:"Bassin soulevé, fessiers serrés."},
-  ]},
-  {nom:"Le grand mix", ex:[
-    {n:"Burpees doux", d:"3 × 8 répétitions", r:"40s repos", e:"Accroupi, planche, retour, redressement."},
-    {n:"Pompes classiques", d:"3 × 10 répétitions", r:"30s repos", e:"Corps gainé, descente contrôlée."},
-    {n:"Squats", d:"3 × 15 répétitions", r:"30s repos", e:"Amplitude complète, dos droit."},
-  ]},
-  {nom:"Défi complet", ex:[
-    {n:"Pompes diamant", d:"3 × 8 répétitions", r:"30s repos", e:"Mains en losange, cible les triceps."},
-    {n:"Squats sautés", d:"3 × 12 répétitions", r:"30s repos", e:"Impulsion vers le haut, réception amortie."},
-    {n:"Gainage planche", d:"3 × 40 secondes", r:"20s repos", e:"Corps aligné, abdos et fessiers serrés."},
-  ]},
+// ── TABATA (timer 4 min : 20s effort / 10s repos × 8) ──
+const TABATA_EXERCISES = [
+  "Jumping jacks", "Squats sautés", "Pompes", "Fentes alternées",
+  "Mountain climbers", "Gainage dynamique", "Burpees", "Talons-fesses",
+  "Montées de genoux", "Chaise contre le mur", "Pompes serrées", "Squats"
 ];
+const TABATA_PLAYLIST = "https://open.spotify.com/playlist/20CQozNnKgyfDrVUTfL2HZ";
+let tabataTimer = null;
+let tabataState = null;
 
-let workoutOverride = null; // null = séance du jour, sinon index choisi
 function openWorkout(){
   document.getElementById('workout-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  workoutOverride = null; // repart sur la séance du jour à chaque ouverture
-  renderWorkout();
+  tabataState = null;
+  if(tabataTimer){ clearInterval(tabataTimer); tabataTimer = null; }
+  renderTabataIntro();
 }
 function closeWorkout(){
+  if(tabataTimer){ clearInterval(tabataTimer); tabataTimer = null; }
   document.getElementById('workout-overlay').style.display = 'none';
   document.body.style.overflow = '';
 }
-function switchWorkout(){
+// Choisit 8 exercices du jour (rotation quotidienne)
+function tabataToday(){
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now - start) / 864e5);
-  const current = workoutOverride !== null ? workoutOverride : (dayOfYear % WORKOUTS.length);
-  workoutOverride = (current + 1) % WORKOUTS.length;
-  renderWorkout();
+  const list = [];
+  for(let i=0;i<8;i++){
+    list.push(TABATA_EXERCISES[(dayOfYear*8 + i) % TABATA_EXERCISES.length]);
+  }
+  return list;
 }
-function detectMuscles(workout){
-  // Analyse les exercices pour repérer les zones travaillées
-  const muscles = new Set();
-  const txt = workout.ex.map(e => (e.n + ' ' + (e.e||'')).toLowerCase()).join(' ');
-  if(/pompe|pectoraux|pecs|larg/.test(txt)) muscles.add('pecs');
-  if(/triceps|diamant|serr|dips/.test(txt)) muscles.add('triceps');
-  if(/épaule|epaule|piqué|pike|cercles de bras/.test(txt)) muscles.add('epaules');
-  if(/gainage|abdo|planche|gaine/.test(txt)) muscles.add('abdos');
-  if(/superman|dos|posture/.test(txt)) muscles.add('dos');
-  if(/biceps/.test(txt)) muscles.add('biceps');
-  return muscles;
-}
-function bodySchema(muscles){
-  const on = '#D4694A', off = '#E2DDD4';
-  const c = (m) => muscles.has(m) ? on : off;
-  // Silhouette simple de face : épaules, pecs, bras (triceps/biceps), abdos
-  return `<div style="display:flex;justify-content:center;gap:24px;align-items:center;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:16px;margin-bottom:1rem">
-    <svg viewBox="0 0 120 200" width="90" height="150">
-      <!-- tête -->
-      <circle cx="60" cy="18" r="13" fill="#C4BDB0"/>
-      <!-- épaules -->
-      <rect x="28" y="36" width="64" height="12" rx="6" fill="${c('epaules')}"/>
-      <!-- pecs -->
-      <path d="M35 50 H85 V72 Q60 82 35 72 Z" fill="${c('pecs')}"/>
-      <!-- abdos -->
-      <rect x="44" y="84" width="32" height="40" rx="5" fill="${c('abdos')}"/>
-      <!-- bras gauche (triceps/biceps) -->
-      <rect x="18" y="50" width="13" height="48" rx="6" fill="${c('triceps')}"/>
-      <!-- bras droit -->
-      <rect x="89" y="50" width="13" height="48" rx="6" fill="${c('triceps')}"/>
-      <!-- jambes (neutres) -->
-      <rect x="44" y="128" width="14" height="60" rx="6" fill="#E2DDD4"/>
-      <rect x="62" y="128" width="14" height="60" rx="6" fill="#E2DDD4"/>
-    </svg>
-    <div style="font-size:11px;line-height:1.9">
-      <div style="font-weight:700;color:#1A1814;margin-bottom:4px;font-size:12px">Zones travaillées</div>
-      ${[['epaules','Épaules'],['pecs','Pectoraux'],['triceps','Bras / triceps'],['abdos','Abdos / gainage'],['dos','Dos']].map(([k,label])=>
-        `<div style="display:flex;align-items:center;gap:6px;color:${muscles.has(k)?'#1A1814':'#C4BDB0'}">
-          <span style="width:9px;height:9px;border-radius:50%;background:${muscles.has(k)?on:off};display:inline-block"></span>${label}
-        </div>`).join('')}
-    </div>
-  </div>`;
-}
-function renderWorkout(){
-  // Rotation quotidienne basée sur le jour de l'année (ou choix manuel)
-  const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((now - start) / 864e5);
-  const idx = workoutOverride !== null ? workoutOverride : (dayOfYear % WORKOUTS.length);
-  const w = WORKOUTS[idx];
-  const JOURS = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  const isToday = workoutOverride === null;
-
+function renderTabataIntro(){
+  const exs = tabataToday();
   let html = `<div style="text-align:center;margin-bottom:1.25rem">
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#B0AA9E">${isToday ? JOURS[now.getDay()] : 'Séance ' + (idx+1) + '/' + WORKOUTS.length}</div>
-    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#1A1814;margin-top:2px">${w.nom}</div>
-    <div style="font-size:12px;color:#7A7468;margin-top:4px">${isToday ? 'Séance du jour' : 'Autre séance'} · environ 5 minutes</div>
-    <button onclick="switchWorkout()" style="margin-top:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 18px;background:#D4694A;color:#fff;border:none;border-radius:20px;cursor:pointer">🔄 Une autre séance</button>
+    <div style="font-size:44px;font-weight:800;color:#fff;line-height:1">04:00</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px">8 rounds · 20s effort / 10s repos</div>
   </div>`;
-
-  // Schéma du corps
-  html += bodySchema(detectMuscles(w));
-
-  w.ex.forEach((e, i) => {
-    html += `<div style="background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:flex-start;gap:14px">
-      <div style="width:34px;height:34px;border-radius:50%;background:#1A1814;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0">${i+1}</div>
-      <div style="flex:1">
-        <div style="font-size:15px;font-weight:600;color:#1A1814">${e.n}</div>
-        <div style="font-size:13px;color:#D4694A;font-weight:600;margin-top:2px">${e.d}</div>
-        <div style="font-size:11px;color:#B0AA9E;margin-top:1px">${e.r}</div>
-        ${e.e ? `<div style="font-size:10.5px;color:#9A9488;margin-top:6px;line-height:1.45;font-style:italic">${e.e}</div>` : ''}
-      </div>
+  // Playlist Spotify intégrée
+  html += `<div style="margin-bottom:1.25rem;border-radius:12px;overflow:hidden">
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/20CQozNnKgyfDrVUTfL2HZ?utm_source=generator" width="100%" height="152" frameborder="0" allowfullscreen allow="autoplay;clipboard-write;encrypted-media;fullscreen;picture-in-picture" loading="lazy"></iframe>
+  </div>`;
+  html += `<button onclick="startTabata()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;padding:14px;background:#FC4C02;color:#fff;border:none;border-radius:12px;cursor:pointer;margin-bottom:1.25rem">▶ Démarrer le Tabata</button>`;
+  html += `<div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:8px">Les 8 exercices du jour</div>`;
+  exs.forEach((ex, i) => {
+    html += `<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:10px;padding:11px 14px;margin-bottom:6px">
+      <div style="width:28px;height:28px;border-radius:50%;background:#FC4C02;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">${i+1}</div>
+      <span style="font-size:15px;color:#fff">${ex}</span>
     </div>`;
   });
-
-  html += `<div style="text-align:center;font-size:11px;color:#B0AA9E;margin-top:1rem;line-height:1.5">La séance change automatiquement chaque jour 🔄<br>Échauffe-toi 30 secondes avant de commencer</div>`;
   document.getElementById('workout-content').innerHTML = html;
 }
+function startTabata(){
+  const exs = tabataToday();
+  // Séquence : chaque round = 20s effort + 10s repos (sauf dernier repos)
+  tabataState = { round: 0, phase: 'prep', timeLeft: 5, exs };
+  const content = document.getElementById('workout-content');
+  content.innerHTML = `<div id="tabata-live" style="text-align:center;padding-top:1rem"></div>`;
+  renderTabataLive();
+  if(tabataTimer) clearInterval(tabataTimer);
+  tabataTimer = setInterval(tickTabata, 1000);
+}
+function tickTabata(){
+  if(!tabataState) return;
+  tabataState.timeLeft--;
+  if(tabataState.timeLeft <= 0){
+    // Transition de phase
+    if(tabataState.phase === 'prep'){
+      tabataState.phase = 'work'; tabataState.round = 1; tabataState.timeLeft = 20;
+      beepTabata(880);
+    } else if(tabataState.phase === 'work'){
+      if(tabataState.round >= 8){
+        // Fini !
+        tabataState.phase = 'done';
+        clearInterval(tabataTimer); tabataTimer = null;
+        beepTabata(1200);
+        renderTabataDone();
+        return;
+      }
+      tabataState.phase = 'rest'; tabataState.timeLeft = 10;
+      beepTabata(440);
+    } else if(tabataState.phase === 'rest'){
+      tabataState.phase = 'work'; tabataState.round++; tabataState.timeLeft = 20;
+      beepTabata(880);
+    }
+  }
+  renderTabataLive();
+}
+function renderTabataLive(){
+  const el = document.getElementById('tabata-live');
+  if(!el || !tabataState) return;
+  const s = tabataState;
+  let bigColor, label, exName;
+  if(s.phase === 'prep'){ bigColor='#C4A030'; label='PRÉPARE-TOI'; exName = s.exs[0]; }
+  else if(s.phase === 'work'){ bigColor='#FC4C02'; label='EFFORT · Round '+s.round+'/8'; exName = s.exs[s.round-1]; }
+  else { bigColor='#2D7A4F'; label='REPOS'; exName = 'Prochain : ' + s.exs[Math.min(s.round, 7)]; }
+  el.innerHTML = `
+    <div style="font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:${bigColor};font-weight:700;margin-bottom:12px">${label}</div>
+    <div style="font-size:80px;font-weight:800;color:#fff;line-height:1">${s.timeLeft}</div>
+    <div style="font-size:24px;font-weight:700;color:${bigColor};margin-top:16px">${exName}</div>
+    <button onclick="stopTabata()" style="margin-top:32px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 20px;background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:20px;cursor:pointer">Arrêter</button>`;
+}
+function renderTabataDone(){
+  const el = document.getElementById('tabata-live');
+  if(el) el.innerHTML = `<div style="padding-top:2rem">
+    <div style="font-size:60px">🔥</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:28px;color:#fff;margin-top:12px">Tabata terminé !</div>
+    <div style="font-size:14px;color:rgba(255,255,255,.6);margin-top:8px">4 minutes, 8 rounds. Bien joué 💪</div>
+    <button onclick="renderTabataIntro()" style="margin-top:24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px 24px;background:#FC4C02;color:#fff;border:none;border-radius:20px;cursor:pointer">Recommencer</button>
+  </div>`;
+}
+function stopTabata(){
+  if(tabataTimer){ clearInterval(tabataTimer); tabataTimer = null; }
+  tabataState = null;
+  renderTabataIntro();
+}
+function beepTabata(freq){
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
+    osc.start(); osc.stop(ctx.currentTime + 0.25);
+  } catch(e){}
+}
+
 
 // ── TODO MATRICE EISENHOWER ──
 const QUADS = {
