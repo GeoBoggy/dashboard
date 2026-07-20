@@ -100,6 +100,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <symbol id="ic-plate" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3"/></symbol>
   <symbol id="ic-apple" viewBox="0 0 24 24"><path d="M12 8c-2-3-6-3-7 0-1 4 2 12 4 12 1 0 1.5-.5 3-.5s2 .5 3 .5c2 0 5-8 4-12-1-3-5-3-7 0z"/><path d="M12 8V5a2 2 0 0 1 2-2"/></symbol>
   <symbol id="ic-dumbbell" viewBox="0 0 24 24"><line x1="6" y1="12" x2="18" y2="12"/><rect x="2" y="9" width="4" height="6" rx="1.5"/><rect x="18" y="9" width="4" height="6" rx="1.5"/></symbol>
+  <symbol id="ic-pan" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 11h13a1 1 0 0 1 1 1v1a5 5 0 0 1 -5 5h-5a5 5 0 0 1 -5 -5v-1a1 1 0 0 1 1 -1z"/><path d="M17 12h1.5a2.5 2.5 0 1 1 0 5h-1.5"/><path d="M8.5 8a1.5 1.5 0 0 1 0 -2"/><path d="M11.5 8a1.5 1.5 0 0 1 0 -2"/></symbol>
   <symbol id="ic-steps" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1"/><path d="M14 13l1 -2"/><path d="M8 18v-1a4 4 0 0 0 -4 -4h-1"/><path d="M10 12l1.5 -3"/></symbol>
   <symbol id="ic-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
   <symbol id="ic-headphones" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></symbol>
@@ -137,6 +138,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openLends()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Objets prêtés">📦</div>
       <div onclick="openReno()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Travaux maison">🚧</div>
       <div onclick="openMeals()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes plats">🍽️</div>
+      <div onclick="openBdays()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Anniversaires">🎂</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
     </div>
@@ -307,6 +309,26 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- LISTE DE COURSES (overlay) -->
+<!-- ANNIVERSAIRES (overlay) -->
+<div id="bdays-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🎂 Anniversaires</span>
+    <div onclick="closeBdays()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem">Triés par prochain anniversaire à venir 🎉</div>
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
+      <input id="bday-name" type="text" placeholder="Prénom / nom" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px">
+        <select id="bday-day" style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none"></select>
+        <select id="bday-month" style="flex:1.5;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none"></select>
+      </div>
+      <button onclick="addBday()" style="width:100%;margin-top:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px;background:#C97BA0;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+    </div>
+    <div id="bday-list"></div>
+  </div>
+</div>
+
 <!-- MES PLATS (overlay) -->
 <div id="meals-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
@@ -794,7 +816,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <a href="weward://" onclick="event.stopPropagation();openApp('weward://','https://www.weward.fr');return false;" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ WeWard</a>
     </div>
     <div class="tile" onclick="tgl(this,'cuisiner')" data-field="cuisiner">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2);font-size:26px">🍳</div></div>
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-pan"/></svg></div></div>
       <span class="tile-lbl">Cuisiner</span>
     </div>
   </div>
@@ -3096,6 +3118,107 @@ function shopItemsHtml(items){
     </div>`;
   }
   return h;
+}
+
+// ── ANNIVERSAIRES ──
+let bdayItems = [];
+const BDAY_MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function openBdays(){
+  document.getElementById('bdays-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  // Remplir les selects jour/mois une seule fois
+  const daySel = document.getElementById('bday-day');
+  const monthSel = document.getElementById('bday-month');
+  if(daySel.options.length === 0){
+    daySel.innerHTML = '<option value="">Jour</option>' + Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+    monthSel.innerHTML = '<option value="">Mois</option>' + BDAY_MOIS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
+  }
+  loadBdays();
+}
+function closeBdays(){
+  document.getElementById('bdays-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadBdays(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.bdays_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    bdayItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ bdayItems = []; }
+  renderBdays();
+}
+async function saveBdays(){
+  const payload = {data: {list: bdayItems}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.bdays_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.bdays_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'bdays_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addBday(){
+  const name = document.getElementById('bday-name').value.trim();
+  const day = parseInt(document.getElementById('bday-day').value);
+  const month = parseInt(document.getElementById('bday-month').value);
+  if(!name || !day || !month){ alert('Indique au moins un nom, un jour et un mois'); return; }
+  bdayItems.push({id: uid(), name, day, month});
+  document.getElementById('bday-name').value = '';
+  document.getElementById('bday-day').value = '';
+  document.getElementById('bday-month').value = '';
+  renderBdays();
+  saveBdays();
+}
+function delBday(id){
+  bdayItems = bdayItems.filter(b => b.id !== id);
+  renderBdays();
+  saveBdays();
+}
+function renderBdays(){
+  const el = document.getElementById('bday-list');
+  if(bdayItems.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Ajoute les anniversaires de tes proches 🎉</div>';
+    return;
+  }
+  const now = new Date(); now.setHours(0,0,0,0);
+  const todayY = now.getFullYear();
+  // Calcule jours restants jusqu'au prochain anniversaire
+  const withDays = bdayItems.map(b => {
+    let next = new Date(todayY, b.month-1, b.day);
+    next.setHours(0,0,0,0);
+    if(next < now) next = new Date(todayY+1, b.month-1, b.day);
+    const daysLeft = Math.round((next - now) / 864e5);
+    return {...b, daysLeft};
+  });
+  withDays.sort((a,b) => a.daysLeft - b.daysLeft);
+  el.innerHTML = withDays.map(b => {
+    let when;
+    if(b.daysLeft === 0) when = "<span style='color:#C97BA0;font-weight:700'>Aujourd'hui ! 🎉</span>";
+    else if(b.daysLeft === 1) when = "<span style='color:#C97BA0;font-weight:600'>Demain 🎈</span>";
+    else when = `<span style='color:#9A9488'>dans ${b.daysLeft} jours</span>`;
+    return `<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid ${b.daysLeft<=7?'#E8C4D8':'#EDE9E1'};border-radius:10px;padding:12px 14px;margin-bottom:6px">
+      <div style="font-size:22px">${b.daysLeft===0?'🎂':'🎈'}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600;color:#1A1814">${(b.name||'').replace(/</g,'&lt;')}</div>
+        <div style="font-size:11px;color:#9A9488">${b.day} ${BDAY_MOIS[b.month-1]} · ${when}</div>
+      </div>
+      <span onclick="delBday(${b.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+    </div>`;
+  }).join('');
 }
 
 // ── MES PLATS (liste manuelle sauvegardée) ──
