@@ -100,7 +100,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <symbol id="ic-plate" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 3v12h-5c-.023 -3.681 .184 -7.406 5 -12zm0 12v6h-1v-3m-10 -14v17m-3 -17v3a3 3 0 1 0 6 0v-3"/></symbol>
   <symbol id="ic-apple" viewBox="0 0 24 24"><path d="M12 8c-2-3-6-3-7 0-1 4 2 12 4 12 1 0 1.5-.5 3-.5s2 .5 3 .5c2 0 5-8 4-12-1-3-5-3-7 0z"/><path d="M12 8V5a2 2 0 0 1 2-2"/></symbol>
   <symbol id="ic-dumbbell" viewBox="0 0 24 24"><line x1="6" y1="12" x2="18" y2="12"/><rect x="2" y="9" width="4" height="6" rx="1.5"/><rect x="18" y="9" width="4" height="6" rx="1.5"/></symbol>
-  <symbol id="ic-pan" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 11h13a1 1 0 0 1 1 1v1a5 5 0 0 1 -5 5h-5a5 5 0 0 1 -5 -5v-1a1 1 0 0 1 1 -1z"/><path d="M17 12h1.5a2.5 2.5 0 1 1 0 5h-1.5"/><path d="M8.5 8a1.5 1.5 0 0 1 0 -2"/><path d="M11.5 8a1.5 1.5 0 0 1 0 -2"/></symbol>
+  <symbol id="ic-pan" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M2 10h13v3a4 4 0 0 1 -4 4h-5a4 4 0 0 1 -4 -4v-3z"/><line x1="15" y1="11.5" x2="22" y2="8"/></symbol>
+  <symbol id="ic-scale" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 8a3 3 0 0 0 -3 3h6a3 3 0 0 0 -3 -3z"/><line x1="12" y1="11" x2="13.5" y2="9.2"/></symbol>
   <symbol id="ic-steps" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6h5.426a1 1 0 0 1 .863 .496l1.064 1.823a3 3 0 0 0 1.896 1.407l4.677 1.114a4 4 0 0 1 3.074 3.89v2.27a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1v-10a1 1 0 0 1 1 -1"/><path d="M14 13l1 -2"/><path d="M8 18v-1a4 4 0 0 0 -4 -4h-1"/><path d="M10 12l1.5 -3"/></symbol>
   <symbol id="ic-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
   <symbol id="ic-headphones" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></symbol>
@@ -139,6 +140,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openReno()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Travaux maison">🚧</div>
       <div onclick="openMeals()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes plats">🍽️</div>
       <div onclick="openBdays()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Anniversaires">🎂</div>
+      <div onclick="openGifts()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Idées cadeaux">🎁</div>
+      <div onclick="openExport()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Sauvegarde">💾</div>
       <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
     </div>
@@ -158,6 +161,9 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <div id="vacances-banner" style="margin-top:.5rem;background:linear-gradient(135deg,#E8A23D,#D4832A);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff">
     <span style="font-size:13px;font-weight:600">🏖️ Vacances en famille</span>
     <span id="vacances-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
+  </div>
+  <div id="bday-banner" onclick="openBdays()" style="display:none;margin-top:.5rem;background:linear-gradient(135deg,#C97BA0,#A85C82);border-radius:12px;padding:10px 14px;color:#fff;cursor:pointer">
+    <span id="bday-banner-txt" style="font-size:13px;font-weight:600"></span>
   </div>
   <div class="save-st" id="save-st"></div>
 </div>
@@ -309,6 +315,49 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- LISTE DE COURSES (overlay) -->
+<!-- SAUVEGARDE / EXPORT (overlay) -->
+<div id="export-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">💾 Sauvegarde</span>
+    <div onclick="closeExport()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:13px;color:#7A7468;line-height:1.6;margin-bottom:1.5rem">Télécharge une copie de toutes tes données. À faire de temps en temps — c'est ton filet de sécurité si Supabase avait un problème.</div>
+
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:16px;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:700;color:#1A1814;margin-bottom:4px">📦 Sauvegarde complète</div>
+      <div style="font-size:12px;color:#7A7468;line-height:1.5;margin-bottom:12px">Toutes tes données brutes (journal, tâches, courses, dettes, prêts, travaux, lectures, anniversaires, cadeaux, plats, poids...). C'est ce fichier qui permet de tout restaurer.</div>
+      <button onclick="exportJSON()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:12px;background:#2D7A4F;color:#fff;border:none;border-radius:10px;cursor:pointer">Télécharger le fichier de sauvegarde</button>
+    </div>
+
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:16px;margin-bottom:12px">
+      <div style="font-size:15px;font-weight:700;color:#1A1814;margin-bottom:4px">📖 Mon journal à relire</div>
+      <div style="font-size:12px;color:#7A7468;line-height:1.5;margin-bottom:12px">Ton journal mis en forme, jour par jour : gratitudes, kiffs, fiertés, apprentissages, moments avec Mona, Colin et Anouck. À ouvrir dans un navigateur ou imprimer.</div>
+      <button onclick="exportReadable()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:12px;background:#C4632A;color:#fff;border:none;border-radius:10px;cursor:pointer">Télécharger mon journal</button>
+    </div>
+
+    <div id="export-status" style="font-size:12px;color:#7A7468;text-align:center;padding:.5rem"></div>
+  </div>
+</div>
+
+<!-- IDÉES CADEAUX (overlay) -->
+<div id="gifts-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🎁 Idées cadeaux</span>
+    <div onclick="closeGifts()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
+      <input id="gift-who" type="text" placeholder="Pour qui ?" onkeydown="if(event.key==='Enter')addGift()" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px">
+        <input id="gift-idea" type="text" placeholder="L'idée de cadeau..." onkeydown="if(event.key==='Enter')addGift()" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+        <button onclick="addGift()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:9px 24px;background:#B8688A;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+      </div>
+    </div>
+    <div id="gift-list"></div>
+  </div>
+</div>
+
 <!-- ANNIVERSAIRES (overlay) -->
 <div id="bdays-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
@@ -320,10 +369,9 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
       <input id="bday-name" type="text" placeholder="Prénom / nom" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
       <div style="display:flex;gap:6px">
-        <select id="bday-day" style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none"></select>
-        <select id="bday-month" style="flex:1.5;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none"></select>
+        <input id="bday-date" type="text" inputmode="numeric" placeholder="Date (ex: 14/03)" onkeydown="if(event.key==='Enter')addBday()" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+        <button onclick="addBday()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:9px 24px;background:#C97BA0;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
       </div>
-      <button onclick="addBday()" style="width:100%;margin-top:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px;background:#C97BA0;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
     </div>
     <div id="bday-list"></div>
   </div>
@@ -561,6 +609,14 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
         <span style="font-size:11px;color:rgba(255,255,255,.8)">h de sommeil</span>
       </div>
     </div>
+    <div class="tile" onclick="tgl(this,'peser')" data-field="peser">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-scale"/></svg></div></div>
+      <span class="tile-lbl">Se peser</span>
+      <div onclick="event.stopPropagation()" style="display:flex;align-items:center;gap:4px;margin-top:-2px">
+        <input type="number" step="0.1" min="0" max="300" placeholder="0" data-key="poids" onblur="saveNote('poids',this.value);loadWeightChart()" style="width:48px;font-family:'DM Sans',sans-serif;font-size:12px;padding:3px 5px;border:1px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.15);color:#fff;outline:none;text-align:center">
+        <span style="font-size:11px;color:rgba(255,255,255,.8)">kg</span>
+      </div>
+    </div>
     <div class="tile" onclick="tgl(this,'muscu')" data-field="muscu">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-dumbbell"/></svg></div></div>
       <span class="tile-lbl">Tabata 4'</span>
@@ -575,6 +631,15 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div style="padding:.6rem .9rem">
       <div style="font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#C4BDB0;margin-bottom:.4rem">Sommeil · 7 jours</div>
       <svg id="sleep-chart" viewBox="0 0 300 56" style="width:100%;height:56px"></svg>
+    </div>
+  </div>
+  <div class="card" style="margin-top:.75rem">
+    <div style="padding:.6rem .9rem">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.4rem">
+        <span style="font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#C4BDB0">Poids · évolution</span>
+        <span id="weight-info" style="font-size:10px;color:#9A9488"></span>
+      </div>
+      <svg id="weight-chart" viewBox="0 0 300 70" style="width:100%;height:70px"></svg>
     </div>
   </div>
   <div class="card" style="margin-top:1rem">
@@ -3120,19 +3185,253 @@ function shopItemsHtml(items){
   return h;
 }
 
+// ── SAUVEGARDE / EXPORT ──
+function openExport(){
+  document.getElementById('export-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('export-status').textContent = '';
+}
+function closeExport(){
+  document.getElementById('export-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function exportStatus(msg){
+  const el = document.getElementById('export-status');
+  if(el) el.textContent = msg;
+}
+function downloadBlob(content, filename, type){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+// Récupère TOUTES les lignes de la table journal
+async function fetchAllData(){
+  const r = await fetch(`${SB_URL}/rest/v1/journal?select=date,data&order=date.asc`, {
+    headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+    cache: 'no-store'
+  });
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  const rows = await r.json();
+  if(!Array.isArray(rows)) throw new Error('réponse invalide');
+  return rows;
+}
+async function exportJSON(){
+  exportStatus('Récupération des données...');
+  try {
+    const rows = await fetchAllData();
+    const payload = {
+      exported_at: new Date().toISOString(),
+      source: 'Ma Journée · dashboard',
+      nb_entrees: rows.length,
+      data: rows
+    };
+    const d = new Date().toISOString().slice(0,10);
+    downloadBlob(JSON.stringify(payload, null, 2), `sauvegarde_ma-journee_${d}.json`, 'application/json');
+    exportStatus(`✅ ${rows.length} entrées sauvegardées`);
+  } catch(e){
+    exportStatus('❌ Échec : ' + e.message + '. Vérifie ta connexion et réessaie.');
+  }
+}
+async function exportReadable(){
+  exportStatus('Mise en forme du journal...');
+  try {
+    const rows = await fetchAllData();
+    const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+    const esc = (s) => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    // Uniquement les journées (format AAAA-MM-JJ), triées
+    const days = rows.filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.date)).sort((a,b)=>a.date.localeCompare(b.date));
+
+    const SECTIONS = [
+      {keys:['grat1','grat2','grat3'], titre:'🙏 Gratitudes'},
+      {keys:['kiff1','kiff2','kiff3'], titre:'✨ Petits kiffs'},
+      {keys:['note_fierte'], titre:'💪 Fier de'},
+      {keys:['note_lecture'], titre:"💡 Appris aujourd'hui"},
+      {keys:['note_mona'], titre:'🌸 Mona'},
+      {keys:['note_colin'], titre:'🧸 Colin'},
+      {keys:['note_anouck','anouck_note'], titre:'❤️ Anouck'},
+      {keys:['note_equipe'], titre:'🤝 Équipe'},
+      {keys:['humeur_note'], titre:'🎭 Humeur'},
+    ];
+
+    let body = '';
+    let nbJours = 0;
+    days.forEach(row => {
+      const d = row.data || {};
+      let bloc = '';
+      SECTIONS.forEach(sec => {
+        const vals = sec.keys.map(k => d[k]).filter(v => v && String(v).trim());
+        if(vals.length){
+          bloc += `<div class="sec"><span class="lbl">${sec.titre}</span>`;
+          vals.forEach(v => { bloc += `<div class="val">${esc(v)}</div>`; });
+          bloc += `</div>`;
+        }
+      });
+      // Apprentissages des gens
+      if(Array.isArray(d.learnings) && d.learnings.length){
+        bloc += `<div class="sec"><span class="lbl">🌱 Appris des gens</span>`;
+        d.learnings.forEach(l => {
+          if(l && l.who) bloc += `<div class="val"><strong>${esc(l.who)}</strong> · ${esc(l.what||'')}</div>`;
+        });
+        bloc += `</div>`;
+      }
+      // Chiffres du jour
+      const chiffres = [];
+      if(d.sommeil_h) chiffres.push(`😴 ${esc(d.sommeil_h)}h de sommeil`);
+      if(d.poids) chiffres.push(`⚖️ ${esc(d.poids)} kg`);
+      if(d.water) chiffres.push(`💧 ${esc(d.water)}/8 verres`);
+      if(d.mood) chiffres.push(`humeur ${esc(d.mood)}`);
+      if(chiffres.length) bloc += `<div class="chiffres">${chiffres.join(' · ')}</div>`;
+
+      if(bloc){
+        nbJours++;
+        const dt = new Date(row.date + 'T12:00:00');
+        const titre = `${JOURS[dt.getDay()]} ${dt.getDate()} ${MOIS[dt.getMonth()]} ${dt.getFullYear()}`;
+        body += `<article><h2>${titre}</h2>${bloc}</article>`;
+      }
+    });
+
+    if(nbJours === 0){ exportStatus("Aucune entrée de journal à exporter pour l'instant."); return; }
+
+    const today = new Date().toLocaleDateString('fr-BE', {day:'numeric', month:'long', year:'numeric'});
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mon journal · Ma Journée</title>
+<style>
+  body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;background:#F5F2EC;color:#1A1814;margin:0;padding:32px 20px;line-height:1.6}
+  .wrap{max-width:720px;margin:0 auto}
+  h1{font-size:30px;margin:0 0 4px}
+  .sub{color:#7A7468;font-size:14px;margin-bottom:32px}
+  article{background:#fff;border:1px solid #E2DDD4;border-radius:14px;padding:20px 22px;margin-bottom:16px;page-break-inside:avoid}
+  h2{font-size:17px;margin:0 0 14px;color:#C4632A;text-transform:capitalize}
+  .sec{margin-bottom:12px}
+  .lbl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#B0AA9E;font-weight:700;margin-bottom:3px}
+  .val{font-size:15px;padding:2px 0 2px 10px;border-left:2px solid #EDE9E1;margin-bottom:3px}
+  .chiffres{font-size:12px;color:#9A9488;border-top:1px solid #F0ECE4;padding-top:8px;margin-top:12px}
+  @media print{body{background:#fff;padding:0}article{border:none;border-bottom:1px solid #ddd;border-radius:0}}
+</style></head><body><div class="wrap">
+<h1>📖 Mon journal</h1>
+<div class="sub">${nbJours} journées · export du ${today}</div>
+${body}
+</div></body></html>`;
+
+    const dstr = new Date().toISOString().slice(0,10);
+    downloadBlob(html, `mon-journal_${dstr}.html`, 'text/html');
+    exportStatus(`✅ ${nbJours} journées exportées`);
+  } catch(e){
+    exportStatus('❌ Échec : ' + e.message + '. Vérifie ta connexion et réessaie.');
+  }
+}
+
+// ── IDÉES CADEAUX (regroupées par personne) ──
+let giftItems = [];
+function openGifts(){
+  document.getElementById('gifts-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  loadGifts();
+}
+function closeGifts(){
+  document.getElementById('gifts-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadGifts(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.gifts_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    giftItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ giftItems = []; }
+  renderGifts();
+}
+async function saveGifts(){
+  const payload = {data: {list: giftItems}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.gifts_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.gifts_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'gifts_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addGift(){
+  const who = document.getElementById('gift-who').value.trim();
+  const idea = document.getElementById('gift-idea').value.trim();
+  if(!who || !idea) return;
+  giftItems.push({id: uid(), who, idea, done: false});
+  document.getElementById('gift-idea').value = '';
+  renderGifts();
+  saveGifts();
+  document.getElementById('gift-idea').focus();
+}
+function toggleGift(id){
+  const g = giftItems.find(x => x.id === id);
+  if(g) g.done = !g.done;
+  renderGifts();
+  saveGifts();
+}
+function delGift(id){
+  giftItems = giftItems.filter(x => x.id !== id);
+  renderGifts();
+  saveGifts();
+}
+function renderGifts(){
+  const el = document.getElementById('gift-list');
+  if(giftItems.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Note les idées quand tu les entends 🎁<br>Tu les retrouveras au bon moment.</div>';
+    return;
+  }
+  // Regroupe par personne (insensible à la casse)
+  const groups = {};
+  giftItems.forEach(g => {
+    const key = (g.who||'').trim().toLowerCase();
+    if(!groups[key]) groups[key] = {who: g.who, items: []};
+    groups[key].items.push(g);
+  });
+  // Trie : personnes avec le plus d'idées non offertes d'abord
+  const sorted = Object.values(groups).sort((a,b) => {
+    const na = a.items.filter(x=>!x.done).length, nb = b.items.filter(x=>!x.done).length;
+    return nb - na;
+  });
+  el.innerHTML = sorted.map(gr => {
+    const todo = gr.items.filter(x => !x.done).length;
+    const lines = gr.items.map(g => `<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-top:1px solid #F0ECE4">
+      <span onclick="toggleGift(${g.id})" style="cursor:pointer;font-size:17px">${g.done?'✅':'⬜'}</span>
+      <span onclick="toggleGift(${g.id})" style="flex:1;cursor:pointer;font-size:13px;color:#1A1814;${g.done?'text-decoration:line-through;color:#B0AA9E':''}">${(g.idea||'').replace(/</g,'&lt;')}</span>
+      <span onclick="delGift(${g.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
+    </div>`).join('');
+    return `<div style="background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:15px;font-weight:700;color:#1A1814">${(gr.who||'').replace(/</g,'&lt;')}</span>
+        <span style="font-size:11px;color:${todo>0?'#B8688A':'#B0AA9E'};font-weight:600">${todo>0? todo+' idée'+(todo>1?'s':'') : 'tout offert'}</span>
+      </div>
+      ${lines}
+    </div>`;
+  }).join('');
+}
+
 // ── ANNIVERSAIRES ──
 let bdayItems = [];
 const BDAY_MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 function openBdays(){
   document.getElementById('bdays-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  // Remplir les selects jour/mois une seule fois
-  const daySel = document.getElementById('bday-day');
-  const monthSel = document.getElementById('bday-month');
-  if(daySel.options.length === 0){
-    daySel.innerHTML = '<option value="">Jour</option>' + Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
-    monthSel.innerHTML = '<option value="">Mois</option>' + BDAY_MOIS.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');
-  }
   loadBdays();
 }
 function closeBdays(){
@@ -3173,20 +3472,30 @@ async function saveBdays(){
 }
 function addBday(){
   const name = document.getElementById('bday-name').value.trim();
-  const day = parseInt(document.getElementById('bday-day').value);
-  const month = parseInt(document.getElementById('bday-month').value);
-  if(!name || !day || !month){ alert('Indique au moins un nom, un jour et un mois'); return; }
+  const raw = document.getElementById('bday-date').value.trim();
+  if(!name){ alert('Indique un nom'); return; }
+  // Accepte 14/03, 14-03, 14.03, 14 03 ou 1403
+  const digits = raw.replace(/[^0-9]/g,'');
+  let day, month;
+  if(digits.length === 4){ day = parseInt(digits.slice(0,2)); month = parseInt(digits.slice(2,4)); }
+  else if(digits.length === 3){ day = parseInt(digits.slice(0,1)); month = parseInt(digits.slice(1,3)); }
+  else { alert('Date au format JJ/MM (ex : 14/03)'); return; }
+  if(!day || !month || day < 1 || day > 31 || month < 1 || month > 12){
+    alert('Date invalide. Format JJ/MM (ex : 14/03)'); return;
+  }
   bdayItems.push({id: uid(), name, day, month});
   document.getElementById('bday-name').value = '';
-  document.getElementById('bday-day').value = '';
-  document.getElementById('bday-month').value = '';
+  document.getElementById('bday-date').value = '';
   renderBdays();
   saveBdays();
+  updateBdayBanner();
+  document.getElementById('bday-name').focus();
 }
 function delBday(id){
   bdayItems = bdayItems.filter(b => b.id !== id);
   renderBdays();
   saveBdays();
+  updateBdayBanner();
 }
 function renderBdays(){
   const el = document.getElementById('bday-list');
@@ -3220,6 +3529,35 @@ function renderBdays(){
     </div>`;
   }).join('');
 }
+
+// Bandeau "anniversaire aujourd'hui" sur la page principale
+function updateBdayBanner(){
+  const banner = document.getElementById('bday-banner');
+  const txt = document.getElementById('bday-banner-txt');
+  if(!banner || !txt) return;
+  const now = new Date();
+  const d = now.getDate(), m = now.getMonth() + 1;
+  const todays = bdayItems.filter(b => b.day === d && b.month === m);
+  if(todays.length === 0){ banner.style.display = 'none'; return; }
+  const names = todays.map(b => b.name);
+  let liste;
+  if(names.length === 1) liste = names[0];
+  else if(names.length === 2) liste = names[0] + ' et ' + names[1];
+  else liste = names.slice(0,-1).join(', ') + ' et ' + names[names.length-1];
+  txt.textContent = `🎂 Aujourd'hui c'est l'anniversaire de ${liste}`;
+  banner.style.display = 'block';
+}
+// Charge les anniversaires au démarrage (pour le bandeau)
+(async function initBdays(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.bdays_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    bdayItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){}
+  updateBdayBanner();
+})();
 
 // ── MES PLATS (liste manuelle sauvegardée) ──
 let mealItems = [];
@@ -4039,6 +4377,80 @@ async function loadSleepChart(){
   }
 }
 loadSleepChart();
+
+// ── GRAPHIQUE POIDS (tendance long terme depuis le début) ──
+async function loadWeightChart(){
+  const svg = document.getElementById('weight-chart');
+  const info = document.getElementById('weight-info');
+  if(!svg) return;
+  try {
+    // Récupère toutes les entrées journalières (dates au format AAAA-MM-JJ)
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=gte.2024-01-01&select=date,data&order=date.asc`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+      cache: 'no-store'
+    });
+    const rows = await r.json();
+    if(!Array.isArray(rows)) throw new Error('réponse invalide');
+    // Garde uniquement les jours avec un poids
+    const pts = [];
+    rows.forEach(row => {
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(row.date)) return; // ignore les clés globales
+      const p = parseFloat(row.data && row.data.poids);
+      if(p > 0) pts.push({date: row.date, p});
+    });
+    if(pts.length === 0){
+      svg.innerHTML = '<text x="150" y="40" font-size="10" fill="#B0AA9E" text-anchor="middle" font-family="sans-serif">Encode ton poids pour voir la tendance</text>';
+      if(info) info.textContent = '';
+      return;
+    }
+
+    const W = 300, H = 70, padX = 16, padTop = 10, padBottom = 14;
+    const vals = pts.map(x => x.p);
+    let minV = Math.min(...vals), maxV = Math.max(...vals);
+    // Marge verticale pour que la courbe respire
+    const span = Math.max(maxV - minV, 2);
+    minV -= span * 0.15; maxV += span * 0.15;
+
+    const xFor = (i) => pts.length === 1 ? W/2 : padX + i * ((W - padX*2) / (pts.length - 1));
+    const yFor = (v) => H - padBottom - ((v - minV) / (maxV - minV)) * (H - padTop - padBottom);
+
+    // Ligne
+    let path = '';
+    pts.forEach((pt, i) => {
+      path += (i === 0 ? 'M' : 'L') + xFor(i).toFixed(1) + ',' + yFor(pt.p).toFixed(1) + ' ';
+    });
+    // Points (limités visuellement si beaucoup de données)
+    let dots = '';
+    const showEvery = Math.max(1, Math.ceil(pts.length / 40));
+    pts.forEach((pt, i) => {
+      if(i % showEvery === 0 || i === pts.length-1){
+        dots += `<circle cx="${xFor(i).toFixed(1)}" cy="${yFor(pt.p).toFixed(1)}" r="1.6" fill="#7A93B8"/>`;
+      }
+    });
+    // Dernier point mis en valeur
+    const last = pts[pts.length-1];
+    dots += `<circle cx="${xFor(pts.length-1).toFixed(1)}" cy="${yFor(last.p).toFixed(1)}" r="2.8" fill="#2D7A4F"/>`;
+    dots += `<text x="${xFor(pts.length-1).toFixed(1)}" y="${(yFor(last.p)-6).toFixed(1)}" font-size="7.5" fill="#2D7A4F" text-anchor="end" font-family="sans-serif" font-weight="bold">${last.p} kg</text>`;
+
+    // Étiquettes de dates (première et dernière)
+    const fmtD = (ds) => { const d = new Date(ds+'T12:00:00'); return d.getDate()+'/'+(d.getMonth()+1)+'/'+String(d.getFullYear()).slice(2); };
+    let labels = `<text x="${padX}" y="${H-3}" font-size="6.5" fill="#C4BDB0" text-anchor="start" font-family="sans-serif">${fmtD(pts[0].date)}</text>`;
+    if(pts.length > 1) labels += `<text x="${W-padX}" y="${H-3}" font-size="6.5" fill="#C4BDB0" text-anchor="end" font-family="sans-serif">${fmtD(last.date)}</text>`;
+
+    svg.innerHTML = `<path d="${path.trim()}" fill="none" stroke="#7A93B8" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}`;
+
+    // Info : variation depuis le début
+    if(info){
+      const delta = last.p - pts[0].p;
+      const sign = delta > 0 ? '+' : '';
+      const col = delta > 0 ? '#D4694A' : delta < 0 ? '#2D7A4F' : '#9A9488';
+      info.innerHTML = `<span style="color:${col};font-weight:600">${sign}${delta.toFixed(1)} kg</span> depuis le début`;
+    }
+  } catch(e){
+    svg.innerHTML = '<text x="150" y="40" font-size="10" fill="#B0AA9E" text-anchor="middle" font-family="sans-serif">Données indisponibles</text>';
+  }
+}
+loadWeightChart();
 
 loadStrava();
 
