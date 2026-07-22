@@ -143,6 +143,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openBaby()" title="Checklist enfants">👶</div>
       <div onclick="openLends()" title="Objets prêtés">📦</div>
       <div onclick="openReno()" title="Travaux maison">🚧</div>
+      <div onclick="openBudget()" title="Budget travaux">🧾</div>
       <div onclick="openMeals()" title="Mes plats">🍽️</div>
       <div onclick="openBdays()" title="Anniversaires">🎂</div>
       <div onclick="openGifts()" title="Idées cadeaux">🎁</div>
@@ -395,6 +396,26 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <button onclick="addMeal()" style="font-size:18px;padding:0 16px;background:#3D8C5E;color:#fff;border:none;border-radius:10px;cursor:pointer">+</button>
     </div>
     <div id="meal-list"></div>
+  </div>
+</div>
+
+<!-- BUDGET TRAVAUX (overlay) -->
+<div id="budget-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🧾 Budget travaux</span>
+    <div onclick="closeBudget()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:640px;margin:0 auto">
+    <div id="budget-totaux" style="margin-bottom:1.25rem"></div>
+    <div id="budget-list"></div>
+    <div style="background:#fff;border:1px dashed #E2DDD4;border-radius:12px;padding:14px;margin-top:1rem">
+      <div style="font-size:12px;font-weight:700;color:#7A7468;margin-bottom:8px">➕ Nouveau poste</div>
+      <input id="bud-nom" type="text" placeholder="Libellé du poste" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px">
+        <input id="bud-montant" type="number" step="0.01" inputmode="decimal" placeholder="Montant €" onkeydown="if(event.key==='Enter')addBudget()" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+        <button onclick="addBudget()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:9px 22px;background:#7A6A55;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1840,6 +1861,192 @@ function openBilan(){
 function closeBilan(){
   document.getElementById('bilan-overlay').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+// ── BUDGET TRAVAUX ──
+// Chaque poste : montant, fait (réalisé), paye, pret (financé par le prêt), avance ('' | 'geo' | 'anouck' | 'commun')
+const BUDGET_SEED = [
+  {nom:'Électricité',                       montant:1027.14},
+  {nom:'Isolation des combles',             montant:23966.60},
+  {nom:'Jardin',                            montant:1500.00},
+  {nom:'Maçonnerie',                        montant:21424.92},
+  {nom:'Isolation des murs extérieurs',     montant:32711.13},
+  {nom:'Déplacement du compteur électrique',montant:1136.55},
+  {nom:'Changement des châssis',            montant:77301.25},
+  {nom:'Pente de toit + Velux',             montant:6693.73},
+];
+const AVANCEURS = {geo:{label:'Moi',color:'#3D7EA6'}, anouck:{label:'Anouck',color:'#C25E7A'}, commun:{label:'Commun',color:'#6B8E5A'}};
+let budgetItems = [];
+function openBudget(){
+  document.getElementById('budget-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  loadBudget();
+}
+function closeBudget(){
+  document.getElementById('budget-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadBudget(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.budget_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+      cache: 'no-store'
+    });
+    const rows = await r.json();
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    budgetItems = d.list || [];
+    if(!d.seeded && budgetItems.length === 0){
+      budgetItems = BUDGET_SEED.map(p => ({id: uid(), nom:p.nom, montant:p.montant, fait:false, paye:false, pret:false, avance:''}));
+      await saveBudget(true);
+    }
+  } catch(e){ budgetItems = []; }
+  renderBudget();
+}
+async function saveBudget(seeded){
+  const payload = {data: {list: budgetItems, seeded: true}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.budget_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.budget_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'budget_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addBudget(){
+  const nom = document.getElementById('bud-nom').value.trim();
+  const montant = parseFloat((document.getElementById('bud-montant').value||'').replace(',','.')) || 0;
+  if(!nom) return;
+  budgetItems.push({id: uid(), nom, montant, fait:false, paye:false, pret:false, avance:''});
+  document.getElementById('bud-nom').value = '';
+  document.getElementById('bud-montant').value = '';
+  renderBudget();
+  saveBudget();
+  document.getElementById('bud-nom').focus();
+}
+function delBudget(id){
+  budgetItems = budgetItems.filter(b => b.id !== id);
+  renderBudget();
+  saveBudget();
+}
+function toggleBudget(id, champ){
+  const b = budgetItems.find(x => x.id === id);
+  if(b){ b[champ] = !b[champ]; renderBudget(); saveBudget(); }
+}
+function setAvance(id, qui){
+  const b = budgetItems.find(x => x.id === id);
+  if(b){ b.avance = (b.avance === qui) ? '' : qui; renderBudget(); saveBudget(); }
+}
+function editMontant(id, val){
+  const b = budgetItems.find(x => x.id === id);
+  if(b){ b.montant = parseFloat((val||'').replace(',','.')) || 0; renderBudget(); saveBudget(); }
+}
+const eur = (n) => n.toLocaleString('fr-BE', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
+const eurCourt = (n) => Math.round(n).toLocaleString('fr-BE') + ' €';
+
+function renderBudget(){
+  const totEl = document.getElementById('budget-totaux');
+  const el = document.getElementById('budget-list');
+  if(!totEl || !el) return;
+
+  const S = (f) => budgetItems.filter(f).reduce((s,b) => s + (b.montant||0), 0);
+  const total     = S(() => true);
+  const paye      = S(b => b.paye);
+  const restePaye = S(b => !b.paye);
+  const fait      = S(b => b.fait);
+  const resteFait = S(b => !b.fait);
+  const pret      = S(b => b.pret);
+  const horsPret  = S(b => !b.pret);
+  const parGeo    = S(b => b.avance === 'geo');
+  const parAnouck = S(b => b.avance === 'anouck');
+  const parCommun = S(b => b.avance === 'commun');
+  const nonAttrib = S(b => !b.avance);
+  const pctPaye = total ? Math.round(paye/total*100) : 0;
+  const pctFait = total ? Math.round(fait/total*100) : 0;
+
+  const bloc = (titre, a, aLbl, b, bLbl, cA, cB, pct) => `
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:700;color:#7A7468;text-transform:uppercase;letter-spacing:.05em">${titre}</span>
+        <span style="font-size:11px;color:#9A9488">${pct}%</span>
+      </div>
+      <div style="height:9px;background:#EDE9E1;border-radius:5px;overflow:hidden;margin-bottom:9px">
+        <div style="height:100%;width:${pct}%;background:${cA};border-radius:5px;transition:width .3s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span style="color:${cA};font-weight:700">${eurCourt(a)}<span style="font-weight:400;color:#9A9488;font-size:11px"> ${aLbl}</span></span>
+        <span style="color:${cB};font-weight:700">${eurCourt(b)}<span style="font-weight:400;color:#9A9488;font-size:11px"> ${bLbl}</span></span>
+      </div>
+    </div>`;
+
+  let html = `<div style="background:#1A1814;border-radius:14px;padding:16px 18px;margin-bottom:12px;text-align:center">
+    <div style="font-size:11px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em">Total des travaux</div>
+    <div style="font-size:30px;font-weight:800;color:#fff;line-height:1.2;margin-top:2px">${eur(total)}</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px">${budgetItems.length} poste${budgetItems.length>1?'s':''}</div>
+  </div>`;
+
+  html += bloc('Paiement', paye, 'payé', restePaye, 'à payer', '#2D7A4F', '#D4694A', pctPaye);
+  html += bloc('Réalisation', fait, 'réalisé', resteFait, 'à faire', '#3D7EA6', '#C4A030', pctFait);
+  html += bloc('Financement', pret, 'dans le prêt', horsPret, 'hors prêt', '#6B5B95', '#7A6A55', total ? Math.round(pret/total*100) : 0);
+
+  // Qui a avancé
+  html += `<div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:10px">
+    <div style="font-size:12px;font-weight:700;color:#7A7468;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Qui a avancé</div>
+    <div style="display:flex;gap:8px;text-align:center">
+      <div style="flex:1"><div style="font-size:16px;font-weight:800;color:#3D7EA6">${eurCourt(parGeo)}</div><div style="font-size:10px;color:#9A9488">Moi</div></div>
+      <div style="flex:1"><div style="font-size:16px;font-weight:800;color:#C25E7A">${eurCourt(parAnouck)}</div><div style="font-size:10px;color:#9A9488">Anouck</div></div>
+      <div style="flex:1"><div style="font-size:16px;font-weight:800;color:#6B8E5A">${eurCourt(parCommun)}</div><div style="font-size:10px;color:#9A9488">Commun</div></div>
+      <div style="flex:1"><div style="font-size:16px;font-weight:800;color:#C4BDB0">${eurCourt(nonAttrib)}</div><div style="font-size:10px;color:#9A9488">Non attribué</div></div>
+    </div>
+  </div>`;
+  totEl.innerHTML = html;
+
+  // Liste des postes
+  if(budgetItems.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:1.5rem">Aucun poste. Ajoute le premier ci-dessous.</div>';
+    return;
+  }
+  const sorted = [...budgetItems].sort((a,b) => (b.montant||0) - (a.montant||0));
+  el.innerHTML = sorted.map(b => {
+    const tag = (champ, onLbl, offLbl, col) => {
+      const on = b[champ];
+      return `<span onclick="toggleBudget(${b.id},'${champ}')" style="cursor:pointer;font-size:11px;font-weight:600;padding:4px 10px;border-radius:14px;border:1.5px solid ${on?col:'#E2DDD4'};background:${on?col:'#fff'};color:${on?'#fff':'#B0AA9E'}">${on?onLbl:offLbl}</span>`;
+    };
+    const avChips = Object.keys(AVANCEURS).map(k => {
+      const a = AVANCEURS[k];
+      const on = b.avance === k;
+      return `<span onclick="setAvance(${b.id},'${k}')" style="cursor:pointer;font-size:11px;font-weight:600;padding:4px 10px;border-radius:14px;border:1.5px solid ${on?a.color:'#E2DDD4'};background:${on?a.color:'#fff'};color:${on?'#fff':'#B0AA9E'}">${a.label}</span>`;
+    }).join('');
+    return `<div style="background:#fff;border:1px solid #EDE9E1;border-left:3px solid ${b.paye?'#2D7A4F':'#E2DDD4'};border-radius:10px;padding:13px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:9px">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;color:#1A1814;line-height:1.35">${(b.nom||'').replace(/</g,'&lt;')}</div>
+          <input type="text" value="${(b.montant||0).toString().replace('.',',')}" onblur="editMontant(${b.id},this.value)" style="width:110px;margin-top:4px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#7A6A55;padding:2px 6px;border:1px solid transparent;border-radius:6px;background:#F5F2EC;outline:none">
+          <span style="font-size:13px;font-weight:700;color:#7A6A55">€</span>
+        </div>
+        <span onclick="delBudget(${b.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
+        ${tag('fait','✓ Réalisé','À faire','#3D7EA6')}
+        ${tag('paye','✓ Payé','À payer','#2D7A4F')}
+        ${tag('pret','Dans le prêt','Hors prêt','#6B5B95')}
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:10px;color:#C4BDB0;margin-right:2px">Avancé par</span>${avChips}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── TRAVAUX MAISON (suivi par pièce, 4 catégories) ──
