@@ -128,7 +128,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <div style="display:flex;justify-content:space-between;align-items:flex-start">
     <div class="hdr-date"><span id="hdr-day"></span><br><em id="hdr-date"></em></div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:60%">
-      <div onclick="openTodo()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes tâches">✅</div>
+      <div onclick="openTodo()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Envies &amp; projets">✨</div>
+      <div onclick="openFond()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Fondations">🧭</div>
       <div onclick="openWatch()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="À regarder">🎥</div>
       <div onclick="openDreams()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes rêves">🌍</div>
       <div onclick="openWins()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes fiertés">🏆</div>
@@ -510,14 +511,27 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- TODO MATRICE EISENHOWER (overlay) -->
+<!-- FONDATIONS (overlay) -->
+<div id="fond-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🧭 Fondations</span>
+    <div onclick="closeFond()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1.25rem;line-height:1.5">Le socle. Ce qui oriente tout le reste — à écrire une fois, à relire souvent.</div>
+    <div id="fond-list"></div>
+  </div>
+</div>
+
 <div id="todo-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
-    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">✅ Mes tâches</span>
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">✨ Envies &amp; projets</span>
     <div onclick="closeTodo()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
   </div>
   <div style="padding:1rem 1.25rem;max-width:700px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem">Important mais sans date. Ce qui compte vraiment et que le quotidien écrase.</div>
     <div style="display:flex;gap:6px;margin-bottom:1rem">
-      <input id="todo-input" type="text" placeholder="Une idée, une tâche... (Entrée pour ajouter)" style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none" onkeydown="if(event.key==='Enter')addTodo()">
+      <input id="todo-input" type="text" placeholder="Une envie, un projet... (Entrée pour ajouter)" style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none" onkeydown="if(event.key==='Enter')addTodo()">
       <button onclick="addTodo()" style="font-family:'DM Sans',sans-serif;font-size:16px;padding:0 14px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
     </div>
     <div id="todo-matrix"></div>
@@ -3763,16 +3777,74 @@ function beepTabata(freq){
 }
 
 
-// ── TODO MATRICE EISENHOWER ──
-const QUADS = {
-  inbox: {titre:'📥 À trier', sous:'Glisse vers un quadrant', color:'#7A7468', bg:'#FFFFFF'},
-  q1: {titre:'🔴 Urgent + Important', sous:'À faire maintenant', color:'#D4694A', bg:'#FBEEE9'},
-  q2: {titre:'🔵 Important, pas urgent', sous:'À planifier', color:'#2D7A4F', bg:'#E9F3ED'},
-  q3: {titre:'🟡 Urgent, pas important', sous:'À déléguer si possible', color:'#C4A030', bg:'#FAF4E2'},
-  q4: {titre:"⚪ Ni urgent ni important", sous:'À limiter', color:'#9A9488', bg:'#F0EDE7'},
-};
+// ── FONDATIONS (le socle) ──
+const FOND_BLOCS = [
+  {key:'objectifs', titre:'🎯 5 objectifs pour les 10 prochaines années', hint:'Où veux-tu être en 2036 ?', rows:6},
+  {key:'forces',    titre:'💪 Mes points forts', hint:'Ce sur quoi tu peux compter', rows:5},
+  {key:'faibles',   titre:'🪫 Mes points faibles', hint:'Ce que tu sais devoir surveiller', rows:5},
+  {key:'reves',     titre:'🌟 Mes rêves', hint:'Sans filtre, sans réalisme', rows:6},
+  {key:'joie',      titre:'☀️ Ce qui m\'apporte de la joie', hint:'Les choses simples qui marchent à tous les coups', rows:5},
+];
+let fondData = {};
+function openFond(){
+  document.getElementById('fond-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  loadFond();
+}
+function closeFond(){
+  document.getElementById('fond-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadFond(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.fondations_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+      cache: 'no-store'
+    });
+    const rows = await r.json();
+    fondData = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+  } catch(e){ fondData = {}; }
+  renderFond();
+}
+async function saveFond(key, value){
+  fondData[key] = value;
+  const payload = {data: fondData};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.fondations_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.fondations_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'fondations_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function renderFond(){
+  const el = document.getElementById('fond-list');
+  if(!el) return;
+  el.innerHTML = FOND_BLOCS.map(b => {
+    const val = (fondData[b.key] || '').replace(/</g,'&lt;');
+    const rempli = val.trim().length > 0;
+    return `<div style="background:#fff;border:1px solid ${rempli?'#D8E4DC':'#E2DDD4'};border-radius:12px;padding:14px 16px;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:700;color:#1A1814;margin-bottom:2px">${b.titre}</div>
+      <div style="font-size:11px;color:#B0AA9E;margin-bottom:8px">${b.hint}</div>
+      <textarea rows="${b.rows}" placeholder="À toi d'écrire..." onblur="saveFond('${b.key}',this.value)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:vertical;outline:none;line-height:1.6">${val}</textarea>
+    </div>`;
+  }).join('');
+}
+
+// ── ENVIES & PROJETS ──
 let todos = [];
-let draggedId = null;
 
 async function openTodo(){
   document.getElementById('todo-overlay').style.display = 'block';
@@ -3804,22 +3876,21 @@ async function loadTodos(){
       if(it.id == null || seenT.has(it.id)){ it.id = uid(); repairedT = true; }
       seenT.add(it.id);
     });
-    // Dédupliquer les tâches identiques accumulées (texte + quad inbox uniquement)
+    // Dédupliquer les entrées identiques accumulées
     const seenTxt = {};
     const before = todos.length;
     todos = todos.filter(it => {
-      const key = it.txt + '|' + it.quad;
-      if(it.quad === 'inbox'){
-        if(seenTxt[it.txt]) return false;
-        seenTxt[it.txt] = true;
-      }
+      if(seenTxt[it.txt]) return false;
+      seenTxt[it.txt] = true;
       return true;
     });
+    // Nettoie l'ancien champ quad (matrice Eisenhower supprimée)
+    todos.forEach(it => { if(it.quad !== undefined){ delete it.quad; repairedT = true; } });
     if(todos.length !== before) repairedT = true;
     if(repairedT) await saveTodos();
     // Pré-chargement unique des tâches TickTick (seulement si jamais initialisé ET liste vide)
     if(!d.seeded && todos.length === 0){
-      TODO_SEED.forEach((txt) => todos.push({id: uid(), txt, quad:'inbox', done:false}));
+      TODO_SEED.forEach((txt) => todos.push({id: uid(), txt, done:false}));
       await saveTodosSeeded();
     } else if(!d.seeded){
       // Données déjà présentes mais sans marqueur : on marque sans réinjecter le seed
@@ -3877,7 +3948,7 @@ function addTodo(){
   const inp = document.getElementById('todo-input');
   const txt = inp.value.trim();
   if(!txt) return;
-  todos.push({id: Date.now(), txt, quad: 'inbox', done: false});
+  todos.push({id: Date.now(), txt, done: false});
   inp.value = '';
   renderTodos();
   saveTodos();
@@ -3893,57 +3964,32 @@ function delTodo(id){
   renderTodos();
   saveTodos();
 }
-function moveTodo(id, newQuad){
-  const t = todos.find(t => t.id === id);
-  if(t && t.quad !== newQuad){ t.quad = newQuad; renderTodos(); saveTodos(); }
-}
-
-// Drag desktop
-function onDragStart(e, id){ draggedId = id; e.dataTransfer.effectAllowed='move'; }
-function onDrop(e, quad){ e.preventDefault(); if(draggedId!==null){ moveTodo(draggedId, quad); draggedId=null; } }
-function allowDrop(e){ e.preventDefault(); }
-
-// Drag tactile
-let touchEl = null;
-function onTouchStart(e, id){ draggedId = id; touchEl = e.currentTarget; touchEl.style.opacity='0.5'; }
-function onTouchMove(e){ e.preventDefault(); }
-function onTouchEnd(e){
-  if(touchEl){ touchEl.style.opacity='1'; }
-  const t = e.changedTouches[0];
-  const el = document.elementFromPoint(t.clientX, t.clientY);
-  const zone = el && el.closest('[data-quad]');
-  if(zone && draggedId!==null){ moveTodo(draggedId, zone.getAttribute('data-quad')); }
-  draggedId = null; touchEl = null;
-}
 
 function renderTodos(){
   const matrix = document.getElementById('todo-matrix');
-  let html = '';
-  // Inbox en pleine largeur en haut
-  const inboxItems = todos.filter(t => t.quad === 'inbox');
-  const q = QUADS.inbox;
-  html += `<div data-quad="inbox" ondrop="onDrop(event,'inbox')" ondragover="allowDrop(event)" style="background:${q.bg};border:2px dashed #E2DDD4;border-radius:10px;padding:10px;margin-bottom:12px;min-height:60px">
-    <div style="font-size:11px;font-weight:700;color:${q.color};margin-bottom:8px">${q.titre} <span style="font-weight:400;color:#B0AA9E">· ${q.sous}</span></div>${renderItems(inboxItems)}</div>`;
-  // 4 quadrants en grille
-  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
-  for(const key of ['q1','q2','q3','q4']){
-    const qq = QUADS[key];
-    const items = todos.filter(t => t.quad === key);
-    html += `<div data-quad="${key}" ondrop="onDrop(event,'${key}')" ondragover="allowDrop(event)" style="background:${qq.bg};border-radius:10px;padding:10px;min-height:120px">
-      <div style="font-size:11px;font-weight:700;color:${qq.color};margin-bottom:2px">${qq.titre}</div>
-      <div style="font-size:9px;color:#B0AA9E;margin-bottom:8px">${qq.sous}</div>${renderItems(items)}</div>`;
+  if(!matrix) return;
+  if(todos.length === 0){
+    matrix.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Rien pour l\'instant.<br>Note ici ce qui compte mais qui n\'a pas de date.</div>';
+    return;
   }
-  html += '</div>';
+  const actifs = todos.filter(t => !t.done);
+  const faits = todos.filter(t => t.done);
+  let html = '';
+  html += renderItems(actifs);
+  if(faits.length){
+    html += `<div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0AA9E;margin:1.25rem 0 .5rem">Réalisé · ${faits.length}</div>`;
+    html += renderItems(faits);
+  }
   matrix.innerHTML = html;
 }
 function renderItems(items){
-  if(items.length === 0) return `<div style="font-size:10px;color:#C4BDB0;font-style:italic">Vide</div>`;
+  if(items.length === 0) return '';
   let h = '';
   for(const t of items){
-    h += `<div draggable="true" ondragstart="onDragStart(event,${t.id})" ontouchstart="onTouchStart(event,${t.id})" ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)" style="display:flex;align-items:flex-start;gap:5px;margin-bottom:6px;background:#fff;border:1px solid #EDE9E1;border-radius:6px;padding:6px 7px;cursor:grab;touch-action:none">
-      <span onclick="toggleTodo(${t.id})" style="cursor:pointer;font-size:13px;line-height:1.3">${t.done?'✅':'⬜'}</span>
-      <span style="flex:1;font-size:12px;color:#3A3631;line-height:1.3;${t.done?'text-decoration:line-through;color:#B0AA9E':''}">${t.txt}</span>
-      <span onclick="delTodo(${t.id})" style="cursor:pointer;font-size:11px;color:#C4BDB0">✕</span>
+    h += `<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:12px 14px">
+      <span onclick="toggleTodo(${t.id})" style="cursor:pointer;font-size:18px;line-height:1.2">${t.done?'✅':'⬜'}</span>
+      <span onclick="toggleTodo(${t.id})" style="flex:1;cursor:pointer;font-size:14px;color:#1A1814;line-height:1.4;${t.done?'text-decoration:line-through;color:#B0AA9E':''}">${(t.txt||'').replace(/</g,'&lt;')}</span>
+      <span onclick="delTodo(${t.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
     </div>`;
   }
   return h;
