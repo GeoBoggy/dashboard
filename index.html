@@ -12,6 +12,11 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .top-header{padding:1.1rem 1.25rem .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:sticky;top:0;z-index:20}
 .hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
 .hdr-date em{font-style:italic;color:#7A7468;font-size:.95rem}
+.hdr-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:2px}
+.hdr-icons>div{font-size:23px;line-height:1;cursor:pointer;text-align:center;padding:7px 0;border-radius:9px;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.hdr-icons>div:active{background:#F0EDE7}
+@media(min-width:560px){.hdr-icons{grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:4px}}
+@media(hover:hover){.hdr-icons>div:hover{background:#F5F2EC}}
 .hdr-bar{display:flex;align-items:center;gap:.75rem;margin-top:.45rem}
 .bar-track{flex:1;height:4px;background:#E2DDD4;border-radius:2px;overflow:hidden}
 .bar-fill{height:100%;background:#2D6A4F;border-radius:2px;transition:width .4s}
@@ -125,27 +130,25 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </svg>
 
 <div class="top-header">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start">
-    <div class="hdr-date"><span id="hdr-day"></span><br><em id="hdr-date"></em></div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;max-width:60%">
-      <div onclick="openTodo()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Envies &amp; projets">✨</div>
-      <div onclick="openFond()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Fondations">🧭</div>
-      <div onclick="openWatch()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="À regarder">🎥</div>
-      <div onclick="openDreams()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes rêves">🌍</div>
-      <div onclick="openWins()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes fiertés">🏆</div>
-      <div onclick="openBooks()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes lectures">📚</div>
-      <div onclick="openDebts()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes dettes">💰</div>
-      <div onclick="openShop()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Liste de courses">🛒</div>
-      <div onclick="openBaby()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Checklist enfants">👶</div>
-      <div onclick="openLends()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Objets prêtés">📦</div>
-      <div onclick="openReno()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Travaux maison">🚧</div>
-      <div onclick="openMeals()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mes plats">🍽️</div>
-      <div onclick="openBdays()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Anniversaires">🎂</div>
-      <div onclick="openGifts()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Idées cadeaux">🎁</div>
-      <div onclick="openExport()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Sauvegarde">💾</div>
-      <div onclick="openBilan()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Bilan de la semaine">📊</div>
-      <div onclick="openJournal()" style="font-size:22px;cursor:pointer;padding:2px 4px;line-height:1" title="Mon journal">📖</div>
-    </div>
+  <div class="hdr-date" style="margin-bottom:.85rem"><span id="hdr-day"></span><br><em id="hdr-date"></em></div>
+  <div class="hdr-icons">
+      <div onclick="openTodo()" title="Envies &amp; projets">✨</div>
+      <div onclick="openFond()" title="Fondations">🧭</div>
+      <div onclick="openWatch()" title="À regarder">🎥</div>
+      <div onclick="openDreams()" title="Mes rêves">🌍</div>
+      <div onclick="openWins()" title="Mes fiertés">🏆</div>
+      <div onclick="openBooks()" title="Mes lectures">📚</div>
+      <div onclick="openDebts()" title="Mes dettes">💰</div>
+      <div onclick="openShop()" title="Liste de courses">🛒</div>
+      <div onclick="openBaby()" title="Checklist enfants">👶</div>
+      <div onclick="openLends()" title="Objets prêtés">📦</div>
+      <div onclick="openReno()" title="Travaux maison">🚧</div>
+      <div onclick="openMeals()" title="Mes plats">🍽️</div>
+      <div onclick="openBdays()" title="Anniversaires">🎂</div>
+      <div onclick="openGifts()" title="Idées cadeaux">🎁</div>
+      <div onclick="openExport()" title="Sauvegarde">💾</div>
+      <div onclick="openBilan()" title="Bilan de la semaine">📊</div>
+      <div onclick="openJournal()" title="Mon journal">📖</div>
   </div>
   <div class="hdr-bar">
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
