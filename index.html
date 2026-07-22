@@ -266,7 +266,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div style="display:flex;gap:6px;margin-bottom:.5rem">
       <input id="win-input" type="text" placeholder="Une réalisation, un accomplissement..." style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none">
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:1rem;align-items:center">
+    <div id="win-cat-picker" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.6rem"></div>
+    <div style="display:flex;gap:6px;margin-bottom:1.25rem;align-items:center">
       <span style="font-size:12px;color:#7A7468">📅 Date :</span>
       <input id="win-date" type="date" style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none">
       <button onclick="addWin()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;background:#C4A030;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter</button>
@@ -2635,12 +2636,35 @@ async function saveWins(){
     }
   } catch(e){}
 }
+// Catégories de fiertés
+const WIN_CATS = {
+  voyage:  {label:'Voyage',  emoji:'✈️', color:'#3D7EA6'},
+  pro:     {label:'Pro',     emoji:'💼', color:'#6B5B95'},
+  sport:   {label:'Sport',   emoji:'🏃', color:'#2D7A4F'},
+  famille: {label:'Famille', emoji:'👨‍👩‍👧‍👦', color:'#C25E7A'},
+  perso:   {label:'Perso',   emoji:'🏡', color:'#D4832A'},
+  autre:   {label:'À classer', emoji:'⚪', color:'#B0AA9E'},
+};
+let winCatChoice = 'perso';
+function renderWinCatPicker(){
+  const el = document.getElementById('win-cat-picker');
+  if(!el) return;
+  el.innerHTML = Object.keys(WIN_CATS).filter(k => k !== 'autre').map(k => {
+    const c = WIN_CATS[k];
+    const sel = winCatChoice === k;
+    return `<span onclick="winCatChoice='${k}';renderWinCatPicker()" style="cursor:pointer;font-size:12px;font-weight:${sel?'700':'500'};padding:5px 11px;border-radius:20px;border:1.5px solid ${sel?c.color:'#E2DDD4'};background:${sel?c.color:'#fff'};color:${sel?'#fff':'#7A7468'}">${c.emoji} ${c.label}</span>`;
+  }).join('');
+}
+function setWinCat(id, cat){
+  const w = winsItems.find(x => x.id === id);
+  if(w){ w.cat = cat; renderWins(); saveWins(); }
+}
 function addWin(){
   const inp = document.getElementById('win-input');
   const dateInp = document.getElementById('win-date');
   const txt = inp.value.trim();
   if(!txt) return;
-  winsItems.push({id: uid(), txt, date: dateInp.value || new Date().toISOString().slice(0,10)});
+  winsItems.push({id: uid(), txt, cat: winCatChoice, date: dateInp.value || new Date().toISOString().slice(0,10)});
   inp.value = '';
   renderWins();
   saveWins();
@@ -2652,6 +2676,7 @@ function delWin(id){
 }
 function renderWins(){
   const el = document.getElementById('wins-list');
+  renderWinCatPicker();
   if(winsItems.length === 0){
     el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Aucune fierté pour l\'instant.<br>Ajoute ta première réalisation ! 🌟</div>';
     return;
@@ -2659,21 +2684,53 @@ function renderWins(){
   // Trier par date décroissante (plus récent en haut)
   const sorted = [...winsItems].sort((a,b) => (b.date||'').localeCompare(a.date||''));
   const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-  el.innerHTML = sorted.map(w => {
+
+  // Légende
+  const used = new Set(sorted.map(w => w.cat || 'autre'));
+  let html = `<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid #EDE9E1">`;
+  Object.keys(WIN_CATS).forEach(k => {
+    if(!used.has(k)) return;
+    const c = WIN_CATS[k];
+    const n = sorted.filter(w => (w.cat||'autre') === k).length;
+    html += `<span style="font-size:11px;color:#7A7468;display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:${c.color};display:inline-block"></span>${c.label} · ${n}</span>`;
+  });
+  html += `</div>`;
+
+  // Frise verticale continue
+  html += `<div style="position:relative;padding-left:26px">
+    <div style="position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:linear-gradient(#E2DDD4,#EDE9E1)"></div>`;
+
+  sorted.forEach(w => {
+    const cat = w.cat || 'autre';
+    const c = WIN_CATS[cat] || WIN_CATS.autre;
     let dateStr = '';
     if(w.date){
       const d = new Date(w.date + 'T12:00:00');
       dateStr = d.getDate() + ' ' + MOIS[d.getMonth()] + ' ' + d.getFullYear();
     }
-    return `<div style="display:flex;align-items:flex-start;gap:12px;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px;margin-bottom:8px">
-      <div style="font-size:22px;flex-shrink:0">🏆</div>
-      <div style="flex:1">
-        <div style="font-size:14px;color:#1A1814;font-weight:600;line-height:1.4">${w.txt}</div>
-        <div style="font-size:11px;color:#C4A030;font-weight:600;margin-top:3px">${dateStr}</div>
+    // Sélecteur de catégorie compact sur chaque entrée
+    const chips = Object.keys(WIN_CATS).filter(k => k !== 'autre').map(k => {
+      const cc = WIN_CATS[k];
+      const on = cat === k;
+      return `<span onclick="setWinCat(${w.id},'${k}')" title="${cc.label}" style="cursor:pointer;font-size:13px;padding:2px 5px;border-radius:6px;opacity:${on?'1':'.35'};background:${on?cc.color+'22':'transparent'}">${cc.emoji}</span>`;
+    }).join('');
+
+    html += `<div style="position:relative;margin-bottom:10px">
+      <div style="position:absolute;left:-24px;top:15px;width:12px;height:12px;border-radius:50%;background:${c.color};border:2.5px solid #F5F2EC;box-shadow:0 0 0 1.5px ${c.color}55"></div>
+      <div style="background:#fff;border:1px solid #EDE9E1;border-left:3px solid ${c.color};border-radius:10px;padding:12px 14px">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <div style="flex:1">
+            <div style="font-size:14px;color:#1A1814;font-weight:600;line-height:1.4">${(w.txt||'').replace(/</g,'&lt;')}</div>
+            <div style="font-size:11px;color:${c.color};font-weight:600;margin-top:3px">${dateStr}</div>
+          </div>
+          <span onclick="delWin(${w.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+        </div>
+        <div style="display:flex;gap:2px;margin-top:8px;padding-top:7px;border-top:1px solid #F5F2EC">${chips}</div>
       </div>
-      <span onclick="delWin(${w.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
     </div>`;
-  }).join('');
+  });
+  html += `</div>`;
+  el.innerHTML = html;
 }
 
 // ── MES RÊVES (carte pays + mission + objectifs) ──
