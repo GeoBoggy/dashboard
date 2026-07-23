@@ -10,12 +10,12 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-height:100vh;padding-bottom:2rem}
 .top-header{padding:1.1rem 1.25rem .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:sticky;top:0;z-index:20}
-.hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2;white-space:nowrap;flex-shrink:0}
 .hdr-date em{font-style:italic;color:#7A7468;font-size:1.05rem}
-.hdr-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:2px}
-.hdr-icons>div{font-size:23px;line-height:1;cursor:pointer;text-align:center;padding:7px 0;border-radius:9px;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.hdr-top{display:flex;align-items:center;gap:14px;margin-bottom:.85rem}
+.hdr-icons{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:2px}
+.hdr-icons>div{font-size:21px;line-height:1;cursor:pointer;text-align:center;padding:5px 0;border-radius:8px;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .hdr-icons>div:active{background:#F0EDE7}
-@media(min-width:560px){.hdr-icons{grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:4px}}
 @media(hover:hover){.hdr-icons>div:hover{background:#F5F2EC}}
 .hdr-bar{display:flex;align-items:center;gap:.75rem;margin-top:.45rem}
 .bar-track{flex:1;height:4px;background:#E2DDD4;border-radius:2px;overflow:hidden}
@@ -130,8 +130,9 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </svg>
 
 <div class="top-header">
-  <div class="hdr-date" style="margin-bottom:.85rem"><span id="hdr-day"></span> <em id="hdr-date"></em></div>
-  <div class="hdr-icons">
+  <div class="hdr-top">
+    <div class="hdr-date"><span id="hdr-day"></span> <em id="hdr-date"></em></div>
+    <div class="hdr-icons">
       <div onclick="openTodo()" title="Envies &amp; projets">✨</div>
       <div onclick="openFond()" title="Fondations">🧭</div>
       <div onclick="openWatch()" title="À regarder">🎥</div>
@@ -147,9 +148,11 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openMeals()" title="Mes plats">🍽️</div>
       <div onclick="openBdays()" title="Anniversaires">🎂</div>
       <div onclick="openGifts()" title="Idées cadeaux">🎁</div>
+      <div onclick="openAnouck()" title="À dire à Anouck">💬</div>
       <div onclick="openExport()" title="Sauvegarde">💾</div>
       <div onclick="openBilan()" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" title="Mon journal">📖</div>
+    </div>
   </div>
   <div class="hdr-bar">
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
@@ -344,6 +347,22 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
 
     <div id="export-status" style="font-size:12px;color:#7A7468;text-align:center;padding:.5rem"></div>
+  </div>
+</div>
+
+<!-- À DIRE À ANOUCK (overlay) -->
+<div id="anouck-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">💬 À dire à Anouck</span>
+    <div onclick="closeAnouckTopics()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem">Les sujets à aborder ce soir en rentrant, tranquillement 🏡</div>
+    <div style="display:flex;gap:6px;margin-bottom:1rem">
+      <input id="atopic-input" type="text" placeholder="Un sujet à aborder..." onkeydown="if(event.key==='Enter')addAnouckTopic()" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;border:1px solid #E2DDD4;border-radius:10px;background:#fff;color:#1A1814;outline:none">
+      <button onclick="addAnouckTopic()" style="font-size:18px;padding:0 16px;background:#C25E7A;color:#fff;border:none;border-radius:10px;cursor:pointer">+</button>
+    </div>
+    <div id="atopic-list"></div>
   </div>
 </div>
 
@@ -3648,6 +3667,100 @@ ${body}
   } catch(e){
     exportStatus('❌ Échec : ' + e.message + '. Vérifie ta connexion et réessaie.');
   }
+}
+
+// ── À DIRE À ANOUCK ──
+let anouckTopics = [];
+function openAnouck(){
+  document.getElementById('anouck-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  loadAnouckTopics();
+}
+function closeAnouckTopics(){
+  document.getElementById('anouck-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadAnouckTopics(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.anouck_topics_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    anouckTopics = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ anouckTopics = []; }
+  renderAnouckTopics();
+}
+async function saveAnouckTopics(){
+  const payload = {data: {list: anouckTopics}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.anouck_topics_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.anouck_topics_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'anouck_topics_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addAnouckTopic(){
+  const inp = document.getElementById('atopic-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  anouckTopics.push({id: uid(), txt, done: false});
+  inp.value = '';
+  renderAnouckTopics();
+  saveAnouckTopics();
+  inp.focus();
+}
+function toggleAnouckTopic(id){
+  const t = anouckTopics.find(x => x.id === id);
+  if(t) t.done = !t.done;
+  renderAnouckTopics();
+  saveAnouckTopics();
+}
+function delAnouckTopic(id){
+  anouckTopics = anouckTopics.filter(x => x.id !== id);
+  renderAnouckTopics();
+  saveAnouckTopics();
+}
+function clearAnouckDone(){
+  anouckTopics = anouckTopics.filter(x => !x.done);
+  renderAnouckTopics();
+  saveAnouckTopics();
+}
+function renderAnouckTopics(){
+  const el = document.getElementById('atopic-list');
+  if(!el) return;
+  if(anouckTopics.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:1.5rem">Rien à signaler pour l\'instant 🙂<br>Note ici ce dont tu veux lui parler ce soir.</div>';
+    return;
+  }
+  const actifs = anouckTopics.filter(t => !t.done);
+  const faits = anouckTopics.filter(t => t.done);
+  const ligne = (t) => `<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:12px 14px;margin-bottom:6px">
+    <span onclick="toggleAnouckTopic(${t.id})" style="cursor:pointer;font-size:18px;line-height:1.2">${t.done?'✅':'⬜'}</span>
+    <span onclick="toggleAnouckTopic(${t.id})" style="flex:1;cursor:pointer;font-size:14px;color:#1A1814;line-height:1.4;${t.done?'text-decoration:line-through;color:#B0AA9E':''}">${(t.txt||'').replace(/</g,'&lt;')}</span>
+    <span onclick="delAnouckTopic(${t.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
+  </div>`;
+  let html = actifs.map(ligne).join('');
+  if(faits.length){
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;margin:1.25rem 0 .5rem">
+      <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0AA9E">Abordés · ${faits.length}</span>
+      <span onclick="clearAnouckDone()" style="cursor:pointer;font-size:11px;color:#C25E7A;font-weight:600">Nettoyer</span>
+    </div>`;
+    html += faits.map(ligne).join('');
+  }
+  el.innerHTML = html;
 }
 
 // ── IDÉES CADEAUX (regroupées par personne) ──
