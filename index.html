@@ -10,8 +10,8 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-height:100vh;padding-bottom:2rem}
 .top-header{padding:1.1rem 1.25rem .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:sticky;top:0;z-index:20}
-.hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
-.hdr-date em{font-style:italic;color:#7A7468;font-size:.95rem}
+.hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-date em{font-style:italic;color:#7A7468;font-size:1.05rem}
 .hdr-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:2px}
 .hdr-icons>div{font-size:23px;line-height:1;cursor:pointer;text-align:center;padding:7px 0;border-radius:9px;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .hdr-icons>div:active{background:#F0EDE7}
@@ -130,7 +130,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </svg>
 
 <div class="top-header">
-  <div class="hdr-date" style="margin-bottom:.85rem"><span id="hdr-day"></span><br><em id="hdr-date"></em></div>
+  <div class="hdr-date" style="margin-bottom:.85rem"><span id="hdr-day"></span> <em id="hdr-date"></em></div>
   <div class="hdr-icons">
       <div onclick="openTodo()" title="Envies &amp; projets">✨</div>
       <div onclick="openFond()" title="Fondations">🧭</div>
@@ -155,6 +155,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
     <span class="bar-lbl" id="score-lbl">0/0</span>
   </div>
+  <div id="reste-line" style="display:none;font-size:11px;color:#9A9488;line-height:1.45;margin-top:.4rem"></div>
   <div id="countdown-banner" style="margin-top:.6rem;background:linear-gradient(135deg,#D4694A,#C4632A);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff">
     <span style="font-size:13px;font-weight:600">🚀 Nouvelle fonction</span>
     <span id="countdown-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
@@ -1528,6 +1529,47 @@ function updateScore(){
   const done=tilesDone.length+noteDone;
   document.getElementById('score-fill').style.width=(total?Math.round(done/total*100):0)+'%';
   document.getElementById('score-lbl').textContent=done+'/'+total;
+  updateReste();
+}
+
+// Ligne "il te reste ça aujourd'hui"
+const RESTE_NOTES = {
+  grat1:'gratitudes', grat2:'gratitudes', grat3:'gratitudes',
+  kiff1:'kiffs', kiff2:'kiffs', kiff3:'kiffs',
+  note_fierte:'fierté', note_lecture:'appris', humeur_note:'humeur',
+  note_mona:'Mona', note_colin:'Colin', note_anouck:'Anouck', anouck_note:'Anouck',
+  note_equipe:'équipe', sommeil_h:'sommeil', poids:'poids'
+};
+function updateReste(){
+  const el = document.getElementById('reste-line');
+  if(!el) return;
+  const manque = [];
+  // Tuiles non cochées
+  document.querySelectorAll('.tile[data-field]').forEach(t => {
+    if(t.classList.contains('done')) return;
+    const lbl = t.querySelector('.tile-lbl');
+    if(lbl) manque.push(lbl.textContent.replace(/\s*\?$/,'').trim());
+  });
+  // Champs de notes vides (dédupliqués : "gratitudes" ne sort qu'une fois)
+  const vus = new Set();
+  document.querySelectorAll('[data-key]').forEach(f => {
+    if(f.value && f.value.trim()) return;
+    const nom = RESTE_NOTES[f.dataset.key];
+    if(nom && !vus.has(nom)){ vus.add(nom); manque.push(nom); }
+  });
+  // Eau (le compteur, pas une tuile)
+  if(typeof water === 'number' && water < 8) manque.push('eau ' + water + '/8');
+
+  if(manque.length === 0){
+    el.style.display = 'block';
+    el.innerHTML = '<span style="color:#2D7A4F;font-weight:600">✓ Journée complète, bravo Géo</span>';
+    return;
+  }
+  el.style.display = 'block';
+  const MAX = 6;
+  const liste = manque.slice(0, MAX).join(' · ');
+  const suite = manque.length > MAX ? ` <span style="color:#C4BDB0">+${manque.length - MAX}</span>` : '';
+  el.innerHTML = `<span style="color:#C4BDB0">Reste :</span> ${liste}${suite}`;
 }
 
 // Init water ring
