@@ -12,9 +12,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .top-header{padding:1.1rem 1.25rem .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:sticky;top:0;z-index:20}
 .hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
 .hdr-date em{font-style:italic;color:#7A7468;font-size:1.05rem}
-.hdr-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:.85rem}
-.hdr-left{flex-shrink:0;max-width:44%}
-.hdr-icons{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:2px}
+.hdr-top{display:flex;align-items:stretch;gap:14px;margin-bottom:.85rem}
+.hdr-left{flex-shrink:0;width:46%;display:flex;flex-direction:column;min-width:0}
+#reste-line{font-size:11px;color:#9A9488;line-height:1.5;margin-top:.5rem;overflow:hidden;flex:1}
+.hdr-icons{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:2px;align-content:start}
 .hdr-icons>div{font-size:21px;line-height:1;cursor:pointer;text-align:center;padding:5px 0;border-radius:8px;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .hdr-icons>div:active{background:#F0EDE7}
 @media(hover:hover){.hdr-icons>div:hover{background:#F5F2EC}}
@@ -134,6 +135,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   <div class="hdr-top">
     <div class="hdr-left">
       <div class="hdr-date"><span id="hdr-day"></span> <em id="hdr-date"></em></div>
+      <div id="reste-line" style="display:none"></div>
     </div>
     <div class="hdr-icons">
       <div onclick="openTodo()" title="Envies &amp; projets">✨</div>
@@ -157,7 +159,6 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openJournal()" title="Mon journal">📖</div>
     </div>
   </div>
-  <div id="reste-line" style="display:none;font-size:11px;color:#9A9488;line-height:1.5;margin:-.35rem 0 .6rem"></div>
   <div class="hdr-bar">
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
     <span class="bar-lbl" id="score-lbl">0/0</span>
@@ -1588,7 +1589,26 @@ function updateReste(){
     return;
   }
   el.style.display = 'block';
-  el.innerHTML = `<span style="color:#C4BDB0">Reste :</span> ${manque.join(' · ')}`;
+
+  // Hauteur disponible = hauteur de la grille d'emojis moins la date
+  const icons = document.querySelector('.hdr-icons');
+  const dateEl = document.querySelector('.hdr-date');
+  const avail = icons && dateEl ? (icons.offsetHeight - dateEl.offsetHeight - 8) : 9999;
+
+  const render = (n) => {
+    const suite = n < manque.length ? ` <span style="color:#C4BDB0">+${manque.length - n}</span>` : '';
+    el.innerHTML = `<span style="color:#C4BDB0">Reste :</span> ${manque.slice(0, n).join(' · ')}${suite}`;
+  };
+
+  // Affiche tout, puis réduit jusqu'à ce que ça tienne dans la hauteur dispo
+  render(manque.length);
+  if(avail < 9999){
+    let n = manque.length;
+    while(n > 1 && el.scrollHeight > avail){
+      n--;
+      render(n);
+    }
+  }
 }
 
 // Init water ring
