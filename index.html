@@ -193,6 +193,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
       <input id="hon-nom" type="text" placeholder="Nom de la personne" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
       <input id="hon-adresse" type="text" placeholder="Adresse de livraison" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:8px">
+      <input id="hon-comm" type="text" placeholder="Commentaire (optionnel)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:8px">
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <div style="flex:1">
           <label style="font-size:11px;color:#7A7468;display:block;margin-bottom:3px">🌸 Miel printemps</label>
@@ -1137,12 +1138,14 @@ async function saveHoney(){
 function addHoney(){
   const nom = document.getElementById('hon-nom').value.trim();
   const adresse = document.getElementById('hon-adresse').value.trim();
+  const comm = document.getElementById('hon-comm').value.trim();
   const printemps = parseInt(document.getElementById('hon-print').value) || 0;
   const ete = parseInt(document.getElementById('hon-ete').value) || 0;
   if(!nom){ alert('Indique au moins un nom'); return; }
-  honeyList.push({id: uid(), nom, adresse, printemps, ete});
+  honeyList.push({id: uid(), nom, adresse, comm, printemps, ete});
   document.getElementById('hon-nom').value = '';
   document.getElementById('hon-adresse').value = '';
+  document.getElementById('hon-comm').value = '';
   document.getElementById('hon-print').value = '';
   document.getElementById('hon-ete').value = '';
   renderHoney();
@@ -1191,13 +1194,22 @@ function saveHoneyEdit(id){
   if(!h) return;
   const nom = document.getElementById('hedit-nom-'+id).value.trim();
   const adresse = document.getElementById('hedit-adr-'+id).value.trim();
+  const comm = document.getElementById('hedit-comm-'+id).value.trim();
   const printemps = parseInt(document.getElementById('hedit-print-'+id).value) || 0;
   const ete = parseInt(document.getElementById('hedit-ete-'+id).value) || 0;
   if(!nom){ alert('Indique au moins un nom'); return; }
-  h.nom = nom; h.adresse = adresse; h.printemps = printemps; h.ete = ete;
+  h.nom = nom; h.adresse = adresse; h.comm = comm; h.printemps = printemps; h.ete = ete;
   honeyEditId = null;
   renderHoney();
   saveHoney();
+}
+function copyHoneyAddress(id){
+  const h = honeyList.find(x => x.id === id);
+  if(!h || !h.adresse) return;
+  navigator.clipboard.writeText(h.adresse).then(() => {
+    const badge = document.getElementById('copied-'+id);
+    if(badge){ badge.style.opacity = '1'; setTimeout(() => { badge.style.opacity = '0'; }, 1500); }
+  }).catch(() => {});
 }
 function renderHoney(){
   const totEl = document.getElementById('honey-totaux');
@@ -1223,6 +1235,7 @@ function renderHoney(){
       return `<div style="background:#FFFBF0;border:1.5px solid #E8C77A;border-radius:10px;padding:12px 14px;margin-bottom:6px">
         <input id="hedit-nom-${h.id}" type="text" value="${(h.nom||'').replace(/"/g,'&quot;')}" placeholder="Nom" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none;margin-bottom:6px">
         <input id="hedit-adr-${h.id}" type="text" value="${(h.adresse||'').replace(/"/g,'&quot;')}" placeholder="Adresse" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none;margin-bottom:8px">
+        <input id="hedit-comm-${h.id}" type="text" value="${(h.comm||'').replace(/"/g,'&quot;')}" placeholder="Commentaire (optionnel)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 10px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none;margin-bottom:8px">
         <div style="display:flex;gap:8px;margin-bottom:10px">
           <div style="flex:1"><label style="font-size:11px;color:#7A7468;display:block;margin-bottom:3px">🌸 Printemps</label>
             <input id="hedit-print-${h.id}" type="number" min="0" value="${h.printemps||''}" placeholder="0" style="width:100%;box-sizing:border-box;font-size:14px;padding:7px 8px;border:1px solid #E2DDD4;border-radius:8px;background:#fff;color:#1A1814;outline:none;text-align:center"></div>
@@ -1250,8 +1263,9 @@ function renderHoney(){
       </div>
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:600;color:#1A1814">${(h.nom||'').replace(/</g,'&lt;')}${incomplet?' <span style="font-size:10px;color:#C4922A;font-weight:600">· à compléter</span>':''}</div>
-        ${h.adresse ? `<div style="font-size:11px;color:#9A9488;margin-top:1px">📍 ${(h.adresse||'').replace(/</g,'&lt;')}</div>` : '<div style="font-size:11px;color:#C9B98A;margin-top:1px;font-style:italic">📍 adresse manquante</div>'}
+        ${h.adresse ? `<div style="font-size:11px;color:#9A9488;margin-top:1px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">📍 <span>${(h.adresse||'').replace(/</g,'&lt;')}</span><span onclick="event.stopPropagation();copyHoneyAddress(${h.id})" style="cursor:pointer;color:#C4922A;font-weight:600;font-size:10px;border:1px solid #E8C77A;border-radius:6px;padding:1px 6px">copier</span><span id="copied-${h.id}" style="opacity:0;transition:opacity .2s;color:#2D7A4F;font-size:10px;font-weight:600">✓ copié</span></div>` : '<div style="font-size:11px;color:#C9B98A;margin-top:1px;font-style:italic">📍 adresse manquante</div>'}
         <div style="font-size:12px;color:#C4922A;font-weight:600;margin-top:3px">${items.length?items.join(' · '):'<span style="color:#C9B98A;font-style:italic">quantités à préciser</span>'}</div>
+        ${h.comm ? `<div style="font-size:11px;color:#7A7468;margin-top:4px;font-style:italic;background:#F5F2EC;border-radius:6px;padding:4px 8px">💬 ${(h.comm||'').replace(/</g,'&lt;')}</div>` : ''}
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;align-items:center">
         <span onclick="editHoney(${h.id})" style="cursor:pointer;font-size:14px">✏️</span>
