@@ -12,6 +12,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .top-header{padding:0 0 .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:relative;z-index:20}
 .hdr-datebar{position:sticky;top:0;z-index:30;background:#fff;cursor:pointer;padding:.9rem 1.25rem .6rem}
 .hdr-body{padding:0 1.25rem}
+@keyframes cdPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
+@keyframes cdPulseStrong{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.025);filter:brightness(1.12)}}
+.cd-pulse{animation:cdPulse 2s ease-in-out infinite}
+.cd-pulse-strong{animation:cdPulseStrong 1.3s ease-in-out infinite}
 .hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
 .hdr-date em{font-style:italic;color:#7A7468;font-size:1.05rem}
 .hdr-top{display:flex;align-items:stretch;gap:14px;margin-bottom:.85rem}
@@ -144,6 +148,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
     <div class="hdr-icons">
       <div onclick="openTodo()" title="Envies &amp; projets">✨</div>
+      <div onclick="openEvents()" title="Grands événements">🎯</div>
       <div onclick="openFond()" title="Fondations">🧭</div>
       <div onclick="openWatch()" title="À regarder">🎥</div>
       <div onclick="openDreams()" title="Mes rêves">🌍</div>
@@ -159,6 +164,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openBdays()" title="Anniversaires">🎂</div>
       <div onclick="openGifts()" title="Idées cadeaux">🎁</div>
       <div onclick="openAnouck()" title="À dire à Anouck">💬</div>
+      <div onclick="openHoney()" title="Livraisons de miel">🍯</div>
       <div onclick="openExport()" title="Sauvegarde">💾</div>
       <div onclick="openBilan()" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" title="Mon journal">📖</div>
@@ -168,22 +174,60 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
     <span class="bar-lbl" id="score-lbl">0/0</span>
   </div>
-  <div id="countdown-banner" style="margin-top:.6rem;background:linear-gradient(135deg,#D4694A,#C4632A);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff">
-    <span style="font-size:13px;font-weight:600">🚀 Nouvelle fonction</span>
-    <span id="countdown-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
-  </div>
-  <div id="semi-banner" onclick="openPlan()" style="margin-top:.5rem;background:linear-gradient(135deg,#2D7A4F,#1F5E3C);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff;cursor:pointer">
-    <span style="font-size:13px;font-weight:600">🏃 Semi Dinant</span>
-    <span id="semi-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
-  </div>
-  <div id="vacances-banner" style="margin-top:.5rem;background:linear-gradient(135deg,#E8A23D,#D4832A);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;color:#fff">
-    <span style="font-size:13px;font-weight:600">🏖️ Vacances en famille</span>
-    <span id="vacances-val" style="font-size:15px;font-weight:800;letter-spacing:.02em"></span>
-  </div>
+  <div id="events-banners" style="margin-top:.6rem"></div>
   <div id="bday-banner" onclick="openBdays()" style="display:none;margin-top:.5rem;background:linear-gradient(135deg,#C97BA0,#A85C82);border-radius:12px;padding:10px 14px;color:#fff;cursor:pointer">
     <span id="bday-banner-txt" style="font-size:13px;font-weight:600"></span>
   </div>
   <div class="save-st" id="save-st"></div>
+  </div>
+</div>
+
+<!-- LIVRAISONS DE MIEL (overlay) -->
+<div id="honey-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🍯 Livraisons de miel</span>
+    <div onclick="closeHoney()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div id="honey-totaux" style="margin-bottom:1rem"></div>
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
+      <input id="hon-nom" type="text" placeholder="Nom de la personne" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
+      <input id="hon-adresse" type="text" placeholder="Adresse de livraison" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:8px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div style="flex:1">
+          <label style="font-size:11px;color:#7A7468;display:block;margin-bottom:3px">🌸 Miel printemps</label>
+          <input id="hon-print" type="number" min="0" placeholder="0" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;text-align:center">
+        </div>
+        <div style="flex:1">
+          <label style="font-size:11px;color:#7A7468;display:block;margin-bottom:3px">☀️ Miel été</label>
+          <input id="hon-ete" type="number" min="0" placeholder="0" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;text-align:center">
+        </div>
+      </div>
+      <button onclick="addHoney()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px;background:#C4922A;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter la commande</button>
+    </div>
+    <div style="font-size:11px;color:#B0AA9E;margin-bottom:8px">Glisse une livraison pour la réordonner ↕</div>
+    <div id="honey-list"></div>
+  </div>
+</div>
+
+<!-- GRANDS ÉVÉNEMENTS (overlay) -->
+<div id="events-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🎯 Grands événements</span>
+    <div onclick="closeEvents()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem">Chaque événement crée son compte à rebours. Les 3 plus proches s'affichent en haut du dashboard.</div>
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
+      <input id="ev-nom" type="text" placeholder="Nom de l'événement" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <input id="ev-date" type="date" style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+        <input id="ev-heure" type="time" value="09:00" style="width:100px;font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+      </div>
+      <div id="ev-type-picker" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>
+      <button onclick="addEvent()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px;background:#6B5B95;color:#fff;border:none;border-radius:8px;cursor:pointer">Ajouter l'événement</button>
+    </div>
+    <div id="ev-list"></div>
   </div>
 </div>
 
@@ -752,6 +796,14 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
         <a href="headway://" onclick="event.stopPropagation();openApp('headway://','https://makeheadway.com');return false;" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">→ Headway</a>
       </div>
     </div>
+    <div class="tile" onclick="tgl(this,'divert')" data-field="divert">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-tv"/></svg></div></div>
+      <span class="tile-lbl">Divertissement</span>
+      <div onclick="event.stopPropagation()" style="display:flex;flex-direction:column;gap:3px;margin-top:-2px">
+        <a href="audible://library" onclick="event.stopPropagation();openApp('audible://library','https://www.audible.fr/library');return false;" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📖 Harry Potter</a>
+        <a href="https://app.primevideo.com/detail?gti=amzn1.dv.gti.the-boys" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📺 The Boys</a>
+      </div>
+    </div>
   </div>
   <div class="card" style="margin-top:.75rem">
     <div style="padding:.7rem .9rem">
@@ -867,14 +919,6 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'federe')" data-field="federe">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-users"/></svg></div></div>
       <span class="tile-lbl">Fédérer</span>
-    </div>
-    <div class="tile" onclick="tgl(this,'divert')" data-field="divert">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-tv"/></svg></div></div>
-      <span class="tile-lbl">Divertissement</span>
-      <div onclick="event.stopPropagation()" style="display:flex;flex-direction:column;gap:3px;margin-top:-2px">
-        <a href="audible://library" onclick="event.stopPropagation();openApp('audible://library','https://www.audible.fr/library');return false;" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📖 Harry Potter</a>
-        <a href="https://app.primevideo.com/detail?gti=amzn1.dv.gti.the-boys" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📺 The Boys</a>
-      </div>
     </div>
   </div>
   <div class="card" style="margin-top:.75rem">
@@ -1047,62 +1091,358 @@ const MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août'
 document.getElementById('hdr-day').textContent=DAYS[now.getDay()];
 document.getElementById('hdr-date').textContent=now.getDate()+' '+MONTHS[now.getMonth()]+' '+now.getFullYear();
 
-// Compte à rebours jusqu'au 21 septembre 2026 (nouvelle fonction)
-function updateCountdown(){
-  const target = new Date('2026-09-21T00:00:00');
-  const now = new Date();
-  const diff = target - now;
-  const el = document.getElementById('countdown-val');
-  const banner = document.getElementById('countdown-banner');
+// ── LIVRAISONS DE MIEL ──
+let honeyList = [];
+function openHoney(){
+  document.getElementById('honey-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  loadHoney();
+}
+function closeHoney(){
+  document.getElementById('honey-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadHoney(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.honey_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    honeyList = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ honeyList = []; }
+  renderHoney();
+}
+async function saveHoney(){
+  const payload = {data: {list: honeyList}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.honey_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.honey_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'honey_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addHoney(){
+  const nom = document.getElementById('hon-nom').value.trim();
+  const adresse = document.getElementById('hon-adresse').value.trim();
+  const printemps = parseInt(document.getElementById('hon-print').value) || 0;
+  const ete = parseInt(document.getElementById('hon-ete').value) || 0;
+  if(!nom){ alert('Indique au moins un nom'); return; }
+  if(printemps === 0 && ete === 0){ alert('Indique au moins une quantité'); return; }
+  honeyList.push({id: uid(), nom, adresse, printemps, ete});
+  document.getElementById('hon-nom').value = '';
+  document.getElementById('hon-adresse').value = '';
+  document.getElementById('hon-print').value = '';
+  document.getElementById('hon-ete').value = '';
+  renderHoney();
+  saveHoney();
+}
+function delHoney(id){
+  honeyList = honeyList.filter(x => x.id !== id);
+  renderHoney();
+  saveHoney();
+}
+let honeyDragId = null;
+function honeyDragStart(e, id){ honeyDragId = id; e.dataTransfer.effectAllowed='move'; }
+function honeyAllowDrop(e){ e.preventDefault(); }
+function honeyDrop(e, id){
+  e.preventDefault();
+  if(honeyDragId === null || honeyDragId === id) return;
+  const from = honeyList.findIndex(x => x.id === honeyDragId);
+  const to = honeyList.findIndex(x => x.id === id);
+  if(from < 0 || to < 0) return;
+  const [moved] = honeyList.splice(from, 1);
+  honeyList.splice(to, 0, moved);
+  honeyDragId = null;
+  renderHoney();
+  saveHoney();
+}
+// Tactile
+let honeyTouchEl = null;
+function honeyTouchStart(e, id){ honeyDragId = id; honeyTouchEl = e.currentTarget; honeyTouchEl.style.opacity='0.5'; }
+function honeyTouchMove(e){ e.preventDefault(); }
+function honeyTouchEnd(e){
+  if(honeyTouchEl) honeyTouchEl.style.opacity='1';
+  const t = e.changedTouches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const row = el && el.closest('[data-hid]');
+  if(row && honeyDragId !== null){
+    const id = parseInt(row.getAttribute('data-hid'));
+    honeyDrop({preventDefault(){}}, id);
+  }
+  honeyDragId = null; honeyTouchEl = null;
+}
+function renderHoney(){
+  const totEl = document.getElementById('honey-totaux');
+  const el = document.getElementById('honey-list');
   if(!el) return;
-  if(diff <= 0){
-    if(banner) banner.style.display = 'none';
+  const totPrint = honeyList.reduce((s,h) => s + (h.printemps||0), 0);
+  const totEte = honeyList.reduce((s,h) => s + (h.ete||0), 0);
+  if(totEl){
+    totEl.innerHTML = `<div style="background:#1A1814;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-around;text-align:center">
+      <div><div style="font-size:22px;font-weight:800;color:#F0C05A">${totPrint}</div><div style="font-size:10px;color:rgba(255,255,255,.6)">🌸 pots printemps</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#F0C05A">${totEte}</div><div style="font-size:10px;color:rgba(255,255,255,.6)">☀️ pots été</div></div>
+      <div><div style="font-size:22px;font-weight:800;color:#fff">${honeyList.length}</div><div style="font-size:10px;color:rgba(255,255,255,.6)">livraisons</div></div>
+    </div>`;
+  }
+  if(honeyList.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:1.5rem">Aucune commande.<br>Ajoute la première ci-dessus 🍯</div>';
     return;
   }
-  const days = Math.floor(diff / 864e5);
-  const hours = Math.floor((diff % 864e5) / 36e5);
-  const mins = Math.floor((diff % 36e5) / 6e4);
-  const secs = Math.floor((diff % 6e4) / 1000);
-  el.innerHTML = `<span style="font-size:18px">J-${days}</span> <span style="font-size:12px;font-weight:600;opacity:.9">${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}</span>`;
+  el.innerHTML = honeyList.map((h, i) => {
+    const items = [];
+    if(h.printemps) items.push(`🌸 ${h.printemps}`);
+    if(h.ete) items.push(`☀️ ${h.ete}`);
+    return `<div draggable="true" data-hid="${h.id}"
+      ondragstart="honeyDragStart(event,${h.id})" ondragover="honeyAllowDrop(event)" ondrop="honeyDrop(event,${h.id})"
+      ontouchstart="honeyTouchStart(event,${h.id})" ontouchmove="honeyTouchMove(event)" ontouchend="honeyTouchEnd(event)"
+      style="display:flex;align-items:flex-start;gap:11px;background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:12px 14px;margin-bottom:6px;cursor:grab;touch-action:none">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0">
+        <span style="font-size:13px;color:#C4922A;font-weight:800">${i+1}</span>
+        <span style="font-size:14px;color:#D8D2C6;line-height:1">⠿</span>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:600;color:#1A1814">${(h.nom||'').replace(/</g,'&lt;')}</div>
+        ${h.adresse ? `<div style="font-size:11px;color:#9A9488;margin-top:1px">📍 ${(h.adresse||'').replace(/</g,'&lt;')}</div>` : ''}
+        <div style="font-size:12px;color:#C4922A;font-weight:600;margin-top:3px">${items.join(' · ')}</div>
+      </div>
+      <span onclick="delHoney(${h.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0;flex-shrink:0">✕</span>
+    </div>`;
+  }).join('');
 }
-updateCountdown();
-setInterval(updateCountdown, 1000);
 
-// Compte à rebours jusqu'au semi-marathon (4 octobre 2026, 9h00)
-function updateSemi(){
-  const target = new Date('2026-10-04T09:00:00');
-  const now = new Date();
-  const diff = target - now;
-  const el = document.getElementById('semi-val');
-  const banner = document.getElementById('semi-banner');
-  if(!el) return;
-  if(diff <= 0){ if(banner) banner.style.display = 'none'; return; }
-  const days = Math.floor(diff / 864e5);
-  const hours = Math.floor((diff % 864e5) / 36e5);
-  const mins = Math.floor((diff % 36e5) / 6e4);
-  const secs = Math.floor((diff % 6e4) / 1000);
-  el.innerHTML = `<span style="font-size:18px">J-${days}</span> <span style="font-size:12px;font-weight:600;opacity:.9">${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}</span>`;
-}
-updateSemi();
-setInterval(updateSemi, 1000);
+// ── SYSTÈME DE COMPTES À REBOURS AUTOMATIQUE ──
+// Types d'événements : couleur + messages selon les paliers d'approche
+const EVENT_TYPES = {
+  pro:      {emoji:'🚀', label:'Pro',      grad:['#D4694A','#C4632A'],
+             loin:'En approche', mois:'Ça se rapproche', semaine:'Plus qu\'une poignée de jours', demain:'Demain, le grand jour', jourJ:'C\'est parti ! 🚀'},
+  sport:    {emoji:'🏃', label:'Sport',    grad:['#2D7A4F','#1F5E3C'],
+             loin:'L\'entraînement paie', mois:'La forme monte', semaine:'Bientôt le dossard', demain:'Demain, la course 🏃', jourJ:'Jour de course ! Donne tout 🔥'},
+  vacances: {emoji:'🏖️', label:'Vacances', grad:['#E8A23D','#D4832A'],
+             loin:'Bientôt le repos', mois:'Les valises approchent 🧳', semaine:'Ça sent les vacances', demain:'Demain, on part ! 🌴', jourJ:'En route ! Bonnes vacances 🏖️'},
+  voyage:   {emoji:'✈️', label:'Voyage',   grad:['#3D7EA6','#2C5F80'],
+             loin:'Destination en vue', mois:'Le voyage se prépare 🧳', semaine:'Bientôt l\'embarquement', demain:'Demain, décollage ! ✈️', jourJ:'Bon voyage ! ✈️'},
+  fete:     {emoji:'🎉', label:'Fête',     grad:['#C25E7A','#A0405C'],
+             loin:'À venir', mois:'Ça approche 🎉', semaine:'Bientôt la fête', demain:'Demain, on fête ça ! 🎉', jourJ:'C\'est le jour ! 🎉'},
+  autre:    {emoji:'⭐', label:'Autre',    grad:['#6B5B95','#4E4370'],
+             loin:'À venir', mois:'Ça approche', semaine:'Bientôt', demain:'Demain !', jourJ:'C\'est aujourd\'hui ! ⭐'},
+};
+// Événements initiaux (transformés depuis les anciens bandeaux + Rome)
+const EVENTS_SEED = [
+  {nom:'Nouvelle fonction', date:'2026-09-21T00:00:00', type:'pro'},
+  {nom:'Semi Dinant',       date:'2026-10-04T09:00:00', type:'sport', action:'openPlan'},
+  {nom:'Vacances en famille',date:'2026-07-24T13:00:00', type:'vacances'},
+  {nom:'Voyage à Rome',     date:'2026-10-16T09:00:00', type:'voyage'},
+];
+let eventsList = [];
 
-// Compte à rebours vacances en famille (24 juillet 2026, 13h00)
-function updateVacances(){
-  const target = new Date('2026-07-24T13:00:00');
-  const now = new Date();
-  const diff = target - now;
-  const el = document.getElementById('vacances-val');
-  const banner = document.getElementById('vacances-banner');
-  if(!el) return;
-  if(diff <= 0){ if(banner) banner.style.display = 'none'; return; }
-  const days = Math.floor(diff / 864e5);
-  const hours = Math.floor((diff % 864e5) / 36e5);
-  const mins = Math.floor((diff % 36e5) / 6e4);
-  const secs = Math.floor((diff % 6e4) / 1000);
-  el.innerHTML = `<span style="font-size:18px">J-${days}</span> <span style="font-size:12px;font-weight:600;opacity:.9">${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}</span>`;
+async function loadEvents(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.events_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+      cache: 'no-store'
+    });
+    const rows = await r.json();
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    eventsList = d.list || [];
+    if(!d.seeded && eventsList.length === 0){
+      eventsList = EVENTS_SEED.map(e => ({id: uid(), ...e}));
+      await saveEvents();
+    }
+  } catch(e){ eventsList = []; }
+  renderEventBanners();
 }
-updateVacances();
-setInterval(updateVacances, 1000);
+async function saveEvents(){
+  const payload = {data: {list: eventsList, seeded: true}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.events_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.events_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'events_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+
+// Rendu des bandeaux (structure) — recalculée quand la liste change
+function renderEventBanners(){
+  const box = document.getElementById('events-banners');
+  if(!box) return;
+  const now = new Date();
+  // Garder les événements pas encore périmés (jusqu'à fin de journée du jour J)
+  const actifs = eventsList.filter(e => {
+    const t = new Date(e.date);
+    const finJour = new Date(t.getFullYear(), t.getMonth(), t.getDate(), 23, 59, 59);
+    return finJour >= now;
+  }).sort((a,b) => new Date(a.date) - new Date(b.date)).slice(0, 3); // max 3, les plus proches
+
+  box.innerHTML = actifs.map((e, i) => {
+    const ty = EVENT_TYPES[e.type] || EVENT_TYPES.autre;
+    const click = e.action === 'openPlan' ? ' onclick="openPlan()" style="cursor:pointer"' : '';
+    return `<div class="cd-banner" data-eid="${e.id}" data-type="${e.type}" data-date="${e.date}"${click ? click : ''} style="margin-top:${i===0?'0':'.5rem'};border-radius:12px;overflow:hidden">
+      <div class="cd-inner" style="padding:10px 14px"></div>
+    </div>`;
+  }).join('');
+  tickEventBanners(); // remplir tout de suite
+}
+
+// Mise à jour du contenu chaque seconde (intensité + décompte)
+function tickEventBanners(){
+  const now = new Date();
+  document.querySelectorAll('#events-banners .cd-banner').forEach(bn => {
+    const ev = eventsList.find(x => String(x.id) === bn.dataset.eid);
+    if(!ev){ return; }
+    const ty = EVENT_TYPES[ev.type] || EVENT_TYPES.autre;
+    const target = new Date(ev.date);
+    const finJour = new Date(target.getFullYear(), target.getMonth(), target.getDate(), 23, 59, 59);
+    const diff = target - now;
+    const inner = bn.querySelector('.cd-inner');
+
+    // Jour J : festif toute la journée
+    const estJourJ = now <= finJour && (diff <= 0 || (now.getDate()===target.getDate() && now.getMonth()===target.getMonth() && now.getFullYear()===target.getFullYear()));
+
+    const days = Math.floor(diff / 864e5);
+    const hours = Math.floor((diff % 864e5) / 36e5);
+    const mins = Math.floor((diff % 36e5) / 6e4);
+    const secs = Math.floor((diff % 6e4) / 1000);
+
+    // Palier d'intensité
+    let palier, msg, anim = '', scale = 1;
+    if(estJourJ){ palier='jourJ'; msg=ty.jourJ; anim='cd-pulse-strong'; scale=1; }
+    else if(days === 0 || (days === 1 && diff < 864e5)){ palier='demain'; msg=ty.demain; anim='cd-pulse'; }
+    else if(days <= 7){ palier='semaine'; msg=ty.semaine; }
+    else if(days <= 30){ palier='mois'; msg=ty.mois; }
+    else { palier='loin'; msg=ty.loin; }
+
+    // Dégradé (plus vif à mesure qu'on approche)
+    const [c1, c2] = ty.grad;
+    bn.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+    bn.style.color = '#fff';
+    bn.className = 'cd-banner ' + anim;
+
+    // Décompte : de plus en plus visuel selon le palier
+    let compte;
+    if(estJourJ){
+      compte = `<span style="font-size:20px;font-weight:800">Aujourd'hui</span>`;
+    } else if(palier === 'demain'){
+      // Dernières 24h : gros et vivant
+      compte = `<span style="font-size:15px;font-weight:800">${hours.toString().padStart(2,'0')}<span style="font-size:11px;opacity:.8">h</span> ${mins.toString().padStart(2,'0')}<span style="font-size:11px;opacity:.8">m</span> ${secs.toString().padStart(2,'0')}<span style="font-size:11px;opacity:.8">s</span></span>`;
+    } else if(palier === 'semaine'){
+      compte = `<span style="font-size:19px;font-weight:800">J-${days}</span> <span style="font-size:11px;opacity:.85">${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}</span>`;
+    } else {
+      compte = `<span style="font-size:16px;font-weight:800">J-${days}</span>`;
+    }
+
+    const taille = estJourJ ? '15px' : (palier==='demain' ? '14px' : '13px');
+    inner.style.display = 'flex';
+    inner.style.alignItems = 'center';
+    inner.style.justifyContent = 'space-between';
+    inner.innerHTML = `<span style="font-size:${taille};font-weight:700;display:flex;align-items:center;gap:6px">
+        <span style="font-size:${estJourJ?'18px':'15px'}">${ty.emoji}</span>
+        <span>${ev.nom}${palier!=='loin' && !estJourJ ? ` <span style="font-weight:500;opacity:.85;font-size:11px">· ${msg}</span>` : ''}${estJourJ ? ` <span style="font-weight:600">· ${msg}</span>` : ''}</span>
+      </span>
+      <span style="text-align:right;white-space:nowrap;margin-left:8px">${compte}</span>`;
+  });
+}
+loadEvents();
+setInterval(tickEventBanners, 1000);
+
+// ── PAGE GRANDS ÉVÉNEMENTS ──
+let evTypeChoice = 'voyage';
+function openEvents(){
+  document.getElementById('events-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  renderEvTypePicker();
+  renderEvList();
+}
+function closeEvents(){
+  document.getElementById('events-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function renderEvTypePicker(){
+  const el = document.getElementById('ev-type-picker');
+  if(!el) return;
+  el.innerHTML = Object.keys(EVENT_TYPES).map(k => {
+    const t = EVENT_TYPES[k];
+    const sel = evTypeChoice === k;
+    return `<span onclick="evTypeChoice='${k}';renderEvTypePicker()" style="cursor:pointer;font-size:12px;font-weight:${sel?'700':'500'};padding:5px 11px;border-radius:20px;border:1.5px solid ${sel?t.grad[0]:'#E2DDD4'};background:${sel?t.grad[0]:'#fff'};color:${sel?'#fff':'#7A7468'}">${t.emoji} ${t.label}</span>`;
+  }).join('');
+}
+function addEvent(){
+  const nom = document.getElementById('ev-nom').value.trim();
+  const date = document.getElementById('ev-date').value;
+  const heure = document.getElementById('ev-heure').value || '09:00';
+  if(!nom || !date){ alert('Indique un nom et une date'); return; }
+  eventsList.push({id: uid(), nom, date: date + 'T' + heure + ':00', type: evTypeChoice});
+  document.getElementById('ev-nom').value = '';
+  document.getElementById('ev-date').value = '';
+  document.getElementById('ev-heure').value = '09:00';
+  renderEvList();
+  saveEvents();
+  renderEventBanners();
+}
+function delEvent(id){
+  eventsList = eventsList.filter(e => e.id !== id);
+  renderEvList();
+  saveEvents();
+  renderEventBanners();
+}
+function renderEvList(){
+  const el = document.getElementById('ev-list');
+  if(!el) return;
+  if(eventsList.length === 0){
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:1.5rem">Aucun événement.<br>Ajoute ton prochain grand moment ! 🎯</div>';
+    return;
+  }
+  const now = new Date();
+  const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  const sorted = [...eventsList].sort((a,b) => new Date(a.date) - new Date(b.date));
+  el.innerHTML = sorted.map(e => {
+    const t = EVENT_TYPES[e.type] || EVENT_TYPES.autre;
+    const d = new Date(e.date);
+    const finJour = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
+    const passe = finJour < now;
+    const days = Math.ceil((d - now) / 864e5);
+    let when;
+    if(passe) when = 'passé';
+    else if(days <= 0) when = "aujourd'hui 🎉";
+    else if(days === 1) when = 'demain';
+    else when = 'dans ' + days + ' jours';
+    const heure = d.getHours().toString().padStart(2,'0') + 'h' + d.getMinutes().toString().padStart(2,'0');
+    return `<div style="display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #EDE9E1;border-left:3px solid ${t.grad[0]};border-radius:10px;padding:12px 14px;margin-bottom:6px;${passe?'opacity:.5':''}">
+      <div style="font-size:22px">${t.emoji}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600;color:#1A1814">${(e.nom||'').replace(/</g,'&lt;')}</div>
+        <div style="font-size:11px;color:#9A9488">${d.getDate()} ${MOIS[d.getMonth()]} ${d.getFullYear()} · ${heure} · <span style="color:${t.grad[0]};font-weight:600">${when}</span></div>
+      </div>
+      <span onclick="delEvent(${JSON.stringify(e.id)})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
+    </div>`;
+  }).join('');
+}
+
 
 // Smoke days - date stockée dans state (compteur record conservé en mémoire)
 function updateSmokeDisplay(){
