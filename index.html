@@ -9,12 +9,14 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-height:100vh;padding-bottom:2rem}
-.top-header{padding:1.1rem 1.25rem .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:sticky;top:0;z-index:20}
+.top-header{padding:0 0 .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:relative;z-index:20}
+.hdr-datebar{position:sticky;top:0;z-index:30;background:#fff;cursor:pointer;padding:.9rem 1.25rem .6rem}
+.hdr-body{padding:0 1.25rem}
 .hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
 .hdr-date em{font-style:italic;color:#7A7468;font-size:1.05rem}
 .hdr-top{display:flex;align-items:stretch;gap:14px;margin-bottom:.85rem}
 .hdr-left{flex-shrink:0;width:46%;display:flex;flex-direction:column;min-width:0}
-#reste-line{font-size:11px;color:#9A9488;line-height:1.5;margin-top:.5rem;overflow:hidden;flex:1}
+#reste-line{font-size:11px;color:#9A9488;line-height:1.5;overflow:hidden;flex:1}
 .hdr-icons{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:2px;align-content:start}
 .hdr-icons>div{font-size:21px;line-height:1;cursor:pointer;text-align:center;padding:5px 0;border-radius:8px;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .hdr-icons>div:active{background:#F0EDE7}
@@ -132,9 +134,12 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </svg>
 
 <div class="top-header">
+  <div class="hdr-datebar" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <div class="hdr-date"><span id="hdr-day"></span> <em id="hdr-date"></em></div>
+  </div>
+  <div class="hdr-body">
   <div class="hdr-top">
     <div class="hdr-left">
-      <div class="hdr-date"><span id="hdr-day"></span> <em id="hdr-date"></em></div>
       <div id="reste-line" style="display:none"></div>
     </div>
     <div class="hdr-icons">
@@ -179,6 +184,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <span id="bday-banner-txt" style="font-size:13px;font-weight:600"></span>
   </div>
   <div class="save-st" id="save-st"></div>
+  </div>
 </div>
 
 <!-- VUE JOURNAL (overlay) -->
@@ -649,6 +655,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <span class="tile-lbl">Duolingo</span>
       <a href="duolingo://" onclick="event.stopPropagation();openApp('duolingo://','https://www.duolingo.com');return false;" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Ouvrir</a>
     </div>
+    <div class="tile" onclick="tgl(this,'lecture')" data-field="lecture">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-book"/></svg></div></div>
+      <span class="tile-lbl">Lecture</span>
+    </div>
     <div class="tile" onclick="tgl(this,'journal_matin')" data-field="journal_matin">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-notebook"/></svg></div></div>
       <span class="tile-lbl">Journal</span>
@@ -734,10 +744,6 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 <div class="page" style="background:#4A9E70">
   <div class="page-title">Apprentissage</div>
   <div class="sg">
-    <div class="tile" onclick="tgl(this,'lecture')" data-field="lecture">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-book"/></svg></div></div>
-      <span class="tile-lbl">Lecture</span>
-    </div>
     <div class="tile" onclick="tgl(this,'audio')" data-field="audio">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-headphones"/></svg></div></div>
       <span class="tile-lbl">Livre audio</span>
@@ -1590,10 +1596,9 @@ function updateReste(){
   }
   el.style.display = 'block';
 
-  // Hauteur disponible = hauteur de la grille d'emojis moins la date
+  // Hauteur disponible = hauteur de la grille d'emojis
   const icons = document.querySelector('.hdr-icons');
-  const dateEl = document.querySelector('.hdr-date');
-  const avail = icons && dateEl ? (icons.offsetHeight - dateEl.offsetHeight - 8) : 9999;
+  const avail = icons ? icons.offsetHeight : 9999;
 
   const render = (n) => {
     const suite = n < manque.length ? ` <span style="color:#C4BDB0">+${manque.length - n}</span>` : '';
