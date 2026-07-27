@@ -18,11 +18,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .cd-pulse-strong{animation:cdPulseStrong 1.3s ease-in-out infinite}
 .hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
 .hdr-date em{font-style:italic;color:#7A7468;font-size:1.05rem}
-.hdr-top{display:flex;align-items:stretch;gap:14px;margin-bottom:.85rem}
-.hdr-left{flex-shrink:0;width:46%;display:flex;flex-direction:column;min-width:0}
-#reste-line{font-size:11px;color:#9A9488;line-height:1.5;overflow:hidden;flex:1}
-.hdr-icons{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(34px,1fr));gap:2px;align-content:start}
-.hdr-icons>div{font-size:21px;line-height:1;cursor:pointer;text-align:center;padding:5px 0;border-radius:8px;transition:background .15s;-webkit-tap-highlight-color:transparent}
+#bday-inline{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;color:#C25E7A;white-space:nowrap;margin-left:.5rem;cursor:pointer}
+#reste-line{font-size:11px;color:#9A9488;line-height:1.5;overflow:hidden;margin-bottom:.7rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hdr-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(38px,1fr));gap:2px;align-content:start}
+.hdr-icons>div{font-size:22px;line-height:1;cursor:pointer;text-align:center;padding:6px 0;border-radius:8px;transition:background .15s;-webkit-tap-highlight-color:transparent}
 .hdr-icons>div:active{background:#F0EDE7}
 @media(hover:hover){.hdr-icons>div:hover{background:#F5F2EC}}
 .hdr-bar{display:flex;align-items:center;gap:.75rem;margin-top:.45rem}
@@ -139,13 +138,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
 <div class="top-header">
   <div class="hdr-datebar" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-    <div class="hdr-date"><span id="hdr-day"></span> <em id="hdr-date"></em></div>
+    <div class="hdr-date"><span id="hdr-day"></span> <em id="hdr-date"></em><span id="bday-inline"></span></div>
   </div>
   <div class="hdr-body">
-  <div class="hdr-top">
-    <div class="hdr-left">
-      <div id="reste-line" style="display:none"></div>
-    </div>
+    <div id="reste-line" style="display:none"></div>
     <div class="hdr-icons">
       <div onclick="openTodo()" title="Envies &amp; projets">✨</div>
       <div onclick="openEvents()" title="Grands événements">🎯</div>
@@ -169,15 +165,11 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openBilan()" title="Bilan de la semaine">📊</div>
       <div onclick="openJournal()" title="Mon journal">📖</div>
     </div>
-  </div>
   <div class="hdr-bar">
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
     <span class="bar-lbl" id="score-lbl">0/0</span>
   </div>
   <div id="events-banners" style="margin-top:.6rem"></div>
-  <div id="bday-banner" onclick="openBdays()" style="display:none;margin-top:.5rem;background:linear-gradient(135deg,#C97BA0,#A85C82);border-radius:12px;padding:10px 14px;color:#fff;cursor:pointer">
-    <span id="bday-banner-txt" style="font-size:13px;font-weight:600"></span>
-  </div>
   <div class="save-st" id="save-st"></div>
   </div>
 </div>
@@ -1988,23 +1980,18 @@ function updateReste(){
   }
   el.style.display = 'block';
 
-  // Hauteur disponible = hauteur de la grille d'emojis
-  const icons = document.querySelector('.hdr-icons');
-  const avail = icons ? icons.offsetHeight : 9999;
-
   const render = (n) => {
     const suite = n < manque.length ? ` <span style="color:#C4BDB0">+${manque.length - n}</span>` : '';
     el.innerHTML = `<span style="color:#C4BDB0">Reste :</span> ${manque.slice(0, n).join(' · ')}${suite}`;
   };
 
-  // Affiche tout, puis réduit jusqu'à ce que ça tienne dans la hauteur dispo
+  // Affiche tout, puis réduit jusqu'à ce que ça tienne en 2 lignes (clamp CSS)
   render(manque.length);
-  if(avail < 9999){
-    let n = manque.length;
-    while(n > 1 && el.scrollHeight > avail){
-      n--;
-      render(n);
-    }
+  let n = manque.length;
+  // scrollHeight > clientHeight => le texte déborde des 2 lignes autorisées
+  while(n > 1 && el.scrollHeight > el.clientHeight + 1){
+    n--;
+    render(n);
   }
 }
 
@@ -4385,20 +4372,19 @@ function renderBdays(){
 
 // Bandeau "anniversaire aujourd'hui" sur la page principale
 function updateBdayBanner(){
-  const banner = document.getElementById('bday-banner');
-  const txt = document.getElementById('bday-banner-txt');
-  if(!banner || !txt) return;
+  const inline = document.getElementById('bday-inline');
+  if(!inline) return;
   const now = new Date();
   const d = now.getDate(), m = now.getMonth() + 1;
   const todays = bdayItems.filter(b => b.day === d && b.month === m);
-  if(todays.length === 0){ banner.style.display = 'none'; return; }
+  if(todays.length === 0){ inline.textContent = ''; inline.onclick = null; return; }
   const names = todays.map(b => b.name);
   let liste;
   if(names.length === 1) liste = names[0];
   else if(names.length === 2) liste = names[0] + ' et ' + names[1];
   else liste = names.slice(0,-1).join(', ') + ' et ' + names[names.length-1];
-  txt.textContent = `🎂 Aujourd'hui c'est l'anniversaire de ${liste}`;
-  banner.style.display = 'block';
+  inline.textContent = `🎂 ${liste}`;
+  inline.onclick = (e) => { e.stopPropagation(); openBdays(); };
 }
 // Charge les anniversaires au démarrage (pour le bandeau)
 (async function initBdays(){
