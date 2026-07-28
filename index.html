@@ -160,6 +160,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openBdays()" title="Anniversaires">🎂</div>
       <div onclick="openGifts()" title="Idées cadeaux">🎁</div>
       <div onclick="openAnouck()" title="À dire à Anouck">💬</div>
+      <div onclick="openFeel()" title="Ce que ça me fait">❤️</div>
       <div onclick="openHoney()" title="Livraisons de miel">🍯</div>
       <div onclick="openExport()" title="Sauvegarde">💾</div>
       <div onclick="openBilan()" title="Bilan de la semaine">📊</div>
@@ -394,6 +395,26 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
 
     <div id="export-status" style="font-size:12px;color:#7A7468;text-align:center;padding:.5rem"></div>
+  </div>
+</div>
+
+<!-- CE QUE ÇA ME FAIT (overlay) -->
+<div id="feel-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">❤️ Ce que ça me fait</span>
+    <div onclick="closeFeel()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
+    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem;line-height:1.5">Pour comprendre, avec le temps, ce que les mots d'Anouck te font ressentir 🌱</div>
+    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
+      <textarea id="feel-what" rows="2" placeholder="Ce qu'elle a dit / la situation..." style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;resize:vertical;line-height:1.5;margin-bottom:6px"></textarea>
+      <textarea id="feel-felt" rows="2" placeholder="Ce que ça m'a fait ressentir..." style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;resize:vertical;line-height:1.5;margin-bottom:8px"></textarea>
+      <div style="font-size:11px;color:#7A7468;margin-bottom:6px">Comment je me sens :</div>
+      <div id="feel-emo-picker" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>
+      <button onclick="addFeel()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px;background:#C25E7A;color:#fff;border:none;border-radius:8px;cursor:pointer">Enregistrer</button>
+    </div>
+    <div id="feel-stats" style="margin-bottom:1rem"></div>
+    <div id="feel-list"></div>
   </div>
 </div>
 
@@ -4071,6 +4092,133 @@ ${body}
   } catch(e){
     exportStatus('❌ Échec : ' + e.message + '. Vérifie ta connexion et réessaie.');
   }
+}
+
+// ── CE QUE ÇA ME FAIT (ressentis liés aux mots d'Anouck) ──
+const FEEL_EMOS = {
+  aime:    {label:'Aimé',    emoji:'🥰', color:'#C25E7A'},
+  fier:    {label:'Fier',    emoji:'😊', color:'#2D7A4F'},
+  rassure: {label:'Rassuré', emoji:'😌', color:'#3D7EA6'},
+  touche:  {label:'Touché',  emoji:'🥲', color:'#6B5B95'},
+  triste:  {label:'Triste',  emoji:'😔', color:'#5A7A8A'},
+  blesse:  {label:'Blessé',  emoji:'💔', color:'#B0506A'},
+  agace:   {label:'Agacé',   emoji:'😤', color:'#D4832A'},
+  perdu:   {label:'Perdu',   emoji:'😶‍🌫️', color:'#9A9488'},
+};
+let feelItems = [];
+let feelEmoChoice = '';
+function openFeel(){
+  document.getElementById('feel-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  feelEmoChoice = '';
+  renderFeelPicker();
+  loadFeel();
+}
+function closeFeel(){
+  document.getElementById('feel-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function renderFeelPicker(){
+  const el = document.getElementById('feel-emo-picker');
+  if(!el) return;
+  el.innerHTML = Object.keys(FEEL_EMOS).map(k => {
+    const e = FEEL_EMOS[k];
+    const sel = feelEmoChoice === k;
+    return `<span onclick="feelEmoChoice='${k}';renderFeelPicker()" style="cursor:pointer;font-size:12px;font-weight:${sel?'700':'500'};padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?e.color:'#E2DDD4'};background:${sel?e.color:'#fff'};color:${sel?'#fff':'#7A7468'}">${e.emoji} ${e.label}</span>`;
+  }).join('');
+}
+async function loadFeel(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.feelings_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const rows = await r.json();
+    feelItems = (rows && rows[0] && rows[0].data && rows[0].data.list) ? rows[0].data.list : [];
+  } catch(e){ feelItems = []; }
+  renderFeel();
+}
+async function saveFeel(){
+  const payload = {data: {list: feelItems}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.feelings_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.feelings_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'feelings_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addFeel(){
+  const what = document.getElementById('feel-what').value.trim();
+  const felt = document.getElementById('feel-felt').value.trim();
+  if(!what && !felt){ alert('Note au moins ce qu\'elle a dit ou ce que ça t\'a fait'); return; }
+  feelItems.push({id: uid(), what, felt, emo: feelEmoChoice, date: new Date().toISOString().slice(0,10)});
+  document.getElementById('feel-what').value = '';
+  document.getElementById('feel-felt').value = '';
+  feelEmoChoice = '';
+  renderFeelPicker();
+  renderFeel();
+  saveFeel();
+}
+function delFeel(id){
+  feelItems = feelItems.filter(x => x.id !== id);
+  renderFeel();
+  saveFeel();
+}
+function renderFeel(){
+  const statsEl = document.getElementById('feel-stats');
+  const el = document.getElementById('feel-list');
+  if(!el) return;
+  if(feelItems.length === 0){
+    if(statsEl) statsEl.innerHTML = '';
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:1.5rem">Rien de noté pour l\'instant.<br>Prends un moment quand une parole te marque 🌱</div>';
+    return;
+  }
+  // Stats : compte par émotion, pour repérer les schémas
+  if(statsEl){
+    const counts = {};
+    feelItems.forEach(f => { if(f.emo) counts[f.emo] = (counts[f.emo]||0) + 1; });
+    const keys = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+    if(keys.length){
+      statsEl.innerHTML = `<div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:12px 14px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#7A7468;margin-bottom:8px">Ce qui revient</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${keys.map(k => {
+          const e = FEEL_EMOS[k];
+          return `<span style="font-size:12px;color:#1A1814;display:flex;align-items:center;gap:4px"><span style="font-size:15px">${e.emoji}</span>${e.label} · <strong style="color:${e.color}">${counts[k]}</strong></span>`;
+        }).join('')}</div>
+      </div>`;
+    } else statsEl.innerHTML = '';
+  }
+  // Liste, plus récent en haut
+  const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  const sorted = [...feelItems].sort((a,b) => (b.date||'').localeCompare(a.date||'') || b.id - a.id);
+  el.innerHTML = sorted.map(f => {
+    const e = f.emo ? FEEL_EMOS[f.emo] : null;
+    let dateStr = '';
+    if(f.date){ const d = new Date(f.date+'T12:00:00'); dateStr = d.getDate()+' '+MOIS[d.getMonth()]+' '+d.getFullYear(); }
+    return `<div style="background:#fff;border:1px solid #EDE9E1;${e?`border-left:3px solid ${e.color};`:''}border-radius:10px;padding:12px 14px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:11px;color:#9A9488">${dateStr}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${e?`<span style="font-size:11px;font-weight:600;color:${e.color}">${e.emoji} ${e.label}</span>`:''}
+          <span onclick="delFeel(${f.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
+        </div>
+      </div>
+      ${f.what?`<div style="font-size:13px;color:#7A7468;font-style:italic;padding-left:10px;border-left:2px solid #EDE9E1;margin-bottom:6px">« ${(f.what||'').replace(/</g,'&lt;')} »</div>`:''}
+      ${f.felt?`<div style="font-size:14px;color:#1A1814;line-height:1.45">${(f.felt||'').replace(/</g,'&lt;')}</div>`:''}
+    </div>`;
+  }).join('');
 }
 
 // ── À DIRE À ANOUCK ──
