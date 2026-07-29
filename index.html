@@ -17,6 +17,13 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .cd-pulse{animation:cdPulse 2s ease-in-out infinite}
 .cd-pulse-strong{animation:cdPulseStrong 1.3s ease-in-out infinite}
 .hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
+.acc-head{padding:1.1rem 1rem;text-align:center;cursor:pointer;position:relative;transition:padding .2s}
+.acc-title{font-size:22px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+.acc-sub{font-size:12px;font-weight:600;color:rgba(255,255,255,.85);margin-top:.35rem;letter-spacing:.02em;padding:0 .5rem;line-height:1.4}
+.acc-chevron{position:absolute;right:1.1rem;top:50%;transform:translateY(-50%);font-size:14px;color:rgba(255,255,255,.7);transition:transform .25s}
+.acc-open .acc-chevron{transform:translateY(-50%) rotate(180deg)}
+.acc-body{display:none}
+.acc-open .acc-body{display:block}
 .hdr-date em{font-style:italic;color:#7A7468;font-size:1.05rem}
 #bday-inline{font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;color:#C25E7A;white-space:nowrap;margin-left:.5rem;cursor:pointer}
 #reste-line{font-size:11px;color:#9A9488;line-height:1.5;overflow:hidden;margin-bottom:.7rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -141,7 +148,6 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="hdr-date"><span id="hdr-day"></span> <em id="hdr-date"></em><span id="bday-inline"></span></div>
   </div>
   <div class="hdr-body">
-    <div id="reste-line" style="display:none"></div>
     <div class="hdr-icons">
       <div onclick="openTodo()" title="Envies &amp; projets">✨</div>
       <div onclick="openEvents()" title="Grands événements">🎯</div>
@@ -684,9 +690,13 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
 
 <!-- SECTION 1: UNE JOURNÉE QUI COMMENCE BIEN -->
-<div style="background:#D4694A;padding:1.4rem 1rem;text-align:center">
-  <div style="font-size:22px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)">☀️ Une journée qui commence bien</div>
+<div class="acc-section" id="acc-matin">
+<div class="acc-head" style="background:#D4694A" onclick="toggleAcc('matin')">
+  <div class="acc-title">☀️ Une journée qui commence bien</div>
+  <div class="acc-sub" id="acc-sub-matin"></div>
+  <span class="acc-chevron">▼</span>
 </div>
+<div class="acc-body">
 
 <div class="page" style="background:#E8845A;padding-bottom:0">
   <div class="card" style="margin-top:0">
@@ -795,9 +805,14 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- SECTION 2: GOED BEZIG GÉO -->
-<div style="background:#2D7A4F;padding:1.4rem 1rem;text-align:center">
-  <div style="font-size:22px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)">💪 Goed bezig Géo</div>
+</div></div>
+<div class="acc-section" id="acc-jour">
+<div class="acc-head" style="background:#2D7A4F" onclick="toggleAcc('jour')">
+  <div class="acc-title">💪 Goed bezig Géo</div>
+  <div class="acc-sub" id="acc-sub-jour"></div>
+  <span class="acc-chevron">▼</span>
 </div>
+<div class="acc-body">
 
 <div class="page" style="background:#4A9E70">
   <div class="page-title">Apprentissage</div>
@@ -987,9 +1002,14 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 </div>
 
 <!-- SECTION 3: BILAN DU SOIR -->
-<div style="background:#2A4A7F;padding:1.4rem 1rem;text-align:center">
-  <div style="font-size:22px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)">🌙 Bilan du soir</div>
+</div></div>
+<div class="acc-section" id="acc-soir">
+<div class="acc-head" style="background:#2A4A7F" onclick="toggleAcc('soir')">
+  <div class="acc-title">🌙 Bilan du soir</div>
+  <div class="acc-sub" id="acc-sub-soir"></div>
+  <span class="acc-chevron">▼</span>
 </div>
+<div class="acc-body">
 
 <div class="page" style="background:#3A5A9A">
   <div class="page-title">Habitudes</div>
@@ -1091,6 +1111,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
   </div>
 </div>
+</div></div>
 
 <script>
 const SB_URL='https://kyaomegzifoekezbtzhd.supabase.co';
@@ -1975,44 +1996,66 @@ const RESTE_NOTES = {
   note_equipe:'équipe', sommeil_h:'sommeil', poids:'poids'
 };
 function updateReste(){
-  const el = document.getElementById('reste-line');
-  if(!el) return;
-  const manque = [];
-  // Tuiles non cochées
-  document.querySelectorAll('.tile[data-field]').forEach(t => {
-    if(t.classList.contains('done')) return;
-    const lbl = t.querySelector('.tile-lbl');
-    if(lbl) manque.push(lbl.textContent.replace(/\s*\?$/,'').trim());
+  // Pour chaque section : compteur (cochés/total) + ce qui reste à cocher
+  ['matin','jour','soir'].forEach(sec => {
+    const sub = document.getElementById('acc-sub-'+sec);
+    const section = document.getElementById('acc-'+sec);
+    if(!sub || !section) return;
+
+    let total = 0, done = 0;
+    const manque = [];
+    // Tuiles de la section
+    section.querySelectorAll('.tile[data-field]').forEach(t => {
+      total++;
+      if(t.classList.contains('done')){ done++; return; }
+      const lbl = t.querySelector('.tile-lbl');
+      if(lbl) manque.push(lbl.textContent.replace(/\s*\?$/,'').trim());
+    });
+    // Champs de notes de la section, regroupés (gratitudes = 1 groupe)
+    const groupes = {};
+    section.querySelectorAll('[data-key]').forEach(f => {
+      const nom = RESTE_NOTES[f.dataset.key];
+      if(!nom) return;
+      if(!groupes[nom]) groupes[nom] = false;
+      if(f.value && f.value.trim()) groupes[nom] = true;
+    });
+    Object.keys(groupes).forEach(nom => {
+      total++;
+      if(groupes[nom]) done++;
+      else manque.push(nom);
+    });
+    // Eau : appartient à la section "jour" (Goed bezig)
+    if(sec === 'jour' && typeof water === 'number'){
+      total++;
+      if(water >= 8) done++;
+      else manque.push('eau ' + water + '/8');
+    }
+
+    let reste;
+    if(manque.length === 0) reste = '<span style="color:rgba(255,255,255,.95)">✓ tout est complété</span>';
+    else {
+      // Limiter à ~5 éléments pour rester lisible
+      const MAX = 5;
+      const liste = manque.slice(0, MAX).join(' · ');
+      const suite = manque.length > MAX ? ` +${manque.length - MAX}` : '';
+      reste = 'Reste : ' + liste + suite;
+    }
+    sub.innerHTML = `<span style="font-weight:800">${done}/${total}</span> &nbsp;·&nbsp; ${reste}`;
   });
-  // Champs de notes vides (dédupliqués : "gratitudes" ne sort qu'une fois)
-  const vus = new Set();
-  document.querySelectorAll('[data-key]').forEach(f => {
-    if(f.value && f.value.trim()) return;
-    const nom = RESTE_NOTES[f.dataset.key];
-    if(nom && !vus.has(nom)){ vus.add(nom); manque.push(nom); }
-  });
-  // Eau (le compteur, pas une tuile)
-  if(typeof water === 'number' && water < 8) manque.push('eau ' + water + '/8');
+}
 
-  if(manque.length === 0){
-    el.style.display = 'block';
-    el.innerHTML = '<span style="color:#2D7A4F;font-weight:600">✓ Journée complète, bravo Géo</span>';
-    return;
-  }
-  el.style.display = 'block';
-
-  const render = (n) => {
-    const suite = n < manque.length ? ` <span style="color:#C4BDB0">+${manque.length - n}</span>` : '';
-    el.innerHTML = `<span style="color:#C4BDB0">Reste :</span> ${manque.slice(0, n).join(' · ')}${suite}`;
-  };
-
-  // Affiche tout, puis réduit jusqu'à ce que ça tienne en 2 lignes (clamp CSS)
-  render(manque.length);
-  let n = manque.length;
-  // scrollHeight > clientHeight => le texte déborde des 2 lignes autorisées
-  while(n > 1 && el.scrollHeight > el.clientHeight + 1){
-    n--;
-    render(n);
+// Accordéon : ouvre une section, referme les autres
+function toggleAcc(sec){
+  const target = document.getElementById('acc-'+sec);
+  if(!target) return;
+  const wasOpen = target.classList.contains('acc-open');
+  document.querySelectorAll('.acc-section').forEach(s => s.classList.remove('acc-open'));
+  if(!wasOpen){
+    target.classList.add('acc-open');
+    // Amener le haut de la section sous le header sticky
+    setTimeout(() => {
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+    }, 60);
   }
 }
 
