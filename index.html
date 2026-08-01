@@ -167,6 +167,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openGifts()" title="Idées cadeaux">🎁</div>
       <div onclick="openAnouck()" title="À dire à Anouck">💬</div>
       <div onclick="openFeel()" title="Ce que ça me fait">❤️</div>
+      <div onclick="openCoach()" title="Coaching">🧠</div>
       <div onclick="openHoney()" title="Livraisons de miel">🍯</div>
       <div onclick="openExport()" title="Sauvegarde">💾</div>
       <div onclick="openBilan()" title="Bilan de la semaine">📊</div>
@@ -401,6 +402,19 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     </div>
 
     <div id="export-status" style="font-size:12px;color:#7A7468;text-align:center;padding:.5rem"></div>
+  </div>
+</div>
+
+<!-- COACHING (overlay) -->
+<div id="coach-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">🧠 Coaching</span>
+    <div onclick="closeCoach()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem;max-width:640px;margin:0 auto">
+    <div id="coach-period-bar" style="display:flex;gap:6px;align-items:center;margin-bottom:1rem"></div>
+    <div id="coach-progress" style="margin-bottom:1rem"></div>
+    <div id="coach-content"></div>
   </div>
 </div>
 
@@ -4150,6 +4164,190 @@ ${body}
   } catch(e){
     exportStatus('❌ Échec : ' + e.message + '. Vérifie ta connexion et réessaie.');
   }
+}
+
+// ── COACHING (plans d'action par axe, avec historique) ──
+const COACH_AXES = {
+  corps:    {label:'Corps & santé',  emoji:'🏃', color:'#2D7A4F'},
+  esprit:   {label:'Esprit & mental',emoji:'🧘', color:'#6B5B95'},
+  couple:   {label:'Couple',         emoji:'❤️', color:'#C25E7A'},
+  famille:  {label:'Famille',        emoji:'👨‍👩‍👧‍👦', color:'#D4832A'},
+  amis:     {label:'Amis & liens',   emoji:'🤝', color:'#3D7EA6'},
+  projets:  {label:'Projets & pro',  emoji:'💼', color:'#7A6A55'},
+  perso:    {label:'Développement perso', emoji:'🌱', color:'#5A8C5A'},
+};
+const COACH_STATUS = {
+  todo:  {label:'Pas commencé', emoji:'⚪', color:'#B0AA9E'},
+  doing: {label:'En cours',     emoji:'🔵', color:'#3D7EA6'},
+  done:  {label:'Fait',         emoji:'✅', color:'#2D7A4F'},
+};
+let coachData = {};   // { "2026-07": { axes: { corps: [ {id, txt, status} ] } } }
+let coachPeriod = ''; // période affichée (AAAA-MM)
+
+function currentPeriod(){ return new Date().toISOString().slice(0,7); }
+function openCoach(){
+  document.getElementById('coach-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  coachPeriod = currentPeriod();
+  loadCoach();
+}
+function closeCoach(){
+  document.getElementById('coach-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+async function loadCoach(){
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.coaching_global&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY},
+      cache: 'no-store'
+    });
+    const rows = await r.json();
+    coachData = (rows && rows[0] && rows[0].data && rows[0].data.plans) ? rows[0].data.plans : {};
+  } catch(e){ coachData = {}; }
+  renderCoach();
+}
+async function saveCoach(){
+  const payload = {data: {plans: coachData}};
+  try {
+    const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.coaching_global&select=date`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
+    });
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(`${SB_URL}/rest/v1/journal?date=eq.coaching_global`, {
+        method: 'PATCH',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+    } else {
+      await fetch(`${SB_URL}/rest/v1/journal`, {
+        method: 'POST',
+        headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'},
+        body: JSON.stringify({date: 'coaching_global', ...payload})
+      });
+    }
+  } catch(e){}
+}
+function addCoachAction(axe){
+  const inp = document.getElementById('coach-inp-'+axe);
+  if(!inp) return;
+  const txt = inp.value.trim();
+  if(!txt) return;
+  if(!coachData[coachPeriod]) coachData[coachPeriod] = {axes:{}};
+  if(!coachData[coachPeriod].axes[axe]) coachData[coachPeriod].axes[axe] = [];
+  coachData[coachPeriod].axes[axe].push({id: uid(), txt, status:'todo'});
+  inp.value = '';
+  renderCoach();
+  saveCoach();
+  setTimeout(() => { const el = document.getElementById('coach-inp-'+axe); if(el) el.focus(); }, 40);
+}
+function cycleCoachStatus(axe, id){
+  const arr = coachData[coachPeriod] && coachData[coachPeriod].axes[axe];
+  if(!arr) return;
+  const a = arr.find(x => x.id === id);
+  if(!a) return;
+  a.status = a.status === 'todo' ? 'doing' : a.status === 'doing' ? 'done' : 'todo';
+  renderCoach();
+  saveCoach();
+}
+function delCoachAction(axe, id){
+  const arr = coachData[coachPeriod] && coachData[coachPeriod].axes[axe];
+  if(!arr) return;
+  coachData[coachPeriod].axes[axe] = arr.filter(x => x.id !== id);
+  renderCoach();
+  saveCoach();
+}
+function fmtPeriod(p){
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const [y,m] = p.split('-');
+  return MOIS[parseInt(m)-1] + ' ' + y;
+}
+function changePeriod(dir){
+  const periods = coachPeriods();
+  const i = periods.indexOf(coachPeriod);
+  if(i + dir >= 0 && i + dir < periods.length){ coachPeriod = periods[i+dir]; renderCoach(); }
+}
+function coachPeriods(){
+  // Toutes les périodes existantes + la période courante, triées
+  const set = new Set(Object.keys(coachData));
+  set.add(currentPeriod());
+  return Array.from(set).sort();
+}
+function renderCoach(){
+  const bar = document.getElementById('coach-period-bar');
+  const prog = document.getElementById('coach-progress');
+  const el = document.getElementById('coach-content');
+  if(!el) return;
+
+  // Barre de navigation période
+  const periods = coachPeriods();
+  const i = periods.indexOf(coachPeriod);
+  const estCourant = coachPeriod === currentPeriod();
+  bar.innerHTML = `
+    <span onclick="changePeriod(-1)" style="cursor:${i>0?'pointer':'default'};font-size:18px;color:${i>0?'#7A7468':'#DDD8CE'};padding:2px 8px">‹</span>
+    <div style="flex:1;text-align:center">
+      <div style="font-family:'DM Serif Display',serif;font-size:16px;color:#1A1814;text-transform:capitalize">${fmtPeriod(coachPeriod)}</div>
+      ${estCourant?'<div style="font-size:10px;color:#2D7A4F;font-weight:600">mois en cours</div>':'<div style="font-size:10px;color:#B0AA9E">archive</div>'}
+    </div>
+    <span onclick="changePeriod(1)" style="cursor:${i<periods.length-1?'pointer':'default'};font-size:18px;color:${i<periods.length-1?'#7A7468':'#DDD8CE'};padding:2px 8px">›</span>`;
+
+  const plan = coachData[coachPeriod];
+  // Progression globale
+  let total = 0, done = 0, doing = 0;
+  if(plan){
+    Object.values(plan.axes || {}).forEach(arr => arr.forEach(a => {
+      total++; if(a.status==='done') done++; else if(a.status==='doing') doing++;
+    }));
+  }
+  if(total > 0){
+    const pctDone = Math.round(done/total*100);
+    const pctDoing = Math.round(doing/total*100);
+    prog.innerHTML = `<div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px">
+        <span style="color:#7A7468;font-weight:600">Progression du mois</span>
+        <span style="color:#2D7A4F;font-weight:700">${done}/${total} fait${done>1?'s':''}</span>
+      </div>
+      <div style="height:9px;background:#EDE9E1;border-radius:5px;overflow:hidden;display:flex">
+        <div style="height:100%;width:${pctDone}%;background:#2D7A4F"></div>
+        <div style="height:100%;width:${pctDoing}%;background:#7FB0D0"></div>
+      </div>
+    </div>`;
+  } else prog.innerHTML = '';
+
+  // Contenu : un bloc par axe
+  let html = '';
+  Object.keys(COACH_AXES).forEach(axe => {
+    const ax = COACH_AXES[axe];
+    const actions = (plan && plan.axes && plan.axes[axe]) ? plan.axes[axe] : [];
+    // On n'affiche l'axe que s'il a des actions OU si on est sur le mois courant (pour pouvoir ajouter)
+    if(actions.length === 0 && !estCourant) return;
+    html += `<div style="margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span style="font-size:18px">${ax.emoji}</span>
+        <span style="font-size:14px;font-weight:700;color:${ax.color}">${ax.label}</span>
+      </div>`;
+    actions.forEach(a => {
+      const st = COACH_STATUS[a.status] || COACH_STATUS.todo;
+      html += `<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #EDE9E1;border-left:3px solid ${st.color};border-radius:10px;padding:11px 13px;margin-bottom:6px">
+        <span onclick="cycleCoachStatus('${axe}',${a.id})" title="${st.label}" style="cursor:pointer;font-size:16px;line-height:1.3">${st.emoji}</span>
+        <span style="flex:1;font-size:13px;color:#1A1814;line-height:1.45;${a.status==='done'?'text-decoration:line-through;color:#B0AA9E':''}">${(a.txt||'').replace(/</g,'&lt;')}</span>
+        <span style="font-size:9px;color:${st.color};font-weight:600;white-space:nowrap;margin-top:2px">${st.label}</span>
+        ${estCourant?`<span onclick="delCoachAction('${axe}',${a.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>`:''}
+      </div>`;
+    });
+    if(estCourant){
+      html += `<div style="display:flex;gap:6px;margin-top:4px">
+        <input id="coach-inp-${axe}" type="text" placeholder="Ajouter une action..." onkeydown="if(event.key==='Enter')addCoachAction('${axe}')" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 10px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+        <button onclick="addCoachAction('${axe}')" style="font-size:15px;padding:0 12px;background:${ax.color};color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+      </div>`;
+    }
+    html += `</div>`;
+  });
+
+  if(!estCourant && total === 0){
+    html = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Aucun plan pour ce mois.</div>';
+  }
+  el.innerHTML = html;
 }
 
 // ── CE QUE ÇA ME FAIT (ressentis liés aux mots d'Anouck) ──
