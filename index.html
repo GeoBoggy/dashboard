@@ -2972,7 +2972,8 @@ const ALPI_SEED = {
     "Corde"
   ]
 };
-let alpiData = {};
+let alpiData = {};      // { "cat|item": true/false } — cases cochées
+let alpiCustom = {};    // { "catégorie": ["élément ajouté", ...] }
 function openAlpi(){
   document.getElementById('alpi-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
@@ -2989,12 +2990,14 @@ async function loadAlpi(){
       cache: 'no-store'
     });
     const rows = await r.json();
-    alpiData = (rows && rows[0] && rows[0].data && rows[0].data.checked) ? rows[0].data.checked : {};
-  } catch(e){ alpiData = {}; }
+    const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
+    alpiData = d.checked || {};
+    alpiCustom = d.custom || {};
+  } catch(e){ alpiData = {}; alpiCustom = {}; }
   renderAlpi();
 }
 async function saveAlpi(){
-  const payload = {data: {checked: alpiData}};
+  const payload = {data: {checked: alpiData, custom: alpiCustom}};
   try {
     const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.alpi_global&select=date`, {
       headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
@@ -3015,6 +3018,39 @@ async function saveAlpi(){
     }
   } catch(e){}
 }
+// Liste complète d'une catégorie = éléments de base + éléments ajoutés
+function alpiItemsOf(cat){
+  return (ALPI_SEED[cat] || []).concat(alpiCustom[cat] || []);
+}
+function addAlpiItem(cat){
+  const inp = document.getElementById('alpi-add-'+alpiCatId(cat));
+  if(!inp) return;
+  const txt = inp.value.trim();
+  if(!txt) return;
+  if(!alpiCustom[cat]) alpiCustom[cat] = [];
+  alpiCustom[cat].push(txt);
+  inp.value = '';
+  renderAlpi();
+  saveAlpi();
+  setTimeout(() => { const el = document.getElementById('alpi-add-'+alpiCatId(cat)); if(el) el.focus(); }, 40);
+}
+function delAlpiItem(cat, item){
+  // Retire d'un custom si présent, sinon marque comme masqué via suppression de base
+  if(alpiCustom[cat] && alpiCustom[cat].includes(item)){
+    alpiCustom[cat] = alpiCustom[cat].filter(x => x !== item);
+  } else {
+    // élément de base : on le masque en le mémorisant
+    if(!alpiCustom['__hidden__']) alpiCustom['__hidden__'] = [];
+    alpiCustom['__hidden__'].push(cat+'|'+item);
+  }
+  delete alpiData[cat+'|'+item];
+  renderAlpi();
+  saveAlpi();
+}
+function alpiHidden(cat, item){
+  return alpiCustom['__hidden__'] && alpiCustom['__hidden__'].includes(cat+'|'+item);
+}
+function alpiCatId(cat){ return cat.replace(/[^a-zA-Z0-9]/g,''); }
 function toggleAlpi(key){
   alpiData[key] = !alpiData[key];
   renderAlpi();
@@ -3030,7 +3066,8 @@ function renderAlpi(){
   const el = document.getElementById('alpi-list');
   if(!el) return;
   let total = 0, done = 0;
-  Object.keys(ALPI_SEED).forEach(cat => ALPI_SEED[cat].forEach(item => {
+  Object.keys(ALPI_SEED).forEach(cat => alpiItemsOf(cat).forEach(item => {
+    if(alpiHidden(cat, item)) return;
     total++;
     if(alpiData[cat+'|'+item]) done++;
   }));
@@ -3048,17 +3085,24 @@ function renderAlpi(){
   }
   let html = '';
   Object.keys(ALPI_SEED).forEach(cat => {
-    const items = ALPI_SEED[cat];
+    const items = alpiItemsOf(cat).filter(it => !alpiHidden(cat, it));
     const catDone = items.filter(it => alpiData[cat+'|'+it]).length;
+    const cid = alpiCatId(cat);
     html += `<div style="font-family:'DM Serif Display',serif;font-size:15px;color:#1A1814;margin:1.1rem 0 .5rem">${cat} <span style="font-size:11px;color:#B0AA9E;font-weight:400">${catDone}/${items.length}</span></div>`;
     items.forEach(it => {
       const key = cat+'|'+it;
       const on = !!alpiData[key];
-      html += `<div onclick="toggleAlpi('${key.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:11px;background:#fff;border:1px solid ${on?'#C4D4DC':'#EDE9E1'};border-radius:10px;padding:11px 13px;margin-bottom:5px;cursor:pointer">
-        <span style="font-size:18px">${on?'✅':'⬜'}</span>
-        <span style="flex:1;font-size:14px;color:#1A1814;${on?'text-decoration:line-through;color:#B0AA9E':''}">${it.replace(/</g,'&lt;')}</span>
+      html += `<div style="display:flex;align-items:center;gap:11px;background:#fff;border:1px solid ${on?'#C4D4DC':'#EDE9E1'};border-radius:10px;padding:11px 13px;margin-bottom:5px">
+        <span onclick="toggleAlpi('${key.replace(/'/g,"\\'")}')" style="cursor:pointer;font-size:18px">${on?'✅':'⬜'}</span>
+        <span onclick="toggleAlpi('${key.replace(/'/g,"\\'")}')" style="flex:1;cursor:pointer;font-size:14px;color:#1A1814;${on?'text-decoration:line-through;color:#B0AA9E':''}">${it.replace(/</g,'&lt;')}</span>
+        <span onclick="delAlpiItem('${cat.replace(/'/g,"\\'")}','${it.replace(/'/g,"\\'").replace(/</g,'&lt;')}')" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
       </div>`;
     });
+    // Champ d'ajout pour cette catégorie
+    html += `<div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="alpi-add-${cid}" type="text" placeholder="Ajouter à ${cat.replace(/^[^\s]+\s/,'').toLowerCase()}..." onkeydown="if(event.key==='Enter')addAlpiItem('${cat.replace(/'/g,"\\'")}')" style="flex:1;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 10px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
+      <button onclick="addAlpiItem('${cat.replace(/'/g,"\\'")}')" style="font-size:15px;padding:0 12px;background:#5A7A8A;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
+    </div>`;
   });
   el.innerHTML = html;
 }
