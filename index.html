@@ -178,6 +178,14 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="bar-track"><div class="bar-fill" id="score-fill" style="width:0%"></div></div>
     <span class="bar-lbl" id="score-lbl">0/0</span>
   </div>
+  <div id="datenav" style="display:flex;align-items:center;gap:8px;margin-top:.5rem;font-size:12px">
+    <span onclick="changeViewDate(-1)" style="cursor:pointer;color:#7A7468;padding:2px 8px;border:1px solid #E2DDD4;border-radius:8px">‹ jour</span>
+    <span id="datenav-lbl" style="flex:1;text-align:center;color:#9A9488"></span>
+    <span id="datenav-next" onclick="changeViewDate(1)" style="cursor:pointer;color:#7A7468;padding:2px 8px;border:1px solid #E2DDD4;border-radius:8px">jour ›</span>
+  </div>
+  <div id="datenav-actions" style="display:none;margin-top:.4rem">
+    <button onclick="checkAllToday()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px;background:#4A9E70;color:#fff;border:none;border-radius:8px;cursor:pointer">✓ Tout cocher ce jour</button>
+  </div>
   <div id="events-banners" style="margin-top:.6rem"></div>
   <div class="save-st" id="save-st"></div>
   </div>
@@ -1148,6 +1156,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 const SB_URL='https://kyaomegzifoekezbtzhd.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt5YW9tZWd6aWZvZWtlemJ0emhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA3MzE1ODYsImV4cCI6MjA5NjMwNzU4Nn0.u4sxsNSp7QW8nNdywcN0kBxAt_i2z7Mk0Ntq4ZR8XVQ';
 const TODAY=new Date().toISOString().slice(0,10);
+let viewDate=TODAY; // jour actuellement affiché (modifiable pour revenir en arrière)
 const CIRC=2*Math.PI*58.5;
 
 // Date
@@ -1833,7 +1842,7 @@ function setSt(msg,cls){
 async function loadData(){
   setSt('Chargement...','saving');
   try{
-    const r=await fetch(`${SB_URL}/rest/v1/journal?date=eq.${TODAY}&select=*`,{
+    const r=await fetch(`${SB_URL}/rest/v1/journal?date=eq.${viewDate}&select=*`,{
       headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
     });
     const rows=await r.json();
@@ -1851,7 +1860,51 @@ async function loadData(){
   setTimeout(()=>setSt('',''),2000);
 }
 
-// ── STREAK DUOLINGO (853 jours le 09/06/2026) ──
+// ── NAVIGATION ENTRE LES JOURS ──
+function updateDateNav(){
+  const lbl = document.getElementById('datenav-lbl');
+  const next = document.getElementById('datenav-next');
+  const actions = document.getElementById('datenav-actions');
+  if(!lbl) return;
+  if(viewDate === TODAY){
+    lbl.textContent = "Aujourd'hui";
+    lbl.style.fontWeight = '400';
+    if(next) next.style.visibility = 'hidden'; // pas de futur
+    if(actions) actions.style.display = 'none';
+  } else {
+    const d = new Date(viewDate + 'T12:00:00');
+    const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+    const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+    lbl.innerHTML = `<span style="color:#C4632A;font-weight:700">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}</span> · <span onclick="goToday()" style="cursor:pointer;text-decoration:underline">revenir à aujourd'hui</span>`;
+    if(next) next.style.visibility = 'visible';
+    if(actions) actions.style.display = 'block';
+  }
+}
+async function changeViewDate(delta){
+  const d = new Date(viewDate + 'T12:00:00');
+  d.setDate(d.getDate() + delta);
+  const newDate = d.toISOString().slice(0,10);
+  if(newDate > TODAY) return; // pas de futur
+  viewDate = newDate;
+  updateDateNav();
+  await loadData();
+}
+function goToday(){
+  viewDate = TODAY;
+  updateDateNav();
+  loadData();
+}
+function checkAllToday(){
+  // Coche toutes les tuiles à cocher du jour affiché (sans toucher aux champs texte)
+  document.querySelectorAll('.tile[data-field]').forEach(t=>{
+    const f = t.dataset.field;
+    if(f === 'water') return;
+    t.classList.add('done');
+    state[f] = true;
+  });
+  updateScore();
+  saveData();
+}
 function updateDuoStreak(){
   const el = document.getElementById('duo-streak');
   if(!el) return;
@@ -1913,7 +1966,7 @@ async function saveData(){
   saveTimer=setTimeout(async()=>{
     setSt('Sauvegarde...','saving');
     try{
-      const patch=await fetch(`${SB_URL}/rest/v1/journal?date=eq.${TODAY}`,{
+      const patch=await fetch(`${SB_URL}/rest/v1/journal?date=eq.${viewDate}`,{
         method:'PATCH',
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
         body:JSON.stringify({data:state})
@@ -1923,7 +1976,7 @@ async function saveData(){
         await fetch(`${SB_URL}/rest/v1/journal`,{
           method:'POST',
           headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
-          body:JSON.stringify({date:TODAY,data:state})
+          body:JSON.stringify({date:viewDate,data:state})
         });
       }
       setSt('Sauvegardé ✓','ok');
@@ -1935,13 +1988,15 @@ async function saveData(){
 }
 
 function applyState(){
+  // Réinitialise l'affichage (nécessaire quand on change de jour)
   document.querySelectorAll('.tile[data-field]').forEach(t=>{
     if(t.dataset.field==='water')return;
-    if(state[t.dataset.field])t.classList.add('done');
+    t.classList.toggle('done', !!state[t.dataset.field]);
   });
-  if(state.water){water=state.water;document.getElementById('water-n').textContent=water;updateWater();}
-  document.querySelectorAll('[data-key]').forEach(el=>{if(state[el.dataset.key])el.value=state[el.dataset.key];});
-  if(state.mood)document.querySelectorAll('.mood-btn').forEach(b=>{if(b.textContent===state.mood)b.classList.add('sel');});
+  water = state.water || 0;
+  const wn = document.getElementById('water-n'); if(wn) wn.textContent = water; updateWater();
+  document.querySelectorAll('[data-key]').forEach(el=>{ el.value = state[el.dataset.key] || ''; });
+  document.querySelectorAll('.mood-btn').forEach(b=>{ b.classList.toggle('sel', state.mood && b.textContent===state.mood); });
   updateSmokeDisplay();
   updateVerreDisplay();
   renderTasks();
@@ -5952,6 +6007,7 @@ loadWeightChart();
 loadStrava();
 
 loadData();
+updateDateNav();
 loadStreaks();
 </script>
 </body>
