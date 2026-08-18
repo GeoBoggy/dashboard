@@ -167,7 +167,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div onclick="openBdays()" title="Anniversaires">🎂</div>
       <div onclick="openGifts()" title="Idées cadeaux">🎁</div>
       <div onclick="openAnouck()" title="À dire à Anouck">💬</div>
-      <div onclick="openFeel()" title="Ce que ça me fait">❤️</div>
+      <div onclick="openFeel()" title="Analyse de pensées">💭</div>
       <div onclick="openCoach()" title="Coaching">🧠</div>
       <div onclick="openHoney()" title="Livraisons de miel">🍯</div>
       <div onclick="openExport()" title="Sauvegarde">💾</div>
@@ -430,20 +430,17 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 <!-- CE QUE ÇA ME FAIT (overlay) -->
 <div id="feel-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
-    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">❤️ Ce que ça me fait</span>
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">💭 Analyse de pensées</span>
     <div onclick="closeFeel()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
   </div>
   <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
-    <div style="font-size:12px;color:#7A7468;margin-bottom:1rem;line-height:1.5">Pour comprendre, avec le temps, ce que les mots d'Anouck te font ressentir 🌱</div>
-    <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
-      <textarea id="feel-what" rows="2" placeholder="Ce qu'elle a dit / la situation..." style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;resize:vertical;line-height:1.5;margin-bottom:6px"></textarea>
-      <textarea id="feel-felt" rows="2" placeholder="Ce que ça m'a fait ressentir..." style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;resize:vertical;line-height:1.5;margin-bottom:8px"></textarea>
-      <div style="font-size:11px;color:#7A7468;margin-bottom:6px">Comment je me sens :</div>
-      <div id="feel-emo-picker" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>
-      <button onclick="addFeel()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;padding:10px;background:#C25E7A;color:#fff;border:none;border-radius:8px;cursor:pointer">Enregistrer</button>
+    <div id="feel-home">
+      <div style="font-size:12px;color:#7A7468;margin-bottom:1rem;line-height:1.5">Analyse tes pensées automatiques, étape par étape, pour arriver à une pensée plus équilibrée 🌱</div>
+      <button onclick="newFeel()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:13px;background:#6B5B95;color:#fff;border:none;border-radius:10px;cursor:pointer;margin-bottom:.5rem">+ Nouvelle analyse</button>
+      <button onclick="exportFeel()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;padding:11px;background:#fff;color:#6B5B95;border:1px solid #6B5B95;border-radius:10px;cursor:pointer;margin-bottom:1.25rem">📄 Exporter pour ma psy</button>
+      <div id="feel-list"></div>
     </div>
-    <div id="feel-stats" style="margin-bottom:1rem"></div>
-    <div id="feel-list"></div>
+    <div id="feel-editor" style="display:none"></div>
   </div>
 </div>
 
@@ -4627,38 +4624,66 @@ function renderCoach(){
   el.innerHTML = html;
 }
 
-// ── CE QUE ÇA ME FAIT (ressentis liés aux mots d'Anouck) ──
+// ── ANALYSE DE PENSÉES AUTOMATIQUES (TCC, démarche psy) ──
 const FEEL_EMOS = {
-  aime:    {label:'Aimé',    emoji:'🥰', color:'#C25E7A'},
-  fier:    {label:'Fier',    emoji:'😊', color:'#2D7A4F'},
-  rassure: {label:'Rassuré', emoji:'😌', color:'#3D7EA6'},
-  touche:  {label:'Touché',  emoji:'🥲', color:'#6B5B95'},
-  triste:  {label:'Triste',  emoji:'😔', color:'#5A7A8A'},
-  blesse:  {label:'Blessé',  emoji:'💔', color:'#B0506A'},
-  agace:   {label:'Agacé',   emoji:'😤', color:'#D4832A'},
-  perdu:   {label:'Perdu',   emoji:'😶‍🌫️', color:'#9A9488'},
+  anxiete:    {label:'Anxiété',     emoji:'😰', color:'#C4A030'},
+  peur:       {label:'Peur',        emoji:'😨', color:'#6B5B95'},
+  tristesse:  {label:'Tristesse',   emoji:'😢', color:'#5A7A8A'},
+  colere:     {label:'Colère',      emoji:'😠', color:'#C0392B'},
+  frustration:{label:'Frustration', emoji:'😤', color:'#D4832A'},
+  honte:      {label:'Honte',       emoji:'😳', color:'#B0506A'},
+  culpabilite:{label:'Culpabilité', emoji:'😔', color:'#7A6A55'},
+  solitude:   {label:'Solitude',    emoji:'🥲', color:'#5A6B8A'},
+  jalousie:   {label:'Jalousie',    emoji:'😒', color:'#5A8C5A'},
+  deception:  {label:'Déception',   emoji:'😞', color:'#8A6D6A'},
+  // émotions positives (utiles pour la réévaluation colonne 7)
+  soulagement:{label:'Soulagement', emoji:'😌', color:'#2D7A4F'},
+  fierte:     {label:'Fierté',      emoji:'😊', color:'#2D7A4F'},
+  calme:      {label:'Calme',       emoji:'🙂', color:'#3D7EA6'},
+  espoir:     {label:'Espoir',      emoji:'🌤️', color:'#3D8C5E'},
 };
-let feelItems = [];
-let feelEmoChoice = '';
+// Questions d'aide de la psy (Danny Gagnon), par colonne
+const FEEL_HELP = {
+  faits_pour: [
+    "N'écris que des FAITS, rien que des faits (pas des interprétations).",
+    "Imagine-toi dans un tribunal : quels faits ne peuvent pas être remis en question ?",
+    "Est-ce que je saute rapidement aux conclusions ?"
+  ],
+  faits_contre: [
+    "Si mon/ma meilleur(e) ami(e) avait cette pensée, que lui dirais-je ?",
+    "Quelle est la probabilité que ce que je redoute survienne vraiment ?",
+    "Suis-je vraiment responsable de ce qui est arrivé ? Du comportement de l'autre ?",
+    "Quelle est la pire chose ? La meilleure ? La plus probable ?",
+    "Dans 5 ans, verrai-je cette situation différemment ?",
+    "Suis-je trop sévère envers moi-même ? Qu'est-ce qui est le plus utile : la critique ou le soutien ?",
+    "Suis-je en train d'ignorer certaines forces, certains éléments positifs ?",
+    "Le raisonnement émotif me fait-il croire plus que je ne le devrais ? Sentiments et faits sont-ils la même chose ?",
+    "Ai-je vécu une expérience similaire ? Comment l'ai-je surmontée ?"
+  ],
+  equilibree: [
+    "Si j'étais juge, comment résumerais-je les preuves des colonnes 4 et 5 ?",
+    "En gardant en tête les colonnes 4 et 5, quelle est la manière équilibrée, réaliste de voir la situation ?",
+    "Résume les faits pour (col.4) et les faits contre (col.5), relie-les avec « et » plutôt que « mais ».",
+    "Si un proche vivait ça, quel conseil lui donnerais-je ?",
+    "Qu'est-ce qu'une personne de confiance me dirait à propos des faits des colonnes 4 et 5 ?"
+  ]
+};
+let feelItems = [];        // liste des analyses
+let feelDraft = null;      // analyse en cours d'édition
 function openFeel(){
   document.getElementById('feel-overlay').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  feelEmoChoice = '';
-  renderFeelPicker();
+  showFeelHome();
   loadFeel();
 }
 function closeFeel(){
   document.getElementById('feel-overlay').style.display = 'none';
   document.body.style.overflow = '';
 }
-function renderFeelPicker(){
-  const el = document.getElementById('feel-emo-picker');
-  if(!el) return;
-  el.innerHTML = Object.keys(FEEL_EMOS).map(k => {
-    const e = FEEL_EMOS[k];
-    const sel = feelEmoChoice === k;
-    return `<span onclick="feelEmoChoice='${k}';renderFeelPicker()" style="cursor:pointer;font-size:12px;font-weight:${sel?'700':'500'};padding:5px 10px;border-radius:18px;border:1.5px solid ${sel?e.color:'#E2DDD4'};background:${sel?e.color:'#fff'};color:${sel?'#fff':'#7A7468'}">${e.emoji} ${e.label}</span>`;
-  }).join('');
+function showFeelHome(){
+  document.getElementById('feel-home').style.display = 'block';
+  document.getElementById('feel-editor').style.display = 'none';
+  feelDraft = null;
 }
 async function loadFeel(){
   try {
@@ -4692,69 +4717,156 @@ async function saveFeel(){
     }
   } catch(e){}
 }
-function addFeel(){
-  const what = document.getElementById('feel-what').value.trim();
-  const felt = document.getElementById('feel-felt').value.trim();
-  if(!what && !felt){ alert('Note au moins ce qu\'elle a dit ou ce que ça t\'a fait'); return; }
-  feelItems.push({id: uid(), what, felt, emo: feelEmoChoice, date: new Date().toISOString().slice(0,10)});
-  document.getElementById('feel-what').value = '';
-  document.getElementById('feel-felt').value = '';
-  feelEmoChoice = '';
-  renderFeelPicker();
-  renderFeel();
-  saveFeel();
+// Nouvelle analyse ou édition d'une existante
+function newFeel(){
+  feelDraft = {id: uid(), date: new Date().toISOString().slice(0,10), situation:'', emotions:[], pensees:'', critique:'', faitsPour:'', faitsContre:'', equilibree:'', reeval:[]};
+  renderFeelEditor();
+}
+function editFeel(id){
+  const a = feelItems.find(x => x.id === id);
+  if(!a) return;
+  feelDraft = JSON.parse(JSON.stringify(a)); // copie
+  if(!feelDraft.emotions) feelDraft.emotions = [];
+  if(!feelDraft.reeval) feelDraft.reeval = [];
+  renderFeelEditor();
 }
 function delFeel(id){
+  if(!confirm('Supprimer cette analyse ?')) return;
   feelItems = feelItems.filter(x => x.id !== id);
   renderFeel();
   saveFeel();
 }
+// Ajout/retrait d'une émotion (colonne 2) avec intensité
+function toggleFeelEmo(key){
+  const ex = feelDraft.emotions.find(e => e.key === key);
+  if(ex) feelDraft.emotions = feelDraft.emotions.filter(e => e.key !== key);
+  else feelDraft.emotions.push({key, pct: 50});
+  renderFeelEditor();
+}
+function setEmoPct(key, pct){
+  const e = feelDraft.emotions.find(x => x.key === key);
+  if(e) e.pct = parseInt(pct);
+  // maj live du label sans re-render complet
+  const lbl = document.getElementById('emopct-'+key);
+  if(lbl) lbl.textContent = pct + '%';
+}
+function setReevalPct(key, pct){
+  if(!feelDraft.reeval) feelDraft.reeval = [];
+  let e = feelDraft.reeval.find(x => x.key === key);
+  if(!e){ e = {key, pct: parseInt(pct)}; feelDraft.reeval.push(e); }
+  else e.pct = parseInt(pct);
+  const lbl = document.getElementById('reevalpct-'+key);
+  if(lbl) lbl.textContent = pct + '%';
+}
+function saveFeelDraft(){
+  // Récupère les champs texte
+  ['situation','pensees','critique','faitsPour','faitsContre','equilibree'].forEach(f => {
+    const el = document.getElementById('fd-'+f);
+    if(el) feelDraft[f] = el.value.trim();
+  });
+  if(!feelDraft.situation && feelDraft.emotions.length === 0){
+    alert('Décris au moins la situation et une émotion.'); return;
+  }
+  const i = feelItems.findIndex(x => x.id === feelDraft.id);
+  if(i >= 0) feelItems[i] = feelDraft;
+  else feelItems.unshift(feelDraft);
+  showFeelHome();
+  renderFeel();
+  saveFeel();
+}
+function helpBlock(cat){
+  return `<details style="margin-bottom:8px"><summary style="cursor:pointer;font-size:11px;color:#6B5B95;font-weight:600">💡 Questions pour m'aider</summary><ul style="margin:6px 0 0;padding-left:18px;font-size:11px;color:#7A7468;line-height:1.5">${FEEL_HELP[cat].map(q => '<li style="margin-bottom:3px">'+q+'</li>').join('')}</ul></details>`;
+}
+function renderFeelEditor(){
+  document.getElementById('feel-home').style.display = 'none';
+  const ed = document.getElementById('feel-editor');
+  ed.style.display = 'block';
+  const d = feelDraft;
+  const ta = (id, val, ph, rows) => `<textarea id="${id}" rows="${rows||2}" placeholder="${ph}" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;resize:vertical;line-height:1.5">${(val||'').replace(/</g,'&lt;')}</textarea>`;
+  const step = (n, titre, inner) => `<div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="background:#6B5B95;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${n}</span><span style="font-size:13px;font-weight:700;color:#1A1814">${titre}</span></div>${inner}</div>`;
+
+  // Émotions sélectionnées avec curseur
+  const emoSelected = d.emotions.map(e => {
+    const em = FEEL_EMOS[e.key]; if(!em) return '';
+    return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:${em.color};font-weight:600">${em.emoji} ${em.label}</span><span id="emopct-${e.key}" style="color:${em.color};font-weight:700">${e.pct}%</span></div><input type="range" min="0" max="100" value="${e.pct}" oninput="setEmoPct('${e.key}',this.value)" style="width:100%;accent-color:${em.color}"></div>`;
+  }).join('');
+  const emoPicker = Object.keys(FEEL_EMOS).map(k => {
+    const em = FEEL_EMOS[k]; const on = d.emotions.some(e => e.key === k);
+    return `<span onclick="toggleFeelEmo('${k}')" style="cursor:pointer;font-size:11px;font-weight:${on?'700':'500'};padding:4px 9px;border-radius:14px;border:1.5px solid ${on?em.color:'#E2DDD4'};background:${on?em.color:'#fff'};color:${on?'#fff':'#7A7468'};margin:2px">${em.emoji} ${em.label}</span>`;
+  }).join('');
+
+  // Réévaluation (colonne 7) : reprend les émotions de la colonne 2
+  const reevalBlock = d.emotions.length ? d.emotions.map(e => {
+    const em = FEEL_EMOS[e.key]; if(!em) return '';
+    const rv = (d.reeval || []).find(x => x.key === e.key);
+    const cur = rv ? rv.pct : e.pct;
+    return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:${em.color};font-weight:600">${em.emoji} ${em.label} <span style="color:#B0AA9E;font-weight:400">(avant ${e.pct}%)</span></span><span id="reevalpct-${e.key}" style="color:${em.color};font-weight:700">${cur}%</span></div><input type="range" min="0" max="100" value="${cur}" oninput="setReevalPct('${e.key}',this.value)" style="width:100%;accent-color:${em.color}"></div>`;
+  }).join('') : '<div style="font-size:12px;color:#B0AA9E;font-style:italic">Ajoute des émotions à l\'étape 2 d\'abord.</div>';
+
+  let html = `<div onclick="showFeelHome()" style="cursor:pointer;font-size:13px;color:#6B5B95;margin-bottom:1rem">‹ Retour à mes analyses</div>`;
+  html += step(1, 'Situation', '<div style="font-size:11px;color:#B0AA9E;margin-bottom:6px">Qui, quoi, quand, où ?</div>' + ta('fd-situation', d.situation, 'Décris la situation...'));
+  html += step(2, 'Émotion(s) et intensité', emoSelected + '<div style="font-size:11px;color:#7A7468;margin:8px 0 6px">Ajouter une émotion :</div><div style="display:flex;flex-wrap:wrap">' + emoPicker + '</div>');
+  html += step(3, 'Pensée(s) automatique(s)', ta('fd-pensees', d.pensees, 'Qu\'est-ce qui m\'a traversé l\'esprit ?', 2) + '<div style="font-size:11px;color:#7A7468;margin:8px 0 4px">✍️ La pensée critique (celle à travailler) :</div>' + ta('fd-critique', d.critique, 'La pensée à analyser...', 1));
+  html += step(4, 'Faits qui soutiennent cette pensée', helpBlock('faits_pour') + ta('fd-faitsPour', d.faitsPour, 'Uniquement des faits...', 3));
+  html += step(5, 'Faits qui ne la soutiennent pas', helpBlock('faits_contre') + ta('fd-faitsContre', d.faitsContre, 'Les faits qui la contredisent...', 3));
+  html += step(6, 'Pensée alternative / équilibrée', helpBlock('equilibree') + ta('fd-equilibree', d.equilibree, 'Une vision plus réaliste et équilibrée...', 3));
+  html += step(7, 'Réévaluation des émotions', '<div style="font-size:11px;color:#B0AA9E;margin-bottom:8px">Reprends tes émotions et réévalue leur intensité maintenant.</div>' + reevalBlock);
+  html += `<button onclick="saveFeelDraft()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:13px;background:#6B5B95;color:#fff;border:none;border-radius:10px;cursor:pointer;margin-bottom:2rem">Enregistrer l'analyse</button>`;
+  ed.innerHTML = html;
+}
 function renderFeel(){
-  const statsEl = document.getElementById('feel-stats');
   const el = document.getElementById('feel-list');
   if(!el) return;
   if(feelItems.length === 0){
-    if(statsEl) statsEl.innerHTML = '';
-    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:1.5rem">Rien de noté pour l\'instant.<br>Prends un moment quand une parole te marque 🌱</div>';
+    el.innerHTML = '<div style="text-align:center;color:#B0AA9E;font-size:13px;padding:2rem">Aucune analyse pour l\'instant.<br>Commence quand une situation te travaille 🌱</div>';
     return;
   }
-  // Stats : compte par émotion, pour repérer les schémas
-  if(statsEl){
-    const counts = {};
-    feelItems.forEach(f => { if(f.emo) counts[f.emo] = (counts[f.emo]||0) + 1; });
-    const keys = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
-    if(keys.length){
-      statsEl.innerHTML = `<div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:12px 14px">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#7A7468;margin-bottom:8px">Ce qui revient</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">${keys.map(k => {
-          const e = FEEL_EMOS[k];
-          return `<span style="font-size:12px;color:#1A1814;display:flex;align-items:center;gap:4px"><span style="font-size:15px">${e.emoji}</span>${e.label} · <strong style="color:${e.color}">${counts[k]}</strong></span>`;
-        }).join('')}</div>
-      </div>`;
-    } else statsEl.innerHTML = '';
-  }
-  // Liste, plus récent en haut
   const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
   const sorted = [...feelItems].sort((a,b) => (b.date||'').localeCompare(a.date||'') || b.id - a.id);
-  el.innerHTML = sorted.map(f => {
-    const e = f.emo ? FEEL_EMOS[f.emo] : null;
-    let dateStr = '';
-    if(f.date){ const d = new Date(f.date+'T12:00:00'); dateStr = d.getDate()+' '+MOIS[d.getMonth()]+' '+d.getFullYear(); }
-    return `<div style="background:#fff;border:1px solid #EDE9E1;${e?`border-left:3px solid ${e.color};`:''}border-radius:10px;padding:12px 14px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <span style="font-size:11px;color:#9A9488">${dateStr}</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          ${e?`<span style="font-size:11px;font-weight:600;color:${e.color}">${e.emoji} ${e.label}</span>`:''}
-          <span onclick="delFeel(${f.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>
+  el.innerHTML = sorted.map(a => {
+    const d = a.date ? new Date(a.date+'T12:00:00') : null;
+    const dateStr = d ? d.getDate()+' '+MOIS[d.getMonth()]+' '+d.getFullYear() : '';
+    const emos = (a.emotions||[]).map(e => { const em = FEEL_EMOS[e.key]; return em ? em.emoji : ''; }).join(' ');
+    const titre = a.situation ? a.situation : (a.critique || 'Analyse');
+    return `<div style="background:#fff;border:1px solid #EDE9E1;border-left:3px solid #6B5B95;border-radius:10px;padding:13px 15px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1;cursor:pointer" onclick="editFeel(${a.id})">
+          <div style="font-size:11px;color:#9A9488;margin-bottom:2px">${dateStr} ${emos}</div>
+          <div style="font-size:14px;color:#1A1814;font-weight:600;line-height:1.4">${(titre||'').replace(/</g,'&lt;').slice(0,90)}</div>
+          ${a.equilibree?`<div style="font-size:12px;color:#2D7A4F;margin-top:4px">✓ pensée équilibrée trouvée</div>`:'<div style="font-size:11px;color:#C4A030;margin-top:4px">à poursuivre</div>'}
         </div>
+        <span onclick="delFeel(${a.id})" style="cursor:pointer;font-size:13px;color:#C4BDB0">✕</span>
       </div>
-      ${f.what?`<div style="font-size:13px;color:#7A7468;font-style:italic;padding-left:10px;border-left:2px solid #EDE9E1;margin-bottom:6px">« ${(f.what||'').replace(/</g,'&lt;')} »</div>`:''}
-      ${f.felt?`<div style="font-size:14px;color:#1A1814;line-height:1.45">${(f.felt||'').replace(/</g,'&lt;')}</div>`:''}
     </div>`;
   }).join('');
 }
+// Export texte pour la psy
+function exportFeel(){
+  if(feelItems.length === 0){ alert('Aucune analyse à exporter.'); return; }
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const sorted = [...feelItems].sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  let txt = 'ANALYSES DE PENSÉES AUTOMATIQUES\n\n';
+  sorted.forEach((a, i) => {
+    const d = a.date ? new Date(a.date+'T12:00:00') : null;
+    txt += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+    txt += 'Analyse ' + (i+1) + (d ? ' — ' + d.getDate() + ' ' + MOIS[d.getMonth()] + ' ' + d.getFullYear() : '') + '\n\n';
+    txt += '1. SITUATION\n' + (a.situation||'—') + '\n\n';
+    txt += '2. ÉMOTIONS\n' + ((a.emotions||[]).map(e => { const em = FEEL_EMOS[e.key]; return (em?em.label:e.key) + ' ' + e.pct + '%'; }).join(', ') || '—') + '\n\n';
+    txt += '3. PENSÉES AUTOMATIQUES\n' + (a.pensees||'—') + '\n';
+    if(a.critique) txt += '   → Pensée critique : ' + a.critique + '\n';
+    txt += '\n4. FAITS QUI SOUTIENNENT\n' + (a.faitsPour||'—') + '\n\n';
+    txt += '5. FAITS QUI NE SOUTIENNENT PAS\n' + (a.faitsContre||'—') + '\n\n';
+    txt += '6. PENSÉE ÉQUILIBRÉE\n' + (a.equilibree||'—') + '\n\n';
+    txt += '7. RÉÉVALUATION\n' + ((a.reeval && a.reeval.length) ? a.reeval.map(e => { const em = FEEL_EMOS[e.key]; return (em?em.label:e.key) + ' ' + e.pct + '%'; }).join(', ') : '—') + '\n\n';
+  });
+  const blob = new Blob([txt], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const el = document.createElement('a');
+  el.href = url; el.download = 'analyses_pensees_' + new Date().toISOString().slice(0,10) + '.txt';
+  document.body.appendChild(el); el.click(); document.body.removeChild(el);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
 
-// ── À DIRE À ANOUCK ──
 let anouckTopics = [];
 function openAnouck(){
   document.getElementById('anouck-overlay').style.display = 'block';
