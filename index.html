@@ -12,10 +12,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .top-header{padding:0 0 .7rem;background:#fff;border-bottom:1px solid #E2DDD4;position:relative;z-index:20}
 .hdr-datebar{position:sticky;top:0;z-index:30;background:#fff;cursor:pointer;padding:.9rem 1.25rem .6rem}
 .hdr-body{padding:0 1.25rem}
-@keyframes cdPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
-@keyframes cdPulseStrong{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.025);filter:brightness(1.12)}}
-.cd-pulse{animation:cdPulse 2s ease-in-out infinite}
-.cd-pulse-strong{animation:cdPulseStrong 1.3s ease-in-out infinite}
+@keyframes cdPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
+@keyframes cdPulseStrong{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.018);filter:brightness(1.12)}}
+.cd-pulse{animation:cdPulse 2s ease-in-out infinite;transform-origin:center}
+.cd-pulse-strong{animation:cdPulseStrong 1.3s ease-in-out infinite;transform-origin:center}
 .hdr-date{font-family:'DM Serif Display',serif;font-size:1.3rem;line-height:1.2}
 .acc-head{padding:1.1rem 1rem;text-align:center;cursor:pointer;position:relative;transition:padding .2s}
 .acc-title{font-size:22px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.2)}
@@ -198,7 +198,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <button onclick="closeCalPicker()" style="width:100%;margin-top:12px;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px;background:#F0EDE7;color:#7A7468;border:none;border-radius:8px;cursor:pointer">Fermer</button>
     </div>
   </div>
-  <div id="events-banners" style="margin-top:.6rem"></div>
+  <div id="events-banners" style="margin-top:.6rem;display:flex;flex-direction:column;gap:.55rem"></div>
   <div class="save-st" id="save-st"></div>
   </div>
 </div>
@@ -1457,7 +1457,7 @@ function renderEventBanners(){
   box.innerHTML = actifs.map((e, i) => {
     const ty = EVENT_TYPES[e.type] || EVENT_TYPES.autre;
     const click = e.action === 'openPlan' ? ' onclick="openPlan()" style="cursor:pointer"' : '';
-    return `<div class="cd-banner" data-eid="${e.id}" data-type="${e.type}" data-date="${e.date}"${click ? click : ''} style="margin-top:${i===0?'0':'.5rem'};border-radius:12px;overflow:hidden">
+    return `<div class="cd-banner" data-eid="${e.id}" data-type="${e.type}" data-date="${e.date}"${click ? click : ''} style="border-radius:12px;overflow:hidden">
       <div class="cd-inner" style="padding:10px 14px"></div>
     </div>`;
   }).join('');
