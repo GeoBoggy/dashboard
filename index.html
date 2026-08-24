@@ -180,12 +180,23 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div id="datenav" style="display:flex;align-items:center;gap:8px;margin-top:.5rem;font-size:12px">
     <span onclick="changeViewDate(-1)" style="cursor:pointer;color:#7A7468;padding:2px 8px;border:1px solid #E2DDD4;border-radius:8px">‹ jour</span>
-    <span id="datenav-lbl" onclick="openDatePicker()" style="flex:1;text-align:center;color:#9A9488;cursor:pointer"></span>
+    <span id="datenav-lbl" onclick="openCalPicker()" style="flex:1;text-align:center;color:#9A9488;cursor:pointer"></span>
     <span id="datenav-next" onclick="changeViewDate(1)" style="cursor:pointer;color:#7A7468;padding:2px 8px;border:1px solid #E2DDD4;border-radius:8px">jour ›</span>
-    <input type="date" id="datenav-picker" onchange="pickDate(this.value)" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none">
   </div>
-  <div id="datenav-actions" style="display:none;margin-top:.4rem">
-    <button onclick="checkAllToday()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px;background:#4A9E70;color:#fff;border:none;border-radius:8px;cursor:pointer">✓ Tout cocher ce jour</button>
+  <div id="datenav-actions" style="display:none;margin-top:.4rem;gap:6px">
+    <button onclick="checkAllToday()" style="flex:1;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px;background:#4A9E70;color:#fff;border:none;border-radius:8px;cursor:pointer">✓ Tout cocher ce jour</button>
+    <button onclick="goToday()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px 12px;background:#fff;color:#C4632A;border:1px solid #C4632A;border-radius:8px;cursor:pointer">Aujourd'hui</button>
+  </div>
+  <div id="calpicker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center" onclick="if(event.target===this)closeCalPicker()">
+    <div style="background:#fff;border-radius:16px;padding:16px;width:90%;max-width:340px;box-shadow:0 10px 40px rgba(0,0,0,.2)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <span onclick="calNav(-1)" style="cursor:pointer;font-size:20px;color:#7A7468;padding:4px 10px">‹</span>
+        <span id="calpicker-month" style="font-family:'DM Serif Display',serif;font-size:16px;color:#1A1814;text-transform:capitalize"></span>
+        <span onclick="calNav(1)" style="cursor:pointer;font-size:20px;color:#7A7468;padding:4px 10px">›</span>
+      </div>
+      <div id="calpicker-grid"></div>
+      <button onclick="closeCalPicker()" style="width:100%;margin-top:12px;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px;background:#F0EDE7;color:#7A7468;border:none;border-radius:8px;cursor:pointer">Fermer</button>
+    </div>
   </div>
   <div id="events-banners" style="margin-top:.6rem"></div>
   <div class="save-st" id="save-st"></div>
@@ -1878,9 +1889,9 @@ function updateDateNav(){
     const d = new Date(viewDate + 'T12:00:00');
     const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
     const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-    lbl.innerHTML = `<span style="color:#C4632A;font-weight:700">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]} 📅</span> · <span onclick="event.stopPropagation();goToday()" style="cursor:pointer;text-decoration:underline">aujourd'hui</span>`;
+    lbl.innerHTML = `<span style="color:#C4632A;font-weight:700">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]} 📅</span>`;
     if(next) next.style.visibility = 'visible';
-    if(actions) actions.style.display = 'block';
+    if(actions) actions.style.display = 'flex';
   }
 }
 async function changeViewDate(delta){
@@ -1897,20 +1908,54 @@ function goToday(){
   updateDateNav();
   loadData();
 }
-// Ouvre le sélecteur de date natif
-function openDatePicker(){
-  const inp = document.getElementById('datenav-picker');
-  if(!inp) return;
-  inp.value = viewDate;
-  inp.max = TODAY; // pas de futur
-  // showPicker() sur navigateurs récents, sinon focus/click
-  if(typeof inp.showPicker === 'function'){ try { inp.showPicker(); return; } catch(e){} }
-  inp.focus(); inp.click();
+// Mini-calendrier maison (fiable en PWA iOS)
+let calViewMonth = null; // {y, m}
+function openCalPicker(){
+  const d = new Date(viewDate + 'T12:00:00');
+  calViewMonth = {y: d.getFullYear(), m: d.getMonth()};
+  renderCalPicker();
+  document.getElementById('calpicker-overlay').style.display = 'flex';
 }
-async function pickDate(val){
-  if(!val) return;
-  if(val > TODAY) val = TODAY;
-  viewDate = val;
+function closeCalPicker(){
+  document.getElementById('calpicker-overlay').style.display = 'none';
+}
+function calNav(delta){
+  let m = calViewMonth.m + delta, y = calViewMonth.y;
+  if(m < 0){ m = 11; y--; } else if(m > 11){ m = 0; y++; }
+  calViewMonth = {y, m};
+  renderCalPicker();
+}
+function renderCalPicker(){
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const JHEAD = ['L','M','M','J','V','S','D'];
+  const {y, m} = calViewMonth;
+  document.getElementById('calpicker-month').textContent = MOIS[m] + ' ' + y;
+  const firstDay = new Date(y, m, 1);
+  // getDay: 0=dim..6=sam ; on veut lundi en 1re colonne
+  let startCol = (firstDay.getDay() + 6) % 7;
+  const nbDays = new Date(y, m+1, 0).getDate();
+  let html = '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center">';
+  JHEAD.forEach(j => html += `<div style="font-size:10px;color:#B0AA9E;font-weight:700;padding:4px 0">${j}</div>`);
+  for(let i=0;i<startCol;i++) html += '<div></div>';
+  for(let day=1; day<=nbDays; day++){
+    const ds = y + '-' + ('0'+(m+1)).slice(-2) + '-' + ('0'+day).slice(-2);
+    const isFuture = ds > TODAY;
+    const isToday = ds === TODAY;
+    const isSel = ds === viewDate;
+    let bg = 'transparent', col = '#1A1814', weight = '400';
+    if(isSel){ bg = '#C4632A'; col = '#fff'; weight = '700'; }
+    else if(isToday){ bg = '#F0EDE7'; weight = '700'; }
+    if(isFuture){ col = '#DDD8CE'; }
+    const click = isFuture ? '' : `onclick="pickCalDate('${ds}')"`;
+    html += `<div ${click} style="padding:9px 0;font-size:13px;border-radius:8px;cursor:${isFuture?'default':'pointer'};background:${bg};color:${col};font-weight:${weight}">${day}</div>`;
+  }
+  html += '</div>';
+  document.getElementById('calpicker-grid').innerHTML = html;
+}
+async function pickCalDate(ds){
+  if(ds > TODAY) return;
+  viewDate = ds;
+  closeCalPicker();
   updateDateNav();
   await loadData();
 }
