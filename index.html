@@ -180,8 +180,9 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div id="datenav" style="display:flex;align-items:center;gap:8px;margin-top:.5rem;font-size:12px">
     <span onclick="changeViewDate(-1)" style="cursor:pointer;color:#7A7468;padding:2px 8px;border:1px solid #E2DDD4;border-radius:8px">‹ jour</span>
-    <span id="datenav-lbl" style="flex:1;text-align:center;color:#9A9488"></span>
+    <span id="datenav-lbl" onclick="openDatePicker()" style="flex:1;text-align:center;color:#9A9488;cursor:pointer"></span>
     <span id="datenav-next" onclick="changeViewDate(1)" style="cursor:pointer;color:#7A7468;padding:2px 8px;border:1px solid #E2DDD4;border-radius:8px">jour ›</span>
+    <input type="date" id="datenav-picker" onchange="pickDate(this.value)" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none">
   </div>
   <div id="datenav-actions" style="display:none;margin-top:.4rem">
     <button onclick="checkAllToday()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px;background:#4A9E70;color:#fff;border:none;border-radius:8px;cursor:pointer">✓ Tout cocher ce jour</button>
@@ -735,6 +736,16 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
 <div class="page" style="background:#E8845A;padding-bottom:0">
   <div class="card" style="margin-top:0">
+    <div style="padding:.7rem .9rem .4rem">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.6rem">⚡ Urgent &amp; Important</div>
+      <div id="task-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:.6rem"></div>
+      <div style="display:flex;gap:6px">
+        <input id="task-input" type="text" placeholder="Ajouter une tâche..." style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none" onkeydown="if(event.key==='Enter')addTask()">
+        <button onclick="addTask()" style="font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500">+</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1rem">
     <div style="padding:.7rem .9rem">
       <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.6rem">🙏 Mes 3 gratitudes</div>
       <div class="grat-fields">
@@ -824,16 +835,6 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
         <div class="agenda-col"><div class="agenda-col-title">Tâches</div><div id="col-taches"><div class="agenda-loading">Chargement...</div></div></div>
         <div class="agenda-col"><div class="agenda-col-title">Meetings</div><div id="col-meetings"><div class="agenda-loading">Chargement...</div></div></div>
         <div class="agenda-col"><div class="agenda-col-title">Partagé</div><div id="col-partage"><div class="agenda-loading">Chargement...</div></div></div>
-      </div>
-    </div>
-  </div>
-  <div class="card" style="margin-top:.75rem">
-    <div style="padding:.7rem .9rem .4rem">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.6rem">⚡ Urgent &amp; Important</div>
-      <div id="task-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:.6rem"></div>
-      <div style="display:flex;gap:6px">
-        <input id="task-input" type="text" placeholder="Ajouter une tâche..." style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none" onkeydown="if(event.key==='Enter')addTask()">
-        <button onclick="addTask()" style="font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 12px;background:#D4694A;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:500">+</button>
       </div>
     </div>
   </div>
@@ -1869,7 +1870,7 @@ function updateDateNav(){
   const actions = document.getElementById('datenav-actions');
   if(!lbl) return;
   if(viewDate === TODAY){
-    lbl.textContent = "Aujourd'hui";
+    lbl.innerHTML = "Aujourd'hui <span style=\"color:#C4BDB0\">📅</span>";
     lbl.style.fontWeight = '400';
     if(next) next.style.visibility = 'hidden'; // pas de futur
     if(actions) actions.style.display = 'none';
@@ -1877,7 +1878,7 @@ function updateDateNav(){
     const d = new Date(viewDate + 'T12:00:00');
     const JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
     const MOIS = ['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-    lbl.innerHTML = `<span style="color:#C4632A;font-weight:700">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}</span> · <span onclick="goToday()" style="cursor:pointer;text-decoration:underline">revenir à aujourd'hui</span>`;
+    lbl.innerHTML = `<span style="color:#C4632A;font-weight:700">${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]} 📅</span> · <span onclick="event.stopPropagation();goToday()" style="cursor:pointer;text-decoration:underline">aujourd'hui</span>`;
     if(next) next.style.visibility = 'visible';
     if(actions) actions.style.display = 'block';
   }
@@ -1895,6 +1896,23 @@ function goToday(){
   viewDate = TODAY;
   updateDateNav();
   loadData();
+}
+// Ouvre le sélecteur de date natif
+function openDatePicker(){
+  const inp = document.getElementById('datenav-picker');
+  if(!inp) return;
+  inp.value = viewDate;
+  inp.max = TODAY; // pas de futur
+  // showPicker() sur navigateurs récents, sinon focus/click
+  if(typeof inp.showPicker === 'function'){ try { inp.showPicker(); return; } catch(e){} }
+  inp.focus(); inp.click();
+}
+async function pickDate(val){
+  if(!val) return;
+  if(val > TODAY) val = TODAY;
+  viewDate = val;
+  updateDateNav();
+  await loadData();
 }
 function checkAllToday(){
   // Coche toutes les tuiles à cocher du jour affiché (sans toucher aux champs texte)
@@ -2192,25 +2210,28 @@ function renderTasks(){
     </div>`).join('');
 }
 
+let addTaskLock = false;
 function addTask(){
+  if(addTaskLock) return; // évite les doubles envois
   const input=document.getElementById('task-input');
   const text=input.value.trim();
   if(!text)return;
+  addTaskLock = true;
   if(!state.tasks)state.tasks=[];
   const task={text,done:false,eventId:null};
   state.tasks.push(task);
   input.value='';
   renderTasks();
   saveData();
-  // Créer l'événement via GET
-  fetch(`${AGENDA_URL}?action=create&title=${encodeURIComponent(text)}`)
+  // Créer l'événement via GET (une seule fois)
+  fetch(`${AGENDA_URL}?action=create&title=${encodeURIComponent(text)}`, {redirect:'follow'})
     .then(r=>r.json()).then(data=>{
       if(data.eventId){
         const idx=state.tasks.findIndex(t=>t.text===text&&t.eventId===null);
         if(idx>=0){state.tasks[idx].eventId=data.eventId;saveData();}
       }
       setTimeout(loadAgenda,2000);
-    }).catch(()=>{});
+    }).catch(()=>{}).finally(()=>{ addTaskLock = false; });
 }
 
 function toggleTask(i){
@@ -2262,7 +2283,7 @@ async function loadAgenda(){
       }
     } catch(e){ crossedEvents = []; }
 
-    const r = await fetch(AGENDA_URL);
+    const r = await fetch(AGENDA_URL, {redirect:'follow'});
     let events = await r.json();
     // Sécurité : si la réponse n'est pas un tableau (erreur Apps Script, semaine vide...)
     if(!Array.isArray(events)) events = [];
