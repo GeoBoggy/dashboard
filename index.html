@@ -1457,8 +1457,8 @@ function renderEventBanners(){
   box.innerHTML = actifs.map((e, i) => {
     const ty = EVENT_TYPES[e.type] || EVENT_TYPES.autre;
     const click = e.action === 'openPlan' ? ' onclick="openPlan()" style="cursor:pointer"' : '';
-    return `<div class="cd-banner" data-eid="${e.id}" data-type="${e.type}" data-date="${e.date}"${click ? click : ''} style="border-radius:12px;overflow:hidden">
-      <div class="cd-inner" style="padding:10px 14px"></div>
+    return `<div class="cd-banner" data-eid="${e.id}" data-type="${e.type}" data-date="${e.date}"${click ? click : ''} style="border-radius:14px">
+      <div class="cd-inner" style="padding:10px 14px;border-radius:14px"></div>
     </div>`;
   }).join('');
   tickEventBanners(); // remplir tout de suite
@@ -1496,6 +1496,7 @@ function tickEventBanners(){
     const [c1, c2] = ty.grad;
     bn.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
     bn.style.color = '#fff';
+    bn.style.borderRadius = '14px';
     bn.className = 'cd-banner ' + anim;
 
     // Décompte : de plus en plus visuel selon le palier
