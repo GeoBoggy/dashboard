@@ -793,7 +793,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'journal_matin')" data-field="journal_matin">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-notebook"/></svg></div></div>
       <span class="tile-lbl">Journal</span>
-      <a href="https://canva.link/jj35auomgckkjlq" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Canva</a>
+      <a href="https://canva.link/v4brboa26kmak0x" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Canva</a>
     </div>
     <div class="tile" onclick="tgl(this,'meditation')" data-field="meditation">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-moon"/></svg></div></div>
@@ -1093,6 +1093,10 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'stretching')" data-field="stretching">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-stretch"/></svg></div></div>
       <span class="tile-lbl">Stretching 5'</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'planete')" data-field="planete">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-plant"/></svg></div></div>
+      <span class="tile-lbl">Un geste pour la planète</span>
     </div>
   </div>
 </div>
@@ -2432,7 +2436,7 @@ const LABELS = {
   federe:'Fédérer', cigarette:'Cigarette refusée', verre:'Verre refusé',
   pas:'Pas validés', sommeil:'Repos suffisant', diner:'Dîner sainement',
   encas:'En-cas sains', dejeuner:'Déjeuner sainement', mona:'Mona', colin:'Colin', anouck:'Anouck',
-  equipe:'On est une équipe', matthys:'Matthys', divert:'Divertissement', rigole:'Rigolé', stretching:'Stretching 5\''
+  equipe:'On est une équipe', matthys:'Matthys', divert:'Divertissement', rigole:'Rigolé', stretching:'Stretching 5\'', planete:'Un geste pour la planète'
 };
 
 async function loadBilan(){
