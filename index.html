@@ -186,8 +186,19 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <span id="datenav-next" onclick="changeViewDate(1)" style="cursor:pointer;color:#7A7468;padding:2px 8px;border:1px solid #E2DDD4;border-radius:8px">jour ›</span>
   </div>
   <div id="datenav-actions" style="display:none;margin-top:.4rem;gap:6px">
-    <button onclick="checkAllToday()" style="flex:1;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px;background:#4A9E70;color:#fff;border:none;border-radius:8px;cursor:pointer">✓ Tout cocher ce jour</button>
+    <button onclick="openJoker()" style="flex:1;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px;background:#8A5CB0;color:#fff;border:none;border-radius:8px;cursor:pointer">🃏 Jour joker</button>
     <button onclick="goToday()" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px 12px;background:#fff;color:#C4632A;border:1px solid #C4632A;border-radius:8px;cursor:pointer">Aujourd'hui</button>
+  </div>
+  <div id="joker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center" onclick="if(event.target===this)closeJoker()">
+    <div style="background:#fff;border-radius:16px;padding:20px;width:90%;max-width:340px;box-shadow:0 10px 40px rgba(0,0,0,.2)">
+      <div style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814;margin-bottom:6px">🃏 Jour joker</div>
+      <div style="font-size:12px;color:#7A7468;line-height:1.5;margin-bottom:12px">Quelle est la raison de ce joker ? Elle remplira tes champs du jour (sinon « Joker » par défaut).</div>
+      <input id="joker-reason" type="text" placeholder="Ex : week-end à Bruges, sortie alpi..." onkeydown="if(event.key==='Enter')confirmJoker()" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:14px">
+      <div style="display:flex;gap:8px">
+        <button onclick="confirmJoker()" style="flex:1;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#8A5CB0;color:#fff;border:none;border-radius:8px;cursor:pointer">Valider le joker</button>
+        <button onclick="closeJoker()" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:11px 16px;background:#F0EDE7;color:#7A7468;border:none;border-radius:8px;cursor:pointer">Annuler</button>
+      </div>
+    </div>
   </div>
   <div id="calpicker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center" onclick="if(event.target===this)closeCalPicker()">
     <div style="background:#fff;border-radius:16px;padding:16px;width:90%;max-width:340px;box-shadow:0 10px 40px rgba(0,0,0,.2)">
@@ -1978,14 +1989,66 @@ async function pickCalDate(ds){
   updateDateNav();
   await loadData();
 }
-function checkAllToday(){
-  // Coche toutes les tuiles à cocher du jour affiché (sans toucher aux champs texte)
+function openJoker(){
+  const inp = document.getElementById('joker-reason');
+  if(inp) inp.value = '';
+  document.getElementById('joker-overlay').style.display = 'flex';
+  setTimeout(()=>{ if(inp) inp.focus(); }, 100);
+}
+function closeJoker(){
+  document.getElementById('joker-overlay').style.display = 'none';
+}
+function confirmJoker(){
+  const inp = document.getElementById('joker-reason');
+  const raison = (inp && inp.value.trim()) ? inp.value.trim() : 'Joker';
+  closeJoker();
+  checkAllToday(raison);
+}
+async function checkAllToday(raison){
+  const remplissage = raison || 'Joker';
+  // JOUR JOKER : coche tout, eau 8/8, la raison dans les champs texte vides,
+  // sommeil et poids repris de la veille.
+  // 1) Récupérer les valeurs de la veille (sommeil_h + poids)
+  const veille = new Date(viewDate + 'T12:00:00');
+  veille.setDate(veille.getDate() - 1);
+  const veilleStr = veille.toISOString().slice(0,10);
+  let sommeilVeille = null, poidsVeille = null;
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/journal?date=eq.${veilleStr}&select=data`, {
+      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}, cache:'no-store'
+    });
+    const rows = await r.json();
+    if(rows && rows[0] && rows[0].data){
+      sommeilVeille = rows[0].data.sommeil_h || null;
+      poidsVeille = rows[0].data.poids || null;
+    }
+  } catch(e){}
+
+  // 2) Cocher toutes les tuiles + eau à 8
   document.querySelectorAll('.tile[data-field]').forEach(t=>{
     const f = t.dataset.field;
     if(f === 'water') return;
     t.classList.add('done');
     state[f] = true;
   });
+  water = 8;
+  state.water = 8;
+  const wn = document.getElementById('water-n'); if(wn) wn.textContent = 8;
+  updateWater();
+
+  // 3) Remplir les champs texte/nombre
+  document.querySelectorAll('[data-key]').forEach(el=>{
+    const k = el.dataset.key;
+    if(k === 'sommeil_h'){
+      if(!state[k] && sommeilVeille){ state[k] = sommeilVeille; el.value = sommeilVeille; }
+    } else if(k === 'poids'){
+      if(!state[k] && poidsVeille){ state[k] = poidsVeille; el.value = poidsVeille; }
+    } else {
+      // champ texte : la raison si vide
+      if(!el.value || !el.value.trim()){ state[k] = remplissage; el.value = remplissage; }
+    }
+  });
+
   updateScore();
   saveData();
 }
