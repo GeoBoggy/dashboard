@@ -1464,8 +1464,14 @@ function setHoneyPrice(kind, val){
   renderHoney();
   saveHoney();
 }
+// Grille : prix au pot selon la quantité totale de la personne (printemps + été)
+// 1-9 pots = 8 €/pot · 10-19 pots = 7 €/pot · 20 pots et + = 6,50 €/pot
+function honeyPriceFor(n){
+  const unit = n >= 20 ? 6.5 : n >= 10 ? 7 : 8;
+  return n * unit;
+}
 function honeyAmount(h){
-  return (h.printemps||0) * (honeyPrices.printemps||0) + (h.ete||0) * (honeyPrices.ete||0);
+  return honeyPriceFor((h.printemps||0) + (h.ete||0));
 }
 function fmtEur(n){
   return (Math.round(n * 100) / 100).toLocaleString('fr-BE', {minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2}) + ' €';
@@ -1481,16 +1487,16 @@ function renderHoney(){
   const nbPaye = honeyList.filter(h => h.paye).length;
   const moneyTotal = honeyList.reduce((s,h) => s + honeyAmount(h), 0);
   const moneyPaid = honeyList.filter(h => h.paye).reduce((s,h) => s + honeyAmount(h), 0);
-  const pricesSet = (honeyPrices.printemps||0) > 0 || (honeyPrices.ete||0) > 0;
-  const priceInput = (kind, label) => `<div style="flex:1"><label style="font-size:10px;color:#7A7468;display:block;margin-bottom:3px">${label}</label><div style="display:flex;align-items:center;gap:4px"><input type="number" min="0" step="0.5" inputmode="decimal" value="${honeyPrices[kind]||''}" placeholder="0" onchange="setHoneyPrice('${kind}', this.value)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:7px 8px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;text-align:center"><span style="font-size:13px;color:#7A7468">€</span></div></div>`;
   const moneyHtml = `<div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:12px 14px;margin-top:8px">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#B0AA9E;margin-bottom:8px">💶 Argent</div>
-      <div style="display:flex;gap:8px;margin-bottom:${pricesSet?'12px':'4px'}">${priceInput('printemps','🌸 Prix / pot printemps')}${priceInput('ete','☀️ Prix / pot été')}</div>
-      ${pricesSet ? `<div style="display:flex;justify-content:space-around;text-align:center;border-top:1px solid #EDE9E1;padding-top:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
+        <span style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#B0AA9E">💶 Argent</span>
+        
+      </div>
+      <div style="display:flex;justify-content:space-around;text-align:center">
         <div><div style="font-size:19px;font-weight:800;color:#1A1814">${fmtEur(moneyTotal)}</div><div style="font-size:10px;color:#7A7468">total commandes</div></div>
         <div><div style="font-size:19px;font-weight:800;color:#2D7A4F">${fmtEur(moneyPaid)}</div><div style="font-size:10px;color:#7A7468">encaissé</div></div>
         <div><div style="font-size:19px;font-weight:800;color:#C4632A">${fmtEur(moneyTotal - moneyPaid)}</div><div style="font-size:10px;color:#7A7468">à encaisser</div></div>
-      </div>` : `<div style="font-size:11px;color:#B0AA9E">Indique tes prix pour voir ce que ça représente.</div>`}
+      </div>
     </div>`;
   if(totEl){
     totEl.innerHTML = `<div style="background:#1A1814;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-around;text-align:center">
@@ -1529,7 +1535,7 @@ function renderHoney(){
     const items = [];
     if(h.printemps) items.push(`🌸 ${h.printemps}`);
     if(h.ete) items.push(`☀️ ${h.ete}`);
-    if(items.length && ((honeyPrices.printemps||0) > 0 || (honeyPrices.ete||0) > 0)) items.push(`<span style="color:#1A1814">${fmtEur(honeyAmount(h))}</span>`);
+    if(items.length) items.push(`<span style="color:#1A1814">${fmtEur(honeyAmount(h))}</span>`);
     const incomplet = !h.adresse || (!h.printemps && !h.ete);
     return `<div draggable="true" data-hid="${h.id}"
       ondragstart="honeyDragStart(event,${h.id})" ondragover="honeyAllowDrop(event)" ondrop="honeyDrop(event,${h.id})"
