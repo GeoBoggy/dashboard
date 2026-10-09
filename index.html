@@ -227,8 +227,9 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div style="background:#2D4A3E;border-radius:12px;padding:14px;margin-bottom:1.25rem">
       <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px">🚚 Tournée de livraison</div>
       <input id="hon-depart" type="text" value="Clos de la Cense 6, 5101 Erpent" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 11px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;outline:none;margin-bottom:8px">
-      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:10px">Point de départ et de retour. Modifie-le si tu pars d'ailleurs aujourd'hui.</div>
-      <button onclick="openMapsTour()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border:none;border-radius:8px;cursor:pointer">📍 Préparer ma tournée</button>
+      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:10px">Point de départ (modifiable). Le retour se fait toujours à la maison, à Erpent.</div>
+      <button onclick="openMapsTour()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border:none;border-radius:8px;cursor:pointer">📍 Préparer ma tournée optimisée</button>
+      <button onclick="openMapsManual()" style="width:100%;margin-top:6px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:8px;background:transparent;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.3);border-radius:8px;cursor:pointer">↕ Suivre l'ordre de ma liste</button>
       <div id="hon-tour-result"></div>
     </div>
     <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
@@ -1276,14 +1277,18 @@ function addHoney(){
   saveHoney();
 }
 // ── TOURNÉE OPTIMISÉE (Google Maps) ──
+// Géocodage via OpenStreetMap, avec préférence pour la région de Namur
 async function geocodeAddr(q){
-  try {
-    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=be&q=' + encodeURIComponent(q), {
-      headers: {'Accept':'application/json'}
-    });
-    const d = await r.json();
-    if(d && d[0]) return {lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon)};
-  } catch(e){}
+  const tries = [q, q + ', Belgique'];
+  for(const t of tries){
+    try {
+      const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=be'
+        + '&viewbox=4.55,50.65,5.25,50.25&bounded=0&q=' + encodeURIComponent(t), {headers:{'Accept':'application/json'}});
+      const d = await r.json();
+      if(d && d[0]) return {lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon)};
+    } catch(e){}
+    await new Promise(r => setTimeout(r, 1100));
+  }
   return null;
 }
 function distKm(a, b){
@@ -1292,10 +1297,46 @@ function distKm(a, b){
   const s = Math.sin(dLat/2)**2 + Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLon/2)**2;
   return 2*R*Math.asin(Math.sqrt(s));
 }
+// Longueur d'une boucle : départ -> points -> retour maison
+function loopLen(start, pts, end){
+  let d = 0, cur = start;
+  pts.forEach(p => { d += distKm(cur, p.geo); cur = p.geo; });
+  return d + distKm(cur, end);
+}
+// Plus proche voisin + amélioration 2-opt sur la boucle complète
+function optimizeLoop(start, pts, end){
+  const rest = pts.slice(), route = [];
+  let cur = start;
+  while(rest.length){
+    let bi = 0, bd = Infinity;
+    rest.forEach((x, i) => { const d = distKm(cur, x.geo); if(d < bd){ bd = d; bi = i; } });
+    route.push(rest.splice(bi, 1)[0]); cur = route[route.length-1].geo;
+  }
+  let best = route, bestLen = loopLen(start, best, end), improved = true;
+  while(improved){
+    improved = false;
+    for(let i = 0; i < best.length - 1; i++){
+      for(let k = i + 1; k < best.length; k++){
+        const cand = best.slice(0, i).concat(best.slice(i, k+1).reverse(), best.slice(k+1));
+        const len = loopLen(start, cand, end);
+        if(len < bestLen - 0.01){ best = cand; bestLen = len; improved = true; }
+      }
+    }
+  }
+  return {route: best, km: bestLen};
+}
+function buildMapsUrl(depart, retour, stops){
+  const enc = s => encodeURIComponent(s);
+  return 'https://www.google.com/maps/dir/?api=1'
+    + '&origin=' + enc(depart)
+    + '&destination=' + enc(retour)
+    + '&travelmode=driving'
+    + '&waypoints=' + stops.map(s => enc(s.adresse)).join('|');
+}
+const HONEY_HOME = 'Clos de la Cense 6, 5101 Erpent';
 async function openMapsTour(){
   const depart = document.getElementById('hon-depart').value.trim();
   if(!depart){ alert('Indique ton point de départ.'); return; }
-  // Livraisons avec adresse, non encore livrées
   const stops = honeyList.filter(h => h.adresse && h.adresse.trim() && !h.livre);
   if(stops.length === 0){ alert('Aucune livraison avec adresse à faire.'); return; }
 
@@ -1303,61 +1344,47 @@ async function openMapsTour(){
   if(resBox) resBox.innerHTML = '';
   const btn = document.querySelector('[onclick="openMapsTour()"]');
   const oldTxt = btn ? btn.textContent : '';
-  if(btn){ btn.textContent = '⏳ Optimisation du trajet...'; btn.disabled = true; }
+  if(btn){ btn.textContent = '⏳ Localisation des adresses...'; btn.disabled = true; }
 
-  // Géocoder départ + arrêts (séquentiel, Nominatim limite à ~1 req/s)
-  let ordered = stops.slice();
-  try {
-    const departGeo = await geocodeAddr(depart);
-    const geos = [];
-    for(const s of stops){
-      const g = await geocodeAddr(s.adresse);
-      geos.push({stop: s, geo: g});
-      await new Promise(r => setTimeout(r, 1100));
-    }
-    // Si on a assez de coordonnées, trier par plus proche voisin depuis le départ
-    const located = geos.filter(x => x.geo);
-    if(departGeo && located.length >= 2){
-      const rest = located.slice();
-      const route = [];
-      let cur = departGeo;
-      while(rest.length){
-        let bi = 0, bd = Infinity;
-        rest.forEach((x, i) => { const d = distKm(cur, x.geo); if(d < bd){ bd = d; bi = i; } });
-        const next = rest.splice(bi, 1)[0];
-        route.push(next.stop);
-        cur = next.geo;
-      }
-      // Ajouter à la fin les arrêts non géolocalisés
-      const notLocated = geos.filter(x => !x.geo).map(x => x.stop);
-      ordered = route.concat(notLocated);
-    }
-  } catch(e){}
-
+  const departGeo = await geocodeAddr(depart);
+  const homeGeo = (depart === HONEY_HOME) ? departGeo : await geocodeAddr(HONEY_HOME);
+  const located = [], notLocated = [];
+  for(let i = 0; i < stops.length; i++){
+    if(btn) btn.textContent = '⏳ Localisation ' + (i+1) + '/' + stops.length + '...';
+    const g = await geocodeAddr(stops[i].adresse);
+    if(g) located.push({stop: stops[i], geo: g}); else notLocated.push(stops[i]);
+    await new Promise(r => setTimeout(r, 1100));
+  }
   if(btn){ btn.textContent = oldTxt; btn.disabled = false; }
 
-  // Google Maps accepte ~9-10 arrêts intermédiaires dans une URL
+  let ordered = stops, km = null;
+  if(departGeo && homeGeo && located.length >= 1){
+    const res = optimizeLoop(departGeo, located, homeGeo);
+    ordered = res.route.map(x => x.stop).concat(notLocated);
+    km = res.km;
+  }
+  let warn = '';
+  if(!departGeo) warn += '<div style="font-size:11px;color:#FFD58A;margin-top:6px">⚠️ Point de départ introuvable sur la carte : ordre non optimisé.</div>';
+  if(notLocated.length) warn += '<div style="font-size:11px;color:#FFD58A;margin-top:6px">⚠️ Adresse introuvable (mise en fin de tournée) : ' + notLocated.map(s => (s.nom||'').replace(/</g,'&lt;')).join(', ') + '. Complète-la (rue, numéro, code postal) avec ✏️.</div>';
+
   if(ordered.length > 9){
-    alert('Tu as ' + ordered.length + ' livraisons. Google Maps en gère ~9 d\'un coup : j\'ouvre les 9 premières de la tournée optimisée. Pour le reste, relance après les avoir livrées (coche V).');
+    warn += '<div style="font-size:11px;color:#FFD58A;margin-top:6px">⚠️ Google Maps gère 9 arrêts max : j\'ouvre les 9 premiers. Relance après les avoir cochés V.</div>';
     ordered = ordered.slice(0, 9);
   }
-  // Construire l'URL Google Maps : origin = destination = départ, waypoints = arrêts
-  const enc = s => encodeURIComponent(s);
-  const waypoints = ordered.map(s => enc(s.adresse)).join('|');
-  const url = 'https://www.google.com/maps/dir/?api=1'
-    + '&origin=' + enc(depart)
-    + '&destination=' + enc(depart)
-    + '&travelmode=driving'
-    + '&waypoints=' + waypoints;
-  // Sur iPhone, window.open après une attente async est bloqué.
-  // On affiche un lien que l'utilisateur tape lui-même (ouverture directe, pas bloquée).
-  const box = document.getElementById('hon-tour-result');
-  if(box){
-    box.innerHTML = '<a href="' + url + '" target="_blank" style="display:block;text-align:center;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border-radius:8px;text-decoration:none;margin-top:8px">✅ Trajet prêt — appuie pour ouvrir Maps</a>'
-      + '<div style="font-size:10px;color:rgba(255,255,255,.55);text-align:center;margin-top:6px">Ordre optimisé : ' + ordered.map(s => (s.nom||'').replace(/</g,'&lt;')).join(' → ') + ' → retour</div>';
-  } else {
-    window.open(url, '_blank');
+  const url = buildMapsUrl(depart, HONEY_HOME, ordered);
+  if(resBox){
+    resBox.innerHTML = '<a href="' + url + '" target="_blank" style="display:block;text-align:center;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border-radius:8px;text-decoration:none;margin-top:8px">✅ Trajet prêt — appuie pour ouvrir Maps</a>'
+      + '<div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:8px;line-height:1.6">Ordre : ' + ordered.map((s,i) => (i+1) + '. ' + (s.nom||'').replace(/</g,'&lt;')).join(' → ') + ' → 🏠' + (km ? ' <span style="opacity:.6">(~' + Math.round(km) + ' km à vol d\'oiseau)</span>' : '') + '</div>'
+      + warn;
   }
+}
+// Tournée dans l'ordre manuel de la liste (glisser-déposer)
+function openMapsManual(){
+  const depart = document.getElementById('hon-depart').value.trim() || HONEY_HOME;
+  let stops = honeyList.filter(h => h.adresse && h.adresse.trim() && !h.livre);
+  if(stops.length === 0){ alert('Aucune livraison avec adresse à faire.'); return; }
+  if(stops.length > 9){ alert('Google Maps gère 9 arrêts max : j\'ouvre les 9 premiers de ta liste.'); stops = stops.slice(0, 9); }
+  window.open(buildMapsUrl(depart, HONEY_HOME, stops), '_blank');
 }
 function delHoney(id){
   honeyList = honeyList.filter(x => x.id !== id);
