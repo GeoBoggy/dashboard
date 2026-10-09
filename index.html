@@ -228,7 +228,8 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px">🚚 Tournée de livraison</div>
       <input id="hon-depart" type="text" value="Clos de la Cense 6, 5101 Erpent" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 11px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;outline:none;margin-bottom:8px">
       <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:10px">Point de départ et de retour. Modifie-le si tu pars d'ailleurs aujourd'hui.</div>
-      <button onclick="openMapsTour()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border:none;border-radius:8px;cursor:pointer">📍 Ouvrir ma tournée dans Google Maps</button>
+      <button onclick="openMapsTour()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border:none;border-radius:8px;cursor:pointer">📍 Préparer ma tournée</button>
+      <div id="hon-tour-result"></div>
     </div>
     <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
       <input id="hon-nom" type="text" placeholder="Nom de la personne" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
@@ -1346,7 +1347,15 @@ async function openMapsTour(){
     + '&destination=' + enc(depart)
     + '&travelmode=driving'
     + '&waypoints=' + waypoints;
-  window.open(url, '_blank');
+  // Sur iPhone, window.open après une attente async est bloqué.
+  // On affiche un lien que l'utilisateur tape lui-même (ouverture directe, pas bloquée).
+  const box = document.getElementById('hon-tour-result');
+  if(box){
+    box.innerHTML = '<a href="' + url + '" target="_blank" style="display:block;text-align:center;font-family:\'DM Sans\',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border-radius:8px;text-decoration:none;margin-top:8px">✅ Trajet prêt — appuie pour ouvrir Maps</a>'
+      + '<div style="font-size:10px;color:rgba(255,255,255,.55);text-align:center;margin-top:6px">Ordre optimisé : ' + ordered.map(s => (s.nom||'').replace(/</g,'&lt;')).join(' → ') + ' → retour</div>';
+  } else {
+    window.open(url, '_blank');
+  }
 }
 function delHoney(id){
   honeyList = honeyList.filter(x => x.id !== id);
