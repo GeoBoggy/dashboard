@@ -224,6 +224,12 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div style="padding:1rem 1.25rem;max-width:600px;margin:0 auto">
     <div id="honey-totaux" style="margin-bottom:1rem"></div>
+    <div style="background:#2D4A3E;border-radius:12px;padding:14px;margin-bottom:1.25rem">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:8px">🚚 Tournée de livraison</div>
+      <input id="hon-depart" type="text" value="Clos de la Cense 6, 5101 Erpent" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 11px;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.1);color:#fff;outline:none;margin-bottom:8px">
+      <div style="font-size:10px;color:rgba(255,255,255,.5);margin-bottom:10px">Point de départ et de retour. Modifie-le si tu pars d'ailleurs aujourd'hui.</div>
+      <button onclick="openMapsTour()" style="width:100%;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;padding:11px;background:#fff;color:#2D4A3E;border:none;border-radius:8px;cursor:pointer">📍 Ouvrir ma tournée dans Google Maps</button>
+    </div>
     <div style="background:#fff;border:1px solid #E2DDD4;border-radius:12px;padding:14px;margin-bottom:1.25rem">
       <input id="hon-nom" type="text" placeholder="Nom de la personne" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:6px">
       <input id="hon-adresse" type="text" placeholder="Adresse de livraison" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 11px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin-bottom:8px">
@@ -1267,6 +1273,80 @@ function addHoney(){
   document.getElementById('hon-ete').value = '';
   renderHoney();
   saveHoney();
+}
+// ── TOURNÉE OPTIMISÉE (Google Maps) ──
+async function geocodeAddr(q){
+  try {
+    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=be&q=' + encodeURIComponent(q), {
+      headers: {'Accept':'application/json'}
+    });
+    const d = await r.json();
+    if(d && d[0]) return {lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon)};
+  } catch(e){}
+  return null;
+}
+function distKm(a, b){
+  const R = 6371, toR = x => x*Math.PI/180;
+  const dLat = toR(b.lat-a.lat), dLon = toR(b.lon-a.lon);
+  const s = Math.sin(dLat/2)**2 + Math.cos(toR(a.lat))*Math.cos(toR(b.lat))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+async function openMapsTour(){
+  const depart = document.getElementById('hon-depart').value.trim();
+  if(!depart){ alert('Indique ton point de départ.'); return; }
+  // Livraisons avec adresse, non encore livrées
+  const stops = honeyList.filter(h => h.adresse && h.adresse.trim() && !h.livre);
+  if(stops.length === 0){ alert('Aucune livraison avec adresse à faire.'); return; }
+
+  const btn = document.querySelector('[onclick="openMapsTour()"]');
+  const oldTxt = btn ? btn.textContent : '';
+  if(btn){ btn.textContent = '⏳ Optimisation du trajet...'; btn.disabled = true; }
+
+  // Géocoder départ + arrêts (séquentiel, Nominatim limite à ~1 req/s)
+  let ordered = stops.slice();
+  try {
+    const departGeo = await geocodeAddr(depart);
+    const geos = [];
+    for(const s of stops){
+      const g = await geocodeAddr(s.adresse);
+      geos.push({stop: s, geo: g});
+      await new Promise(r => setTimeout(r, 1100));
+    }
+    // Si on a assez de coordonnées, trier par plus proche voisin depuis le départ
+    const located = geos.filter(x => x.geo);
+    if(departGeo && located.length >= 2){
+      const rest = located.slice();
+      const route = [];
+      let cur = departGeo;
+      while(rest.length){
+        let bi = 0, bd = Infinity;
+        rest.forEach((x, i) => { const d = distKm(cur, x.geo); if(d < bd){ bd = d; bi = i; } });
+        const next = rest.splice(bi, 1)[0];
+        route.push(next.stop);
+        cur = next.geo;
+      }
+      // Ajouter à la fin les arrêts non géolocalisés
+      const notLocated = geos.filter(x => !x.geo).map(x => x.stop);
+      ordered = route.concat(notLocated);
+    }
+  } catch(e){}
+
+  if(btn){ btn.textContent = oldTxt; btn.disabled = false; }
+
+  // Google Maps accepte ~9-10 arrêts intermédiaires dans une URL
+  if(ordered.length > 9){
+    alert('Tu as ' + ordered.length + ' livraisons. Google Maps en gère ~9 d\'un coup : j\'ouvre les 9 premières de la tournée optimisée. Pour le reste, relance après les avoir livrées (coche V).');
+    ordered = ordered.slice(0, 9);
+  }
+  // Construire l'URL Google Maps : origin = destination = départ, waypoints = arrêts
+  const enc = s => encodeURIComponent(s);
+  const waypoints = ordered.map(s => enc(s.adresse)).join('|');
+  const url = 'https://www.google.com/maps/dir/?api=1'
+    + '&origin=' + enc(depart)
+    + '&destination=' + enc(depart)
+    + '&travelmode=driving'
+    + '&waypoints=' + waypoints;
+  window.open(url, '_blank');
 }
 function delHoney(id){
   honeyList = honeyList.filter(x => x.id !== id);
