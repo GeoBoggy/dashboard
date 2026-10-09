@@ -1299,6 +1299,8 @@ async function openMapsTour(){
   const stops = honeyList.filter(h => h.adresse && h.adresse.trim() && !h.livre);
   if(stops.length === 0){ alert('Aucune livraison avec adresse à faire.'); return; }
 
+  const resBox = document.getElementById('hon-tour-result');
+  if(resBox) resBox.innerHTML = '';
   const btn = document.querySelector('[onclick="openMapsTour()"]');
   const oldTxt = btn ? btn.textContent : '';
   if(btn){ btn.textContent = '⏳ Optimisation du trajet...'; btn.disabled = true; }
