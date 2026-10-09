@@ -1367,6 +1367,13 @@ async function openMapsTour(){
   if(!departGeo) warn += '<div style="font-size:11px;color:#FFD58A;margin-top:6px">⚠️ Point de départ introuvable sur la carte : ordre non optimisé.</div>';
   if(notLocated.length) warn += '<div style="font-size:11px;color:#FFD58A;margin-top:6px">⚠️ Adresse introuvable (mise en fin de tournée) : ' + notLocated.map(s => (s.nom||'').replace(/</g,'&lt;')).join(', ') + '. Complète-la (rue, numéro, code postal) avec ✏️.</div>';
 
+  // Réordonner la liste selon la tournée calculée (les autres restent à la fin, dans leur ordre)
+  const orderedIds = ordered.map(s => s.id);
+  const reste = honeyList.filter(h => !orderedIds.includes(h.id));
+  honeyList = ordered.concat(reste);
+  renderHoney();
+  saveHoney();
+
   if(ordered.length > 9){
     warn += '<div style="font-size:11px;color:#FFD58A;margin-top:6px">⚠️ Google Maps gère 9 arrêts max : j\'ouvre les 9 premiers. Relance après les avoir cochés V.</div>';
     ordered = ordered.slice(0, 9);
