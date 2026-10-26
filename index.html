@@ -460,6 +460,72 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
 </div>
 
+<!-- MES VALEURS (overlay) -->
+<div id="values-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
+  <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
+    <span style="font-family:'DM Serif Display',serif;font-size:18px;color:#1A1814">⭐ Mes valeurs</span>
+    <div onclick="closeValues()" style="font-size:18px;cursor:pointer;color:#7A7468;padding:2px 6px">✕</div>
+  </div>
+  <div style="padding:1rem 1.25rem 2rem;max-width:600px;margin:0 auto">
+      <div style="display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px 16px;margin-bottom:8px">
+        <div style="font-size:26px;line-height:1">🕊️</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:#B0AA9E;letter-spacing:.05em">1</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;line-height:1.25">Liberté</div>
+          <div style="font-size:13px;color:#7A7468;line-height:1.5;margin-top:3px">Choisir et agir par conviction.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px 16px;margin-bottom:8px">
+        <div style="font-size:26px;line-height:1">🤝</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:#B0AA9E;letter-spacing:.05em">2</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;line-height:1.25">Collectif et bienveillance</div>
+          <div style="font-size:13px;color:#7A7468;line-height:1.5;margin-top:3px">Embarquer les gens, faire le bien autour de toi.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px 16px;margin-bottom:8px">
+        <div style="font-size:26px;line-height:1">☀️</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:#B0AA9E;letter-spacing:.05em">3</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;line-height:1.25">Joie de vivre</div>
+          <div style="font-size:13px;color:#7A7468;line-height:1.5;margin-top:3px">Simplicité, optimisme, humour.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px 16px;margin-bottom:8px">
+        <div style="font-size:26px;line-height:1">⚖️</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:#B0AA9E;letter-spacing:.05em">4</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;line-height:1.25">Respect, justice et loyauté</div>
+          <div style="font-size:13px;color:#7A7468;line-height:1.5;margin-top:3px">Traiter et être traité avec équité, protéger tes proches.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px 16px;margin-bottom:8px">
+        <div style="font-size:26px;line-height:1">🏔️</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:#B0AA9E;letter-spacing:.05em">5</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;line-height:1.25">Dépassement de soi</div>
+          <div style="font-size:13px;color:#7A7468;line-height:1.5;margin-top:3px">Te challenger, aller plus loin.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px 16px;margin-bottom:8px">
+        <div style="font-size:26px;line-height:1">🧭</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:#B0AA9E;letter-spacing:.05em">6</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;line-height:1.25">Responsabilité et humilité</div>
+          <div style="font-size:13px;color:#7A7468;line-height:1.5;margin-top:3px">Agir plutôt que râler, et l'humilité comme cap.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid #EDE9E1;border-radius:12px;padding:14px 16px;margin-bottom:8px">
+        <div style="font-size:26px;line-height:1">🔍</div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;color:#B0AA9E;letter-spacing:.05em">7</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1A1814;line-height:1.25">Curiosité</div>
+          <div style="font-size:13px;color:#7A7468;line-height:1.5;margin-top:3px">Expérimenter, découvrir.</div>
+        </div>
+      </div>
+  </div>
+</div>
+
 <!-- CE QUE ÇA ME FAIT (overlay) -->
 <div id="feel-overlay" style="display:none;position:fixed;inset:0;background:#F5F2EC;z-index:100;overflow-y:auto">
   <div style="position:sticky;top:0;background:#fff;border-bottom:1px solid #E2DDD4;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;z-index:2">
@@ -1116,6 +1182,11 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'planete')" data-field="planete">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-plant"/></svg></div></div>
       <span class="tile-lbl">Un geste pour la planète</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'valeurs')" data-field="valeurs">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-star"/></svg></div></div>
+      <span class="tile-lbl">J'ai agi selon mes valeurs</span>
+      <a onclick="event.stopPropagation();openValues()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px;cursor:pointer">→ Mes valeurs</a>
     </div>
   </div>
 </div>
@@ -2210,6 +2281,14 @@ async function checkAllToday(raison){
   updateScore();
   saveData();
 }
+function openValues(){
+  document.getElementById('values-overlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function closeValues(){
+  document.getElementById('values-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
 function updateDuoStreak(){
   const el = document.getElementById('duo-streak');
   if(!el) return;
@@ -2657,7 +2736,7 @@ const LABELS = {
   federe:'Fédérer', cigarette:'Cigarette refusée', verre:'Verre refusé',
   pas:'Pas validés', sommeil:'Repos suffisant', diner:'Dîner sainement',
   encas:'En-cas sains', dejeuner:'Déjeuner sainement', mona:'Mona', colin:'Colin', anouck:'Anouck',
-  equipe:'On est une équipe', matthys:'Matthys', divert:'Divertissement', rigole:'Rigolé', stretching:'Stretching 5\'', planete:'Un geste pour la planète'
+  equipe:'On est une équipe', matthys:'Matthys', divert:'Divertissement', rigole:'Rigolé', stretching:'Stretching 5\'', planete:'Un geste pour la planète', valeurs:'J\'ai agi selon mes valeurs'
 };
 
 async function loadBilan(){
@@ -3937,7 +4016,18 @@ function bookCard(b){
         ${b.points.map(p=>`<li style="font-size:12px;color:#3A3631;line-height:1.5">${p}</li>`).join('')}
       </ul></details>`;
   }
+  if(b.status === 'encours'){
+    inner += `<button onclick="finishBook(${b.id})" style="margin-top:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;background:#7B4FA0;color:#fff;border:none;border-radius:8px;cursor:pointer">✓ Terminé</button>`;
+  }
   return `<div style="background:#fff;border:1px solid #EDE9E1;border-radius:10px;padding:12px;margin-bottom:8px">${inner}</div>`;
+}
+function finishBook(id){
+  const b = booksItems.find(x => x.id === id);
+  if(!b) return;
+  b.status = 'termine';
+  b.year = new Date().getFullYear();
+  renderBooks();
+  saveBooks();
 }
 
 // ── MES FIERTÉS (réalisations datées) ──
