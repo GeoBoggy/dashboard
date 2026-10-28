@@ -49,6 +49,16 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .pg-famille{background:#B05A8A}.pg-maison{background:#6A9E5A}.pg-divert{background:#C4A030}
 .pg-social{background:#4A7AA5}.pg-gratitude{background:#8A6AAE}.pg-humeur{background:#5A8CA0}
 .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem .5rem}
+.sg.sg4{grid-template-columns:repeat(4,1fr);gap:1rem .3rem}
+.sg4 .ring-wrap{width:72px;height:72px}
+.sg4 .ring-inner{width:56px;height:56px}
+.sg4 .ring-inner svg{width:24px;height:24px}
+.sg4 .tile-lbl{font-size:9.5px;letter-spacing:.01em}
+.sg4 a{white-space:nowrap;font-size:8.5px !important;padding:2px 6px !important}
+.sg4 .water-num{font-size:17px}
+.note-tile textarea{width:100%;height:72px;box-sizing:border-box;resize:none;border:none;border-radius:14px;background:rgba(255,255,255,.92);color:#1A1814;font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.35;padding:7px 8px;outline:none}
+.note-tile textarea::placeholder{color:#9A9488}
+.sg4 .water-sub{font-size:9px}
 .tile{display:flex;flex-direction:column;align-items:center;gap:.4rem;min-width:0;cursor:pointer;-webkit-user-select:none;user-select:none}
 .ring-wrap{position:relative;width:92px;height:92px}
 .ring-svg{position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg)}
@@ -958,7 +968,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
 <div class="page" style="background:#4A9E70">
   <div class="page-title">Apprentissage</div>
-  <div class="sg">
+  <div class="sg sg4">
     <div class="tile" onclick="tgl(this,'audio')" data-field="audio">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-headphones"/></svg></div></div>
       <span class="tile-lbl">Livre audio</span>
@@ -975,14 +985,6 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
         <a href="https://app.primevideo.com/detail?gti=amzn1.dv.gti.the-boys" target="_blank" onclick="event.stopPropagation()" style="font-size:9px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;text-align:center">📺 The Boys</a>
       </div>
     </div>
-  </div>
-  <div class="card" style="margin-top:.75rem">
-    <div style="padding:.7rem .9rem">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.5rem">💡 Ce que j'ai appris aujourd'hui</div>
-      <textarea rows="2" placeholder="Une idée, une citation, une découverte..." data-key="note_lecture" onblur="saveNote('note_lecture',this.value)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5"></textarea>
-    </div>
-  </div>
-  <div class="sg" style="margin-top:.75rem">
     <div class="tile" onclick="tgl(this,'news')" data-field="news">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-news"/></svg></div></div>
       <span class="tile-lbl">News du jour</span>
@@ -991,19 +993,26 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'musique')" data-field="musique" style="position:relative">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-music"/></svg></div></div>
       <span class="tile-lbl">Musique</span>
-      <div onclick="event.stopPropagation()" style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-top:4px;max-width:150px">
-        <a href="https://open.spotify.com/playlist/4fY8BZJppXiCSLjsDOofMR" target="_blank" class="pl-chip">T'n'B</a>
-        <a href="https://open.spotify.com/playlist/2GizthLOKaDcl2elqd7t8t" target="_blank" class="pl-chip">M'Style</a>
-        <a href="https://open.spotify.com/playlist/7fnxCur4NQfR4gftzlDMbD" target="_blank" class="pl-chip">Rap Fr</a>
-        <a href="https://open.spotify.com/playlist/0O7yKhm8k5Ke2DfB6buA01" target="_blank" class="pl-chip">Fr Touch</a>
-        <a href="https://open.spotify.com/playlist/322t1Xgv0YEQts5WQimpCh" target="_blank" class="pl-chip">60s</a>
-        <a href="https://open.spotify.com/playlist/2LPv3GWJdRSm33jff7QwLu" target="_blank" class="pl-chip">Peace</a>
-        <a href="https://open.spotify.com/playlist/0aSx8PuaPULjIq0hJVkWxZ" target="_blank" class="pl-chip">Sun</a>
-        <a href="https://open.spotify.com/playlist/2X0951r00s5YALHz5MntHv" target="_blank" class="pl-chip">Prog</a>
-        <a href="https://open.spotify.com/playlist/1B8gsiH7eqkOWuKY01I2DW" target="_blank" class="pl-chip">Fr Tek</a>
-        <a href="https://open.spotify.com/playlist/2d8j6yBdFyMnOUTU6Tg3sK" target="_blank" class="pl-chip">US</a>
-        <a href="https://open.spotify.com/playlist/6fJWDCeL4UWbIwIyTTXZTc" target="_blank" class="pl-chip">Dirtbag</a>
-      </div>
+    </div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:.8rem">
+    <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.7);width:100%;text-align:center;margin-bottom:2px">🎵 Mes playlists</span>
+    <a href="https://open.spotify.com/playlist/4fY8BZJppXiCSLjsDOofMR" target="_blank" class="pl-chip">T'n'B</a>
+    <a href="https://open.spotify.com/playlist/2GizthLOKaDcl2elqd7t8t" target="_blank" class="pl-chip">M'Style</a>
+    <a href="https://open.spotify.com/playlist/7fnxCur4NQfR4gftzlDMbD" target="_blank" class="pl-chip">Rap Fr</a>
+    <a href="https://open.spotify.com/playlist/0O7yKhm8k5Ke2DfB6buA01" target="_blank" class="pl-chip">Fr Touch</a>
+    <a href="https://open.spotify.com/playlist/322t1Xgv0YEQts5WQimpCh" target="_blank" class="pl-chip">60s</a>
+    <a href="https://open.spotify.com/playlist/2LPv3GWJdRSm33jff7QwLu" target="_blank" class="pl-chip">Peace</a>
+    <a href="https://open.spotify.com/playlist/0aSx8PuaPULjIq0hJVkWxZ" target="_blank" class="pl-chip">Sun</a>
+    <a href="https://open.spotify.com/playlist/2X0951r00s5YALHz5MntHv" target="_blank" class="pl-chip">Prog</a>
+    <a href="https://open.spotify.com/playlist/1B8gsiH7eqkOWuKY01I2DW" target="_blank" class="pl-chip">Fr Tek</a>
+    <a href="https://open.spotify.com/playlist/2d8j6yBdFyMnOUTU6Tg3sK" target="_blank" class="pl-chip">US</a>
+    <a href="https://open.spotify.com/playlist/6fJWDCeL4UWbIwIyTTXZTc" target="_blank" class="pl-chip">Dirtbag</a>
+  </div>
+  <div class="card" style="margin-top:.75rem">
+    <div style="padding:.7rem .9rem">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.5rem">💡 Ce que j'ai appris aujourd'hui</div>
+      <textarea rows="2" placeholder="Une idée, une citation, une découverte..." data-key="note_lecture" onblur="saveNote('note_lecture',this.value)" style="width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5"></textarea>
     </div>
   </div>
 </div>
@@ -1050,7 +1059,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
 <div class="page" style="background:#3D8C5E">
   <div class="page-title">Corps &amp; santé</div>
-  <div class="sg">
+  <div class="sg sg4">
     <div class="tile" id="water-tile" onclick="addWater()" data-field="water">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" id="water-ring" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><div class="water-inner"><span class="water-num" id="water-n">0</span><span class="water-sub">/ 8</span></div></div></div>
       <span class="tile-lbl">Eau</span>
@@ -1059,8 +1068,16 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-dumbbell"/></svg></div></div>
       <span class="tile-lbl">Sport</span>
     </div>
+    <div class="tile" onclick="tgl(this,'diner')" data-field="diner">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-plate"/></svg></div></div>
+      <span class="tile-lbl">Dîner sainement</span>
+    </div>
+    <div class="tile" onclick="tgl(this,'encas')" data-field="encas">
+      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-apple"/></svg></div></div>
+      <span class="tile-lbl">En-cas sains</span>
+    </div>
   </div>
-  <div class="card" style="margin-bottom:.5rem">
+  <div class="card" style="margin-top:1rem;margin-bottom:.5rem">
     <div style="padding:.7rem .9rem">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:.6rem;flex-wrap:wrap">
         <a href="strava://" onclick="event.stopPropagation();openApp('strava://','https://www.strava.com/dashboard');return false;" style="display:flex;align-items:center;gap:8px;text-decoration:none"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAE1klEQVR42u2Z229UVRTGf3udufQyQ0tLWwoIpNFgog+GEDU+yINRLi0WMCExMSYkiAiI4i3yIj5i4h9gfFKBNwOoqQYwaAwKLXKJklINUYMRuWopbWemc2YvH/YZDpUHnVvbSbqTSWYme5/Z3/et9a219xi/S5QqHkKVj2kA0wCmJAAjVQzAGMj6VQrAGMjlYPZ89x6tJgAGcgqxWry3e2DeIshUPpzK93TPgxGLeexZWHA/suIFGFMQUw0ADPg+zKxH1u0AazGPr4eOBZD2K6qClI39YYtZsQFaF0AuCzX1yJrXIF1ZFaRsrtOcRJ56HVTBi4CqU2HhXRVVofSnShD7KzdC81yw1n1nc06F1dsDFaYigDz7sxqQNa869vPhIp5TYdkGmD8HMtmKqCBlYb9rEzS1O9bzmzTGfa5NIt0vQ6oyKkjJ7LfORFa/ErAvdwJUxSzfCPNmQ6b8uSAls79qMzS2jmdfdbwK9Q1I9zZI2bKrIEWzP+ZDW5MLD1UHyO0+aCP+pcKKTTCn1a0zZpIBiAejFtP9IsyYFbBvAuYN9sM3YWRwvAqJmciTW2HU3gZ2MgDk2W9vQVZtC9kPQOjAMfS9d9C+Hjc/54cqdG6G9lllVUGKZV9WvwTJppB93IZ0z1vgGXT/u8HmJVQh2Yzp2lxWFQoDYMQ5ydw2TOeW8eyLoKcPo8e/hJYYevYM2vupW3ObCtK1FdqayqZCYQBEIGWRNdsh0TiefVV0786wufNAP94V2mtehYYWTOfzZVNBCmI/nYU5LZhlz4GfdY6TzbjY7/sMPX0MElHHeCKO/vg9euawA5TNODC5LNK5BZqT4AcgRIq2VykseRVZv8vFfiQKXhSicQdgz07wDFiFlA+pDKQV/WCHWxuNh2ua5yLr3oDrvmsxUj6M+qC2cE8p6GbOCGbp0xCvC4+LRuDGFfToPtcHJRowD3a7zahCJIZpakf/ugpRCVRTiMcgNQLqu3nRGHryC7h2CSISFsP/GJGC4KpFe3bfedQVoD6I56GbmMY2uPdhSN2EeD2c+xbd/76bJ0AKzNpnMI+sDebUwcXz6OBep6L+f04jBWuWjN7pHqphK2F97JGPkPYOBzQ1DIsewixdjp445A4/93RgFj8Bg5fdWrXYr3dDOgO1EdeSV6wO2JxL0ttfNndLIeIRuHwJPfsN1CVdcqaHMUtWwowZkMkiS7pC4LUJ+O0s/NIPNV5Bm6/MvZAqxAx6ogeGrrvE9bPOPhcvg4V3Q8cDkBm9VUNs7yeh/U76xZYqRDz4+wZ68nOI1brv08OY+x5Flm8Ef8zNq6lHf+6DC+ch7hXlQpU551mFuKBnvoIrFyBa48IsGoNkc1iZx1KuWosBNRWuA4XJAJ5AKoP2HnBhpIE6OT9kv/8o/PkHxIpjv7K309ZCjYeeOwEX+iFe6zZpjHOi0SGXJ5HCbHPiANy6brTYY/uCwhf0Q/E69IcjcPUaRL0pDECdCvw6gP7U5wqWeDB0DT15EGKlsT8BCgTEi0GPH4D0CNQk0FMHYXDIudXUB6AuSS9eRAe+g5FB9PQRiItzqxJHhIkYqhA16KlD8PsApNOuYhfpPMV3oyXmM9ZCDteVlulXJ0aBfC4YD6KUHPeTAyCPosx6T//NOg1gGkCVj38ABaUPF3E/vlEAAAAASUVORK5CYII=" alt="Strava" style="width:26px;height:26px;border-radius:6px;object-fit:contain"><span style="font-size:13px;font-weight:600;color:#1A1814">Strava</span></a>
@@ -1074,39 +1091,26 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
       </div>
     </div>
   </div>
-  <div class="sg" style="margin-top:1rem">
-    <div class="tile" onclick="tgl(this,'diner')" data-field="diner">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-plate"/></svg></div></div>
-      <span class="tile-lbl">Dîner sainement</span>
-    </div>
-    <div class="tile" onclick="tgl(this,'encas')" data-field="encas">
-      <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-apple"/></svg></div></div>
-      <span class="tile-lbl">En-cas sains</span>
-    </div>
-  </div>
 </div>
 
 <div class="page" style="background:#3D8C5E">
   <div class="page-title">Lien social</div>
-  <div class="sg">
+  <div class="sg sg4">
     <div class="tile" onclick="tgl(this,'contact')" data-field="contact">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-phone"/></svg></div></div>
       <span class="tile-lbl">Contact</span>
+    </div>
+    <div class="tile note-tile" style="cursor:default">
+      <textarea data-key="note_contact" data-noscore="1" placeholder="Qui j'ai contacté ?" onblur="saveNote('note_contact',this.value)"></textarea>
+      <span class="tile-lbl" style="opacity:.75">Qui ?</span>
     </div>
     <div class="tile" onclick="tgl(this,'federe')" data-field="federe">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-users"/></svg></div></div>
       <span class="tile-lbl">Fédérer</span>
     </div>
-  </div>
-  <div class="card" style="margin-top:.75rem">
-    <div style="padding:.7rem .9rem">
-      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B0AA9E;margin-bottom:.6rem">👤 Qui ? Information importante retenue</div>
-      <div style="display:flex;gap:6px;margin-bottom:.5rem">
-        <input id="learn-who" type="text" placeholder="Qui ?" style="flex:1;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
-        <input id="learn-what" type="text" placeholder="Information importante à retenir..." onkeydown="if(event.key==='Enter')addLearning()" style="flex:2;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none">
-        <button onclick="addLearning()" style="font-size:16px;padding:0 12px;background:#3D8C5E;color:#fff;border:none;border-radius:8px;cursor:pointer">+</button>
-      </div>
-      <div id="learn-list"></div>
+    <div class="tile note-tile" style="cursor:default">
+      <textarea data-key="note_federe" data-noscore="1" placeholder="Comment j'ai fédéré ?" onblur="saveNote('note_federe',this.value)"></textarea>
+      <span class="tile-lbl" style="opacity:.75">Comment ?</span>
     </div>
   </div>
 </div>
@@ -2463,7 +2467,7 @@ function updateScore(){
   const tiles=document.querySelectorAll('.tile[data-field]');
   const tilesDone=document.querySelectorAll('.tile[data-field].done');
   // Champs de notes : comptés comme validés s'ils sont remplis
-  const noteFields=document.querySelectorAll('[data-key]');
+  const noteFields=document.querySelectorAll('[data-key]:not([data-noscore])');
   let noteTotal=0, noteDone=0;
   noteFields.forEach(f=>{
     noteTotal++;
