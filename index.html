@@ -94,6 +94,13 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 .note-wrap.open{max-height:100px;padding:0 .9rem .7rem}
 .note-wrap textarea{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5}
 .mood-row{display:flex;gap:5px;margin-bottom:.75rem}
+.baro-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F0EDE7}
+.baro-lbl{flex:1;min-width:0;font-size:13px;color:#1A1814;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.baro-dots{display:flex;gap:5px}
+.baro-dot{width:24px;height:24px;border-radius:50%;border:1.5px solid #E2DDD4;background:#fff;cursor:pointer;font-size:10px;font-weight:700;color:#B0AA9E;display:flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent}
+.baro-note-btn{font-size:15px;cursor:pointer;opacity:.35;padding:0 2px;-webkit-tap-highlight-color:transparent}
+.baro-note-btn.on{opacity:1}
+.baro-note{width:100%;box-sizing:border-box;font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;outline:none;margin:2px 0 6px}
 .mood-btn{flex:1;font-size:19px;padding:5px 0;border:1px solid #E2DDD4;border-radius:9px;background:transparent;cursor:pointer;transition:all .12s}
 .mood-btn.sel{border-color:#2D6A4F;background:#D8F3DC}
 .grat-fields{display:flex;flex-direction:column;gap:5px;padding:.7rem .9rem}
@@ -1258,15 +1265,11 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
 
 <div class="page" style="background:#2A4A7F">
   <div class="page-title">Comment ça va vraiment ?</div>
-  <div class="mood-row">
-    <button class="mood-btn" onclick="pickMood(this,'😔')">😔</button>
-    <button class="mood-btn" onclick="pickMood(this,'😐')">😐</button>
-    <button class="mood-btn" onclick="pickMood(this,'🙂')">🙂</button>
-    <button class="mood-btn" onclick="pickMood(this,'😄')">😄</button>
-    <button class="mood-btn" onclick="pickMood(this,'🤩')">🤩</button>
-  </div>
   <div class="card">
-    <div style="padding:.7rem .9rem">
+    <div style="padding:.85rem .9rem">
+      <div id="baro-global"></div>
+      <div id="baro-list"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0AA9E;margin:.9rem 0 .4rem">💭 En général</div>
       <textarea rows="3" style="width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:1px solid #E2DDD4;border-radius:8px;background:#F5F2EC;color:#1A1814;resize:none;outline:none;line-height:1.5" placeholder="Ce que je ne dis pas forcément..." data-key="humeur_note" onblur="saveNote('humeur_note',this.value)"></textarea>
     </div>
   </div>
@@ -2133,6 +2136,7 @@ async function loadData(){
       setSt('Chargé ✓','ok');
     } else {
       state={};
+      applyState();
       setSt('Nouvelle journée','ok');
     }
   } catch(e){
@@ -2389,6 +2393,8 @@ function applyState(){
   const wn = document.getElementById('water-n'); if(wn) wn.textContent = water; updateWater();
   document.querySelectorAll('[data-key]').forEach(el=>{ el.value = state[el.dataset.key] || ''; });
   document.querySelectorAll('.mood-btn').forEach(b=>{ b.classList.toggle('sel', state.mood && b.textContent===state.mood); });
+  baroOpenNotes = {};
+  renderBaro();
   updateSmokeDisplay();
   updateVerreDisplay();
   renderTasks();
@@ -2462,6 +2468,72 @@ function addWater(){
 }
 function saveNote(k,v){state[k]=v;updateScore();saveData();}
 function toggleNote(row){const n=row.nextElementSibling;if(n&&n.classList.contains('note-wrap'))n.classList.toggle('open');}
+// ── BAROMÈTRE BIEN-ÊTRE (piliers notés de 1 à 5) ──
+const BARO_PILLARS = [
+  {k:'couple',  e:'❤️', l:'Couple'},
+  {k:'enfants', e:'👶', l:'Enfants'},
+  {k:'travail', e:'💼', l:'Travail'},
+  {k:'corps',   e:'💪', l:'Corps'},
+  {k:'mental',  e:'🧠', l:'Mental'},
+  {k:'social',  e:'🤝', l:'Amis & social'},
+  {k:'perso',   e:'🌱', l:'Projets perso'},
+];
+const BARO_COLORS = ['#D9534F','#E8845A','#E0B83A','#8BBF4A','#2D7A4F'];
+const BARO_WORDS = ['Dur','Bof','Correct','Bien','Top'];
+let baroOpenNotes = {};
+function renderBaro(){
+  const listEl = document.getElementById('baro-list');
+  const globEl = document.getElementById('baro-global');
+  if(!listEl) return;
+  const vals = state.baro || {}, notes = state.baro_notes || {};
+  listEl.innerHTML = BARO_PILLARS.map(p => {
+    const v = vals[p.k] || 0;
+    const dots = [1,2,3,4,5].map(n => {
+      const on = n <= v, col = v ? BARO_COLORS[v-1] : '#E2DDD4';
+      return `<button class="baro-dot" onclick="setBaro('${p.k}',${n})" style="${on ? `background:${col};border-color:${col};color:#fff` : ''}">${n}</button>`;
+    }).join('');
+    const hasNote = !!(notes[p.k] && notes[p.k].trim());
+    const showNote = hasNote || baroOpenNotes[p.k];
+    return `<div class="baro-row"><span class="baro-lbl">${p.e} ${p.l}</span><div class="baro-dots">${dots}</div>
+      <span class="baro-note-btn${hasNote ? ' on' : ''}" onclick="toggleBaroNote('${p.k}')">💬</span></div>
+      ${showNote ? `<input class="baro-note" id="baro-note-${p.k}" placeholder="Un mot sur ${p.l.toLowerCase()}…" value="${(notes[p.k]||'').replace(/"/g,'&quot;')}" onblur="setBaroNote('${p.k}',this.value)">` : ''}`;
+  }).join('');
+  // Baromètre global = moyenne des piliers notés
+  const rated = BARO_PILLARS.map(p => vals[p.k]).filter(Boolean);
+  if(!globEl) return;
+  if(!rated.length){
+    globEl.innerHTML = `<div style="font-size:12px;color:#B0AA9E;margin-bottom:.4rem">Note chaque pilier de 1 (dur) à 5 (top).</div>`;
+    return;
+  }
+  const avg = rated.reduce((a,b) => a + b, 0) / rated.length;
+  const idx = Math.min(4, Math.max(0, Math.round(avg) - 1));
+  const pct = ((avg - 1) / 4) * 100;
+  globEl.innerHTML = `<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B0AA9E">Baromètre du jour</span>
+      <span style="font-size:20px;font-weight:800;color:${BARO_COLORS[idx]}">${avg.toFixed(1).replace('.', ',')}<span style="font-size:12px;color:#B0AA9E;font-weight:600"> / 5 · ${BARO_WORDS[idx]}</span></span>
+    </div>
+    <div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(90deg,${BARO_COLORS.join(',')});margin-bottom:.6rem">
+      <div style="position:absolute;top:50%;left:${pct}%;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid ${BARO_COLORS[idx]};transform:translate(-50%,-50%);box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+    </div>`;
+}
+function setBaro(k, n){
+  if(!state.baro) state.baro = {};
+  state.baro[k] = (state.baro[k] === n) ? 0 : n; // re-tap = effacer
+  if(!state.baro[k]) delete state.baro[k];
+  renderBaro();
+  saveData();
+}
+function toggleBaroNote(k){
+  baroOpenNotes[k] = !baroOpenNotes[k];
+  renderBaro();
+  const el = document.getElementById('baro-note-' + k);
+  if(el) el.focus();
+}
+function setBaroNote(k, val){
+  if(!state.baro_notes) state.baro_notes = {};
+  if(val && val.trim()) state.baro_notes[k] = val.trim(); else delete state.baro_notes[k];
+  saveData();
+}
 function pickMood(btn,e){document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');state.mood=e;saveData();}
 function updateScore(){
   const tiles=document.querySelectorAll('.tile[data-field]');
@@ -6563,6 +6635,7 @@ loadWeightChart();
 
 loadStrava();
 
+renderBaro();
 loadData();
 updateDateNav();
 loadStreaks();
