@@ -5153,6 +5153,36 @@ function delCoachAction(axe, id){
   renderCoach();
   saveCoach();
 }
+// ── Report des actions non faites vers le mois en cours ──
+function prevPeriodOf(p){
+  let [y,m] = p.split('-').map(Number); m--; if(m===0){ m=12; y--; }
+  return y + '-' + String(m).padStart(2,'0');
+}
+function pendingIn(period){
+  const plan = coachData[period]; const out = [];
+  if(!plan || !plan.axes) return out;
+  Object.keys(plan.axes).forEach(axe => plan.axes[axe].forEach(a => {
+    if(a.status !== 'done' && !a.reportee) out.push({axe, a});
+  }));
+  return out;
+}
+function reportAction(period, axe, id, silent){
+  const cur = currentPeriod();
+  if(period === cur) return;
+  const src = coachData[period] && coachData[period].axes[axe];
+  const a = src && src.find(x => x.id === id);
+  if(!a || a.reportee || a.status === 'done') return;
+  if(!coachData[cur]) coachData[cur] = {axes:{}};
+  if(!coachData[cur].axes) coachData[cur].axes = {};
+  if(!coachData[cur].axes[axe]) coachData[cur].axes[axe] = [];
+  coachData[cur].axes[axe].push({id: uid(), txt: a.txt, status: a.status, from: period});
+  a.reportee = cur;
+  if(!silent){ renderCoach(); saveCoach(); }
+}
+function reportAllFrom(period){
+  pendingIn(period).forEach(({axe, a}) => reportAction(period, axe, a.id, true));
+  renderCoach(); saveCoach();
+}
 function fmtPeriod(p){
   const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   const [y,m] = p.split('-');
@@ -5212,6 +5242,17 @@ function renderCoach(){
 
   // Contenu : un bloc par axe
   let html = '';
+  if(estCourant){
+    const pp = prevPeriodOf(coachPeriod);
+    const pend = pendingIn(pp);
+    if(pend.length){
+      html += `<div style="background:#FFF6E5;border:1px solid #F0D9A8;border-radius:12px;padding:12px 14px;margin-bottom:1rem">
+        <div style="font-size:13px;color:#1A1814;line-height:1.45;margin-bottom:8px">⏳ <b>${pend.length} action${pend.length>1?'s':''}</b> pas terminée${pend.length>1?'s':''} en ${fmtPeriod(pp)}</div>
+        <button onclick="reportAllFrom('${pp}')" style="width:100%;padding:9px;border:none;border-radius:9px;background:#C4892A;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">↪ Tout reporter en ${fmtPeriod(coachPeriod)}</button>
+        <div style="font-size:11px;color:#9A8A6A;margin-top:6px;text-align:center">Ou va sur ${fmtPeriod(pp)} (‹) pour choisir une par une</div>
+      </div>`;
+    }
+  }
   Object.keys(COACH_AXES).forEach(axe => {
     const ax = COACH_AXES[axe];
     const actions = (plan && plan.axes && plan.axes[axe]) ? plan.axes[axe] : [];
@@ -5227,7 +5268,11 @@ function renderCoach(){
       html += `<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #EDE9E1;border-left:3px solid ${st.color};border-radius:10px;padding:11px 13px;margin-bottom:6px">
         <span onclick="cycleCoachStatus('${axe}',${a.id})" title="${st.label}" style="cursor:pointer;font-size:16px;line-height:1.3">${st.emoji}</span>
         <span style="flex:1;font-size:13px;color:#1A1814;line-height:1.45;${a.status==='done'?'text-decoration:line-through;color:#B0AA9E':''}">${(a.txt||'').replace(/</g,'&lt;')}</span>
-        <span style="font-size:9px;color:${st.color};font-weight:600;white-space:nowrap;margin-top:2px">${st.label}</span>
+        ${a.from?`<span style="font-size:9px;color:#C4892A;font-weight:600;white-space:nowrap;margin-top:2px">↪ ${fmtPeriod(a.from).split(' ')[0]}</span>`:''}
+        ${a.reportee
+          ? `<span style="font-size:9px;color:#C4892A;font-weight:600;white-space:nowrap;margin-top:2px">↪ reportée</span>`
+          : `<span style="font-size:9px;color:${st.color};font-weight:600;white-space:nowrap;margin-top:2px">${st.label}</span>`}
+        ${(!estCourant && !a.reportee && a.status!=='done')?`<span onclick="reportAction('${coachPeriod}','${axe}',${a.id})" title="Reporter au mois en cours" style="cursor:pointer;font-size:11px;font-weight:700;color:#fff;background:#C4892A;border-radius:7px;padding:2px 7px;white-space:nowrap">↪ Reporter</span>`:''}
         ${estCourant?`<span onclick="delCoachAction('${axe}',${a.id})" style="cursor:pointer;font-size:12px;color:#C4BDB0">✕</span>`:''}
       </div>`;
     });
