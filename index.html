@@ -926,7 +926,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'couple')" data-field="couple">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg></div></div>
       <span class="tile-lbl">RDV couple</span>
-      <a href="https://calendar.google.com/calendar/r/week" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Agenda</a>
+      <a href="https://calendar.google.com/calendar/r/week" onclick="event.preventDefault();event.stopPropagation();openApp('googlecalendar://','https://calendar.google.com/calendar/r/week')" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Agenda</a>
     </div>
     <div class="tile" onclick="tgl(this,'sommeil')" data-field="sommeil">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-bed"/></svg></div></div>
@@ -1012,7 +1012,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'news')" data-field="news">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-news"/></svg></div></div>
       <span class="tile-lbl">News du jour</span>
-      <a href="https://open.spotify.com/show/6y1PloEyNsCNJH9vHias4T" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ HugoDécrypte</a>
+      <a href="https://open.spotify.com/show/6y1PloEyNsCNJH9vHias4T" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:show:6y1PloEyNsCNJH9vHias4T','https://open.spotify.com/show/6y1PloEyNsCNJH9vHias4T')" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ HugoDécrypte</a>
     </div>
     <div class="tile" onclick="tgl(this,'musique')" data-field="musique" style="position:relative">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-music"/></svg></div></div>
@@ -1021,17 +1021,17 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
   </div>
   <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:.8rem">
     <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.7);width:100%;text-align:center;margin-bottom:2px">🎵 Mes playlists</span>
-    <a href="https://open.spotify.com/playlist/4fY8BZJppXiCSLjsDOofMR" target="_blank" class="pl-chip">T'n'B</a>
-    <a href="https://open.spotify.com/playlist/2GizthLOKaDcl2elqd7t8t" target="_blank" class="pl-chip">M'Style</a>
-    <a href="https://open.spotify.com/playlist/7fnxCur4NQfR4gftzlDMbD" target="_blank" class="pl-chip">Rap Fr</a>
-    <a href="https://open.spotify.com/playlist/0O7yKhm8k5Ke2DfB6buA01" target="_blank" class="pl-chip">Fr Touch</a>
-    <a href="https://open.spotify.com/playlist/322t1Xgv0YEQts5WQimpCh" target="_blank" class="pl-chip">60s</a>
-    <a href="https://open.spotify.com/playlist/2LPv3GWJdRSm33jff7QwLu" target="_blank" class="pl-chip">Peace</a>
-    <a href="https://open.spotify.com/playlist/0aSx8PuaPULjIq0hJVkWxZ" target="_blank" class="pl-chip">Sun</a>
-    <a href="https://open.spotify.com/playlist/2X0951r00s5YALHz5MntHv" target="_blank" class="pl-chip">Prog</a>
-    <a href="https://open.spotify.com/playlist/1B8gsiH7eqkOWuKY01I2DW" target="_blank" class="pl-chip">Fr Tek</a>
-    <a href="https://open.spotify.com/playlist/2d8j6yBdFyMnOUTU6Tg3sK" target="_blank" class="pl-chip">US</a>
-    <a href="https://open.spotify.com/playlist/6fJWDCeL4UWbIwIyTTXZTc" target="_blank" class="pl-chip">Dirtbag</a>
+    <a href="https://open.spotify.com/playlist/4fY8BZJppXiCSLjsDOofMR" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:4fY8BZJppXiCSLjsDOofMR','https://open.spotify.com/playlist/4fY8BZJppXiCSLjsDOofMR')" class="pl-chip">T'n'B</a>
+    <a href="https://open.spotify.com/playlist/2GizthLOKaDcl2elqd7t8t" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:2GizthLOKaDcl2elqd7t8t','https://open.spotify.com/playlist/2GizthLOKaDcl2elqd7t8t')" class="pl-chip">M'Style</a>
+    <a href="https://open.spotify.com/playlist/7fnxCur4NQfR4gftzlDMbD" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:7fnxCur4NQfR4gftzlDMbD','https://open.spotify.com/playlist/7fnxCur4NQfR4gftzlDMbD')" class="pl-chip">Rap Fr</a>
+    <a href="https://open.spotify.com/playlist/0O7yKhm8k5Ke2DfB6buA01" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:0O7yKhm8k5Ke2DfB6buA01','https://open.spotify.com/playlist/0O7yKhm8k5Ke2DfB6buA01')" class="pl-chip">Fr Touch</a>
+    <a href="https://open.spotify.com/playlist/322t1Xgv0YEQts5WQimpCh" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:322t1Xgv0YEQts5WQimpCh','https://open.spotify.com/playlist/322t1Xgv0YEQts5WQimpCh')" class="pl-chip">60s</a>
+    <a href="https://open.spotify.com/playlist/2LPv3GWJdRSm33jff7QwLu" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:2LPv3GWJdRSm33jff7QwLu','https://open.spotify.com/playlist/2LPv3GWJdRSm33jff7QwLu')" class="pl-chip">Peace</a>
+    <a href="https://open.spotify.com/playlist/0aSx8PuaPULjIq0hJVkWxZ" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:0aSx8PuaPULjIq0hJVkWxZ','https://open.spotify.com/playlist/0aSx8PuaPULjIq0hJVkWxZ')" class="pl-chip">Sun</a>
+    <a href="https://open.spotify.com/playlist/2X0951r00s5YALHz5MntHv" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:2X0951r00s5YALHz5MntHv','https://open.spotify.com/playlist/2X0951r00s5YALHz5MntHv')" class="pl-chip">Prog</a>
+    <a href="https://open.spotify.com/playlist/1B8gsiH7eqkOWuKY01I2DW" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:1B8gsiH7eqkOWuKY01I2DW','https://open.spotify.com/playlist/1B8gsiH7eqkOWuKY01I2DW')" class="pl-chip">Fr Tek</a>
+    <a href="https://open.spotify.com/playlist/2d8j6yBdFyMnOUTU6Tg3sK" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:2d8j6yBdFyMnOUTU6Tg3sK','https://open.spotify.com/playlist/2d8j6yBdFyMnOUTU6Tg3sK')" class="pl-chip">US</a>
+    <a href="https://open.spotify.com/playlist/6fJWDCeL4UWbIwIyTTXZTc" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:playlist:6fJWDCeL4UWbIwIyTTXZTc','https://open.spotify.com/playlist/6fJWDCeL4UWbIwIyTTXZTc')" class="pl-chip">Dirtbag</a>
   </div>
   <div class="card" style="margin-top:.75rem">
     <div style="padding:.7rem .9rem">
@@ -1065,7 +1065,7 @@ body{font-family:'DM Sans',sans-serif;background:#F5F2EC;color:#1A1814;min-heigh
     <div class="tile" onclick="tgl(this,'tri_musique')" data-field="tri_musique">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-playlist"/></svg></div></div>
       <span class="tile-lbl">Musique triée</span>
-      <a href="https://open.spotify.com/collection/tracks" target="_blank" onclick="event.stopPropagation()" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Titres likés</a>
+      <a href="https://open.spotify.com/collection/tracks" onclick="event.preventDefault();event.stopPropagation();openApp('spotify:collection:tracks','https://open.spotify.com/collection/tracks')" style="font-size:10px;color:rgba(255,255,255,.8);text-decoration:none;border:1px solid rgba(255,255,255,.4);border-radius:10px;padding:2px 8px;margin-top:-2px">→ Titres likés</a>
     </div>
     <div class="tile" onclick="tgl(this,'freeprints')" data-field="freeprints">
       <div class="ring-wrap"><svg class="ring-svg" viewBox="0 0 130 130" width="130" height="130"><circle class="ring-bg" cx="65" cy="65" r="58.5"/><circle class="ring-fill" cx="65" cy="65" r="58.5"/></svg><div class="ring-inner" style="background:rgba(0,0,0,.2)"><svg viewBox="0 0 24 24"><use href="#ic-images"/></svg></div></div>
@@ -4098,6 +4098,39 @@ const BOOKS_SEED = [
   {id:13, title:"Les 7 habitudes de ceux qui réalisent tout ce qu'ils entreprennent", author:"Stephen Covey", type:"apprentissage", status:"encours", year:2026},
 ];
 
+// Mises à jour ponctuelles de la bibliothèque (appliquées une seule fois, à l'ouverture de 📚)
+const BOOKS_UPDATES = [
+  {id:'nov26', apply(list){
+    const find = re => list.find(b => b.title && re.test(b.title.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()));
+    const add = (o) => list.push(Object.assign({id: uid(), points: []}, o));
+    // Les 7 habitudes : terminé + 10 points clés
+    const covey = find(/7 habitudes/);
+    const coveyPts = [
+      "Changer de paradigme : on voit le monde à travers ses propres lunettes. Les vrais changements viennent de notre façon de voir et de notre caractère (principes, intégrité), pas de techniques de surface.",
+      "Le continuum de maturité : passer de la dépendance à l'indépendance (victoire privée, habitudes 1 à 3), puis à l'interdépendance (victoire publique, habitudes 4 à 6).",
+      "Habitude 1 – Être proactif : entre le stimulus et la réponse, il y a un espace où je choisis. Je me concentre sur mon cercle d'influence, pas sur mon cercle de préoccupations.",
+      "Habitude 2 – Commencer avec la fin en tête : écrire ma mission personnelle et mes valeurs, puis décider en fonction d'elles.",
+      "Habitude 3 – Donner la priorité aux priorités : vivre dans le quadrant 2 (important mais pas urgent) et planifier ma semaine par rôles et objectifs.",
+      "Le compte en banque émotionnel : la confiance se construit par des dépôts (tenir parole, écouter, petites attentions, s'excuser sincèrement) et se vide par les retraits.",
+      "Habitude 4 – Penser gagnant-gagnant : chercher des accords bénéfiques pour les deux, sinon préférer « pas d'accord » à un perdant.",
+      "Habitude 5 – Chercher d'abord à comprendre, ensuite à être compris : écouter avec empathie, sans juger ni conseiller trop vite.",
+      "Habitude 6 – Créer des synergies : valoriser les différences pour trouver une troisième voie meilleure que chaque position de départ.",
+      "Habitude 7 – Aiguiser la scie : se renouveler régulièrement sur 4 dimensions – physique, mentale, sociale/émotionnelle et spirituelle."
+    ];
+    if(covey){ covey.status = 'termine'; covey.year = 2026; covey.points = coveyPts; }
+    else add({title:"Les 7 habitudes de ceux qui réalisent tout ce qu'ils entreprennent", author:"Stephen R. Covey", type:"apprentissage", status:"termine", year:2026, points: coveyPts});
+    // Nouveaux livres en cours
+    if(!find(/piege du bonheur/)) add({title:"Le piège du bonheur", author:"Dr Russ Harris", type:"apprentissage", status:"encours", year:2026});
+    if(!find(/sapiens/)) add({title:"Sapiens – La BD, tome 3 : Les maîtres de l'Histoire", author:"Harari, Vandermeulen & Casanave", type:"apprentissage", status:"encours", year:2026});
+    // Mises à jour demandées fin octobre (si pas encore faites à la main)
+    if(!find(/psychologie de l.argent/)) add({title:"La psychologie de l'argent", author:"Morgan Housel", type:"apprentissage", status:"termine", year:2026});
+    const janco = find(/monde sans fin/);
+    if(janco && janco.status === 'encours'){ janco.status = 'termine'; janco.year = 2026; }
+    if(!find(/reliques de la mort/)) add({title:"Harry Potter et les Reliques de la Mort (T7)", author:"J.K. Rowling", type:"roman", status:"encours", year:2026});
+  }}
+];
+let booksApplied = [];
+
 let booksItems = [];
 async function openBooks(){
   document.getElementById('books-overlay').style.display = 'block';
@@ -4116,6 +4149,14 @@ async function loadBooks(){
     const rows = await r.json();
     const d = (rows && rows[0] && rows[0].data) ? rows[0].data : {};
     booksItems = d.list || [];
+    booksApplied = d.applied || [];
+    if(d.seeded){
+      const todo = BOOKS_UPDATES.filter(u => !booksApplied.includes(u.id));
+      if(todo.length){
+        todo.forEach(u => { u.apply(booksItems); booksApplied.push(u.id); });
+        await saveBooks();
+      }
+    }
     if(!d.seeded){
       booksItems = BOOKS_SEED.slice();
       await saveBooks();
@@ -4134,7 +4175,7 @@ async function loadBooks(){
   renderBooks();
 }
 async function saveBooksFixed(){
-  const payload = {data: {list: booksItems, seeded: true, fixedHP: true}};
+  const payload = {data: {list: booksItems, seeded: true, fixedHP: true, applied: booksApplied}};
   try {
     const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.books_global&select=date`, {
       headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
@@ -4150,7 +4191,7 @@ async function saveBooksFixed(){
   } catch(e){}
 }
 async function saveBooks(){
-  const payload = {data: {list: booksItems, seeded: true}};
+  const payload = {data: {list: booksItems, seeded: true, fixedHP: true, applied: booksApplied}};
   try {
     const check = await fetch(`${SB_URL}/rest/v1/journal?date=eq.books_global&select=date`, {
       headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}
